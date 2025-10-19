@@ -1,30 +1,81 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+// test/widget_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:money_tracker/app/app_theme.dart';
+import 'package:money_tracker/screens/login_screen.dart';
 
-import 'package:money_tracker/main.dart';
+Widget _wrap(Widget child) => MaterialApp(
+  debugShowCheckedModeBanner: false,
+  theme: AppTheme.dark,
+  home: child,
+);
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('LoginScreen', () {
+    testWidgets('renders inputs and CTA', (tester) async {
+      await tester.pumpWidget(_wrap(const LoginScreen()));
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      expect(find.text('Monthly Budget'), findsOneWidget);
+      expect(find.text('Welcome back'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+      // Email + Password inputs exist
+      expect(find.widgetWithText(TextFormField, 'Email'), findsOneWidget);
+      expect(find.widgetWithText(TextFormField, 'Password'), findsOneWidget);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      // CTA button exists
+      expect(find.widgetWithText(ElevatedButton, 'Sign In'), findsOneWidget);
+    });
+
+    testWidgets('shows validation messages on empty submit', (tester) async {
+      await tester.pumpWidget(_wrap(const LoginScreen()));
+
+      await tester.tap(find.text('Sign In'));
+      await tester.pump(); // let validation run
+
+      expect(find.text('Enter your email'), findsOneWidget);
+      expect(find.text('Enter your password'), findsOneWidget);
+    });
+
+    testWidgets('shows invalid email message', (tester) async {
+      await tester.pumpWidget(_wrap(const LoginScreen()));
+
+      // Enter invalid email + some password
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Email'),
+        'invalid@',
+      );
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Password'),
+        'secret',
+      );
+
+      await tester.tap(find.text('Sign In'));
+      await tester.pump();
+
+      expect(find.text('Invalid email'), findsOneWidget);
+    });
+
+    testWidgets('submits with valid credentials and shows SnackBar', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_wrap(const LoginScreen()));
+
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Email'),
+        'test@example.com',
+      );
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Password'),
+        'secret123',
+      );
+
+      await tester.tap(find.text('Sign In'));
+
+      // Button shows a progress indicator until the stubbed Future.delayed completes (900ms)
+      await tester.pump(const Duration(milliseconds: 950));
+
+      // SnackBar from the stubbed sign-in
+      expect(find.text('Signed in (stub)'), findsOneWidget);
+    });
   });
 }

@@ -1,0 +1,332 @@
+import 'dart:math' as math;
+import 'package:flutter/material.dart';
+import 'login_screen.dart';
+
+class LaunchScreen extends StatefulWidget {
+  const LaunchScreen({super.key});
+
+  @override
+  State<LaunchScreen> createState() => _LaunchScreenState();
+}
+
+class _LaunchScreenState extends State<LaunchScreen>
+    with TickerProviderStateMixin {
+  late final AnimationController _intro; // pop + fade-in
+  late final Animation<double> _introScale;
+  late final Animation<double> _introFade;
+
+  // Ring blink controller
+  late final AnimationController _blink;
+  late final Animation<double> _blinkAlpha; // 0..1
+
+  // Light sheen across logo
+  late final AnimationController _sheen;
+  late final Animation<double> _sweepT;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Intro pop + fade
+    _intro = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    )..forward();
+
+    _introScale = Tween<double>(
+      begin: 0.86,
+      end: 1.0,
+    ).chain(CurveTween(curve: Curves.easeOutBack)).animate(_intro);
+
+    _introFade = CurvedAnimation(parent: _intro, curve: Curves.easeOut);
+
+    // Blink pulse (soft repeating alpha)
+    _blink = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    )..repeat(reverse: true);
+
+    _blinkAlpha = Tween<double>(
+      begin: 0.3,
+      end: 1.0,
+    ).chain(CurveTween(curve: Curves.easeInOut)).animate(_blink);
+
+    // Light sheen sweep across logo
+    _sheen = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2600),
+    )..repeat();
+
+    _sweepT = Tween<double>(begin: 0.0, end: 1.0).animate(_sheen);
+
+    // Navigate smoothly after showcase
+    Future.delayed(const Duration(milliseconds: 3600), () async {
+      if (!mounted) return;
+
+      // Fade out logo + ring softly before navigation
+      await _intro.animateBack(
+        0.0,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeOutCubic,
+      );
+
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: 700),
+          pageBuilder: (_, __, ___) => const LoginScreen(),
+          transitionsBuilder:
+              (_, anim, __, child) =>
+                  FadeTransition(opacity: anim, child: child),
+        ),
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _intro.dispose();
+    _blink.dispose();
+    _sheen.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const bgTop = Color(0xFF0D0F19);
+    const bgBottom = Color(0xFF0A0B12);
+
+    return Scaffold(
+      backgroundColor: bgTop,
+      body: Stack(
+        children: [
+          // Background gradient
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [bgTop, bgBottom],
+              ),
+            ),
+          ),
+
+          // Depth glows
+          Positioned(
+            left: -90,
+            top: -70,
+            child: _GlowBlob(
+              size: 260,
+              color1: const Color(0xFF6D4AFF),
+              color2: const Color(0xFF3EA7FF),
+            ),
+          ),
+          Positioned(
+            right: -80,
+            bottom: -90,
+            child: _GlowBlob(
+              size: 300,
+              color1: const Color(0xFF8B5CF6),
+              color2: const Color(0xFF22D3EE),
+            ),
+          ),
+
+          // --- Centered logo + blinking ring ---
+          Builder(
+            builder: (context) {
+              final pad = MediaQuery.of(context).padding;
+              final visualBias = (pad.top - pad.bottom) / 2;
+
+              return Center(
+                child: Transform.translate(
+                  offset: Offset(0, -visualBias),
+                  child: AnimatedBuilder(
+                    animation: Listenable.merge([_intro, _blink, _sheen]),
+                    builder: (_, __) {
+                      const double logoSize = 140.0;
+                      final scale = _introScale.value;
+
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Logo stack
+                          SizedBox(
+                            width: logoSize + 60,
+                            height: logoSize + 60,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                // Blinking glow ring
+                                _BlinkingRing(
+                                  baseSize: logoSize + 44,
+                                  alpha: _blinkAlpha.value,
+                                ),
+
+                                // Static logo + gentle sheen
+                                Transform.scale(
+                                  scale: scale,
+                                  child: _SweptLogo(
+                                    size: logoSize,
+                                    sweepT: _sweepT.value,
+                                    asset: 'assets/icon/app_icon.png',
+                                    fade: _introFade.value,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Opacity(
+                            opacity: _introFade.value,
+                            child: const Text(
+                              'Monthly Budget',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The blinking ring around logo.
+class _BlinkingRing extends StatelessWidget {
+  const _BlinkingRing({required this.baseSize, required this.alpha});
+
+  final double baseSize;
+  final double alpha;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: baseSize,
+      height: baseSize,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [
+            const Color(0xFF6D4AFF).withValues(alpha: 0.25 * alpha),
+            const Color(0xFF3EA7FF).withValues(alpha: 0.12 * alpha),
+            Colors.transparent,
+          ],
+          stops: const [0.0, 0.55, 1.0],
+        ),
+      ),
+    );
+  }
+}
+
+/// Logo with animated sheen.
+class _SweptLogo extends StatelessWidget {
+  const _SweptLogo({
+    required this.size,
+    required this.sweepT,
+    required this.asset,
+    required this.fade,
+  });
+
+  final double size;
+  final double sweepT;
+  final String asset;
+  final double fade;
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: fade,
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(size),
+              child: Image.asset(
+                asset,
+                width: size,
+                height: size,
+                fit: BoxFit.contain,
+              ),
+            ),
+            Positioned.fill(
+              child: ShaderMask(
+                blendMode: BlendMode.srcATop,
+                shaderCallback: (rect) {
+                  final dx = rect.width * (sweepT - 0.5);
+                  return LinearGradient(
+                    begin: Alignment(-1 + 2 * sweepT, -1),
+                    end: Alignment(1 + 2 * sweepT, 1),
+                    colors: [
+                      Colors.white.withValues(alpha: 0.00),
+                      Colors.white.withValues(alpha: 0.12),
+                      Colors.white.withValues(alpha: 0.00),
+                    ],
+                    stops: const [0.35, 0.50, 0.65],
+                  ).createShader(rect.shift(Offset(dx, -dx)));
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.03),
+                    borderRadius: BorderRadius.circular(size),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Soft background glow blobs.
+class _GlowBlob extends StatelessWidget {
+  const _GlowBlob({
+    required this.size,
+    required this.color1,
+    required this.color2,
+  });
+  final double size;
+  final Color color1;
+  final Color color2;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [
+            color1.withValues(alpha: 0.55),
+            color2.withValues(alpha: 0.35),
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: color1.withValues(alpha: 0.35),
+            blurRadius: 80,
+            spreadRadius: 10,
+          ),
+        ],
+      ),
+    );
+  }
+}

@@ -15,7 +15,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$MoneyTx {
 
- String get id; DateTime get date; String get description; String get category; double get amount; Currency get currency; bool get isIncome;
+ String get id; DateTime get date; String get description; String get category; double get amount;// positive; direction via isIncome
+@CurrencyConverter() Currency get currency; bool get isIncome;
 /// Create a copy of MoneyTx
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +49,7 @@ abstract mixin class $MoneyTxCopyWith<$Res>  {
   factory $MoneyTxCopyWith(MoneyTx value, $Res Function(MoneyTx) _then) = _$MoneyTxCopyWithImpl;
 @useResult
 $Res call({
- String id, DateTime date, String description, String category, double amount, Currency currency, bool isIncome
+ String id, DateTime date, String description, String category, double amount,@CurrencyConverter() Currency currency, bool isIncome
 });
 
 
@@ -159,7 +160,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  DateTime date,  String description,  String category,  double amount,  Currency currency,  bool isIncome)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  DateTime date,  String description,  String category,  double amount, @CurrencyConverter()  Currency currency,  bool isIncome)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _MoneyTx() when $default != null:
 return $default(_that.id,_that.date,_that.description,_that.category,_that.amount,_that.currency,_that.isIncome);case _:
@@ -180,7 +181,7 @@ return $default(_that.id,_that.date,_that.description,_that.category,_that.amoun
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  DateTime date,  String description,  String category,  double amount,  Currency currency,  bool isIncome)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  DateTime date,  String description,  String category,  double amount, @CurrencyConverter()  Currency currency,  bool isIncome)  $default,) {final _that = this;
 switch (_that) {
 case _MoneyTx():
 return $default(_that.id,_that.date,_that.description,_that.category,_that.amount,_that.currency,_that.isIncome);case _:
@@ -200,7 +201,7 @@ return $default(_that.id,_that.date,_that.description,_that.category,_that.amoun
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  DateTime date,  String description,  String category,  double amount,  Currency currency,  bool isIncome)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  DateTime date,  String description,  String category,  double amount, @CurrencyConverter()  Currency currency,  bool isIncome)?  $default,) {final _that = this;
 switch (_that) {
 case _MoneyTx() when $default != null:
 return $default(_that.id,_that.date,_that.description,_that.category,_that.amount,_that.currency,_that.isIncome);case _:
@@ -215,7 +216,7 @@ return $default(_that.id,_that.date,_that.description,_that.category,_that.amoun
 @JsonSerializable()
 
 class _MoneyTx implements MoneyTx {
-  const _MoneyTx({required this.id, required this.date, required this.description, required this.category, required this.amount, required this.currency, required this.isIncome});
+  const _MoneyTx({required this.id, required this.date, required this.description, required this.category, required this.amount, @CurrencyConverter() required this.currency, required this.isIncome});
   factory _MoneyTx.fromJson(Map<String, dynamic> json) => _$MoneyTxFromJson(json);
 
 @override final  String id;
@@ -223,7 +224,8 @@ class _MoneyTx implements MoneyTx {
 @override final  String description;
 @override final  String category;
 @override final  double amount;
-@override final  Currency currency;
+// positive; direction via isIncome
+@override@CurrencyConverter() final  Currency currency;
 @override final  bool isIncome;
 
 /// Create a copy of MoneyTx
@@ -259,7 +261,7 @@ abstract mixin class _$MoneyTxCopyWith<$Res> implements $MoneyTxCopyWith<$Res> {
   factory _$MoneyTxCopyWith(_MoneyTx value, $Res Function(_MoneyTx) _then) = __$MoneyTxCopyWithImpl;
 @override @useResult
 $Res call({
- String id, DateTime date, String description, String category, double amount, Currency currency, bool isIncome
+ String id, DateTime date, String description, String category, double amount,@CurrencyConverter() Currency currency, bool isIncome
 });
 
 

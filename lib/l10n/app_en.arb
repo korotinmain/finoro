@@ -1,0 +1,13 @@
+{
+  "@@locale": "en",
+  "appTitle": "Monthly Budget",
+  "welcome": "Welcome",
+  "welcomeBack": "Welcome back",
+  "email": "Email",
+  "password": "Password",
+  "signIn": "Sign In",
+  "invalidEmail": "Invalid email",
+  "invalidPassword": "Invalid password",
+  "signInSuccess": "Sign in successful",
+  "signInFailure": "Sign in failed"
+}

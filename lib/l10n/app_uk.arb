@@ -1,0 +1,13 @@
+{
+  "@@locale": "uk",
+  "appTitle": "Monthly Budget",
+  "welcome": "Ласкаво просимо",
+  "welcomeBack": "З поверненням",
+  "email": "Електронна пошта",
+  "password": "Пароль",
+  "signIn": "Увійти",
+  "invalidEmail": "Введіть електронну пошту",
+  "invalidPassword": "Недійсний пароль",
+  "signInSuccess": "Вхід успішний",
+  "signInFailure": "Вхід не вдався"
+}
