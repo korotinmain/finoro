@@ -18,7 +18,7 @@ class MoneyApp extends StatelessWidget {
       title: 'Monthly Budget',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
-      supportedLocales: const [Locale('uk'), Locale('en')],
+      supportedLocales: const [Locale('en'), Locale('uk')],
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -29,7 +29,7 @@ class MoneyApp extends StatelessWidget {
         // Automatically use system language if available
         for (final supportedLocale in supported) {
           if (supportedLocale.languageCode == locale?.languageCode) {
-            return supported.first;
+            return supportedLocale;
           }
         }
         return supported.first; // fallback to English
