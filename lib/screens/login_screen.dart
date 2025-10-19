@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:money_tracker/services/app_launch_service.dart';
+import 'package:money_tracker/services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,16 +21,26 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _onSignIn() async {
     if (!_formKey.currentState!.validate()) return;
+
     setState(() => _loading = true);
 
-    // TODO: replace with Firebase sign-in in the next step
-    await Future.delayed(const Duration(milliseconds: 900));
+    try {
+      final user = await AuthService().signIn(_email.text, _pass.text);
 
-    setState(() => _loading = false);
-    if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Signed in (stub)')));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Welcome, ${user?.email ?? "User"}!')),
+      );
+
+      // TODO: navigate to your home/dashboard screen here
+    } on AuthException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message)));
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   @override
