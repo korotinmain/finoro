@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../router.dart';
 
@@ -131,12 +132,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           ),
                           const SizedBox(height: 12),
 
-                          TextButton(
-                            onPressed:
-                                _loading
-                                    ? null
-                                    : () => context.go(Routes.login),
-                            child: const Text('Back to Sign in'),
+                          Builder(
+                            builder: (context) {
+                              final t = AppLocalizations.of(context)!;
+                              return TextButton(
+                                onPressed:
+                                    _loading
+                                        ? null
+                                        : () => context.go(Routes.login),
+                                child: Text(t.backToSignIn),
+                              );
+                            },
                           ),
                         ],
                       ),

@@ -95,10 +95,17 @@ class _LaunchScreenState extends State<LaunchScreen>
       );
 
       if (!mounted) return;
-      final loggedIn = FirebaseAuth.instance.currentUser != null;
+      final user = FirebaseAuth.instance.currentUser;
+      final loggedIn = user != null;
+      final verified = user?.emailVerified ?? false;
       final router = GoRouter.of(context);
-      // Use a fade by pushing the target; since splash is initial route we can replace.
-      router.go(loggedIn ? Routes.home : Routes.login);
+      if (!loggedIn) {
+        router.go(Routes.login);
+      } else if (!verified) {
+        router.go(Routes.confirmEmail);
+      } else {
+        router.go(Routes.home);
+      }
     });
   }
 

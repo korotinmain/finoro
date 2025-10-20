@@ -35,5 +35,6 @@
   "passwordStrengthFair": "Задовільний",
   "passwordStrengthVeryStrong": "Дуже сильний",
   "name": "Ім'я",
-  "enterName": "Введіть ім'я"
+  "enterName": "Введіть ім'я",
+  "backToSignIn": "Назад до входу"
 }

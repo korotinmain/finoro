@@ -7,9 +7,35 @@ import 'package:money_tracker/screens/email_confirmation_screen.dart';
 import 'package:money_tracker/screens/forgot_password_screen.dart';
 import 'package:money_tracker/screens/launch_screen.dart';
 import 'screens/register_screen.dart';
-
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
+
+CustomTransitionPage<T> _fadeSlidePage<T>({
+  required GoRouterState state,
+  required Widget child,
+}) {
+  return CustomTransitionPage<T>(
+    key: state.pageKey,
+    child: child,
+    transitionsBuilder: (context, animation, secondaryAnimation, c) {
+      final curved = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+      );
+      final offsetTween = Tween<Offset>(
+        begin: const Offset(0.08, 0),
+        end: Offset.zero,
+      ).chain(CurveTween(curve: Curves.easeOut));
+      return FadeTransition(
+        opacity: curved,
+        child: SlideTransition(
+          position: animation.drive(offsetTween),
+          child: c,
+        ),
+      );
+    },
+  );
+}
 
 final _auth = FirebaseAuth.instance;
 
@@ -25,43 +51,48 @@ class Routes {
 final appRouter = GoRouter(
   initialLocation: Routes.launch,
   routes: [
-    GoRoute(path: Routes.launch, builder: (_, __) => const LaunchScreen()),
-    GoRoute(path: Routes.login, builder: (_, __) => const LoginScreen()),
-    GoRoute(path: Routes.register, builder: (_, __) => const RegisterScreen()),
+    GoRoute(
+      path: Routes.launch,
+      pageBuilder:
+          (context, state) =>
+              _fadeSlidePage(state: state, child: const LaunchScreen()),
+    ),
+    GoRoute(
+      path: Routes.login,
+      pageBuilder:
+          (context, state) =>
+              _fadeSlidePage(state: state, child: const LoginScreen()),
+    ),
+    GoRoute(
+      path: Routes.register,
+      pageBuilder:
+          (context, state) =>
+              _fadeSlidePage(state: state, child: const RegisterScreen()),
+    ),
     GoRoute(
       path: Routes.confirmEmail,
-      builder: (_, __) => const EmailConfirmationScreen(),
+      pageBuilder:
+          (context, state) => _fadeSlidePage(
+            state: state,
+            child: const EmailConfirmationScreen(),
+          ),
     ),
     GoRoute(
       path: Routes.forgot,
-      pageBuilder: (context, state) {
-        return CustomTransitionPage(
-          key: state.pageKey,
-          child: const ForgotPasswordScreen(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            final curved = CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeOutCubic,
-            );
-            final offsetTween = Tween<Offset>(
-              begin: const Offset(0.08, 0),
-              end: Offset.zero,
-            ).chain(CurveTween(curve: Curves.easeOut));
-            return FadeTransition(
-              opacity: curved,
-              child: SlideTransition(
-                position: animation.drive(offsetTween),
-                child: child,
-              ),
-            );
-          },
-        );
-      },
+      pageBuilder:
+          (context, state) =>
+              _fadeSlidePage(state: state, child: const ForgotPasswordScreen()),
     ),
-    GoRoute(path: Routes.home, builder: (_, __) => const HomeScreen()),
+    GoRoute(
+      path: Routes.home,
+      pageBuilder:
+          (context, state) =>
+              _fadeSlidePage(state: state, child: const HomeScreen()),
+    ),
   ],
   redirect: (context, state) {
     final loggedIn = _auth.currentUser != null;
+    final verified = _auth.currentUser?.emailVerified ?? false;
 
     // Always allow splash screen.
     if (state.matchedLocation == Routes.launch) return null;
@@ -86,9 +117,22 @@ final appRouter = GoRouter(
       return Routes.login;
     }
 
-    // If logged in, block navigating back to auth screens.
-    if (loggedIn && (goingToLogin || goingToRegister || goingToForgot)) {
-      return Routes.home;
+    if (loggedIn) {
+      // If not verified yet, force user into confirmation flow unless already there.
+      if (!verified) {
+        if (loc != Routes.confirmEmail) {
+          return Routes.confirmEmail;
+        }
+        // Allow staying on confirm email route.
+        return null;
+      }
+      // Email is verified: block accessing auth flows & confirmation screen.
+      if (goingToLogin ||
+          goingToRegister ||
+          goingToForgot ||
+          goingToConfirmEmail) {
+        return Routes.home;
+      }
     }
 
     return null;

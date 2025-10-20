@@ -35,5 +35,6 @@
   "passwordStrengthFair": "Fair",
   "passwordStrengthVeryStrong": "Very Strong",
   "name": "Name",
-  "enterName": "Enter your name"
+  "enterName": "Enter your name",
+  "backToSignIn": "Back to Sign In"
 }

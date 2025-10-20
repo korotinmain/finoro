@@ -202,6 +202,24 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
 
                         const SizedBox(height: 8),
 
+                        // Go to Login (sign out then navigate)
+                        Builder(
+                          builder: (context) {
+                            final t = AppLocalizations.of(context)!;
+                            return TextButton(
+                              onPressed: () async {
+                                final router = GoRouter.of(context);
+                                await FirebaseAuth.instance.signOut();
+                                if (!mounted) return;
+                                router.go(Routes.login);
+                              },
+                              child: Text(t.backToSignIn),
+                            );
+                          },
+                        ),
+
+                        const SizedBox(height: 4),
+
                         // Resend & change email
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
