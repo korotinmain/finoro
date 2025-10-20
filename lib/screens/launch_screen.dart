@@ -196,7 +196,6 @@ class _LaunchScreenState extends State<LaunchScreen>
                               ],
                             ),
                           ),
-                          const SizedBox(height: 24),
                           Opacity(
                             opacity: _introFade.value,
                             child: Text(
@@ -210,7 +209,7 @@ class _LaunchScreenState extends State<LaunchScreen>
                               ),
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           FadeTransition(
                             opacity: _taglineFade,
                             child: SlideTransition(
@@ -219,7 +218,7 @@ class _LaunchScreenState extends State<LaunchScreen>
                                 t.splashTagline,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 20,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.white.withValues(alpha: 0.80),
                                   letterSpacing: 0.4,

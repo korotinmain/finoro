@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:money_tracker/screens/email_confirmation_screen.dart';
+import 'package:money_tracker/screens/forgot_password_screen.dart';
+import 'package:money_tracker/screens/launch_screen.dart';
+import 'screens/register_screen.dart';
 
 import 'screens/login_screen.dart';
-import 'screens/launch_screen.dart';
-import 'screens/forgot_password_screen.dart';
 import 'screens/home_screen.dart';
 
 final _auth = FirebaseAuth.instance;
@@ -14,8 +16,10 @@ final _auth = FirebaseAuth.instance;
 class Routes {
   static const launch = '/';
   static const login = '/login';
+  static const register = '/register';
   static const forgot = '/forgot-password';
   static const home = '/home';
+  static const confirmEmail = '/confirm-email';
 }
 
 final appRouter = GoRouter(
@@ -23,6 +27,11 @@ final appRouter = GoRouter(
   routes: [
     GoRoute(path: Routes.launch, builder: (_, __) => const LaunchScreen()),
     GoRoute(path: Routes.login, builder: (_, __) => const LoginScreen()),
+    GoRoute(path: Routes.register, builder: (_, __) => const RegisterScreen()),
+    GoRoute(
+      path: Routes.confirmEmail,
+      builder: (_, __) => const EmailConfirmationScreen(),
+    ),
     GoRoute(
       path: Routes.forgot,
       pageBuilder: (context, state) {
@@ -54,21 +63,34 @@ final appRouter = GoRouter(
   redirect: (context, state) {
     final loggedIn = _auth.currentUser != null;
 
-    // Allow splash (launch) screen always; it will self-navigate.
-    if (state.matchedLocation == Routes.launch) {
-      return null;
+    // Always allow splash screen.
+    if (state.matchedLocation == Routes.launch) return null;
+
+    final loc = state.matchedLocation;
+    final goingToLogin = loc == Routes.login;
+    final goingToForgot = loc == Routes.forgot;
+    final goingToRegister = loc == Routes.register;
+    final goingToConfirmEmail = loc == Routes.confirmEmail;
+
+    // Public routes when NOT logged in: login, register, forgot, confirm-email
+    if (!loggedIn &&
+        (goingToLogin ||
+            goingToRegister ||
+            goingToForgot ||
+            goingToConfirmEmail)) {
+      return null; // allow
     }
 
-    final goingToLogin = state.matchedLocation == Routes.login;
-    final goingToForgot = state.matchedLocation == Routes.forgot;
-
-    if (!loggedIn && !(goingToLogin || goingToForgot)) {
+    if (!loggedIn) {
+      // Redirect other private paths to login.
       return Routes.login;
     }
 
-    if (loggedIn && (goingToLogin || goingToForgot)) {
+    // If logged in, block navigating back to auth screens.
+    if (loggedIn && (goingToLogin || goingToRegister || goingToForgot)) {
       return Routes.home;
     }
+
     return null;
   },
 

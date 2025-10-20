@@ -22,8 +22,19 @@ class AuthService {
   }
 
   Future<void> sendPasswordReset(String email) async {
+    final actionCodeSettings = ActionCodeSettings(
+      url: 'https://moneytracker-5c1e6.web.app/auth/action',
+      handleCodeInApp: false,
+      androidPackageName: 'com.korotindenys.moneyTracker',
+      androidInstallApp: false,
+      androidMinimumVersion: '21',
+      iOSBundleId: 'com.korotindenys.moneyTracker',
+    );
     try {
-      await _auth.sendPasswordResetEmail(email: email.trim());
+      await _auth.sendPasswordResetEmail(
+        email: email.trim(),
+        actionCodeSettings: actionCodeSettings,
+      );
     } on FirebaseAuthException catch (e) {
       throw AuthException(_mapCodeToMessage(e.code));
     } catch (_) {
@@ -32,6 +43,35 @@ class AuthService {
   }
 
   Future<void> signOut() => _auth.signOut();
+
+  Future<User?> signUp(String email, String password) async {
+    try {
+      final cred = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password.trim(),
+      );
+      return cred.user;
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(_mapSignUpCode(e.code));
+    } catch (_) {
+      throw AuthException('Unexpected error. Please try again.');
+    }
+  }
+
+  String _mapSignUpCode(String code) {
+    switch (code) {
+      case 'email-already-in-use':
+        return 'Email already in use.';
+      case 'invalid-email':
+        return 'Invalid email format.';
+      case 'operation-not-allowed':
+        return 'Operation not allowed.';
+      case 'weak-password':
+        return 'Password is too weak.';
+      default:
+        return 'Could not create account.';
+    }
+  }
 
   String _mapCodeToMessage(String code) {
     switch (code) {

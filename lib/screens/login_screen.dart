@@ -216,6 +216,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                                     ),
                                   ),
+                                  TextButton(
+                                    onPressed:
+                                        _loading
+                                            ? null
+                                            : () => GoRouter.of(
+                                              context,
+                                            ).push(Routes.register),
+                                    child: Text(t.signUp),
+                                  ),
                                   const SizedBox(height: 10),
                                   if (size.height > 760)
                                     const SizedBox(height: 8),

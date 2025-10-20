@@ -18,5 +18,22 @@
   "passwordResetEmailSent": "Лист для скидання пароля надіслано",
   "enterEmailFirst": "Спочатку введіть електронну пошту",
   "forgotPasswordButton": "Забули пароль?",
-  "splashTagline": "Відстежуй. Плануй. Зростай."
+  "splashTagline": "Відстежуй. Плануй. Зростай.",
+  "createAccount": "Створити акаунт",
+  "signUp": "Зареєструватися",
+  "confirmPassword": "Підтвердіть пароль",
+  "passwordsMismatch": "Паролі не співпадають",
+  "accountCreated": "Акаунт створено",
+  "emailAlreadyInUse": "Електронна пошта вже використовується",
+  "weakPassword": "Пароль надто слабкий",
+  "startYourJourney": "Почніть свою подорож",
+  "checkYourInbox": "Перевірте свою пошту",
+  "passwordStrengthWeak": "Слабкий",
+  "passwordStrengthMedium": "Середній",
+  "passwordStrengthStrong": "Сильний",
+  "passwordStrengthVeryWeak": "Дуже слабкий",
+  "passwordStrengthFair": "Задовільний",
+  "passwordStrengthVeryStrong": "Дуже сильний",
+  "name": "Ім'я",
+  "enterName": "Введіть ім'я"
 }

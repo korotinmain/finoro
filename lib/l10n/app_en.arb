@@ -18,5 +18,22 @@
   "passwordResetEmailSent": "Password reset email sent",
   "enterEmailFirst": "Enter your email first",
   "forgotPasswordButton": "Forgot password?",
-  "splashTagline": "Track. Budget. Grow."
+  "splashTagline": "Track. Budget. Grow.",
+  "createAccount": "Create Account",
+  "signUp": "Sign Up",
+  "confirmPassword": "Confirm Password",
+  "passwordsMismatch": "Passwords do not match",
+  "accountCreated": "Account created",
+  "emailAlreadyInUse": "Email already in use",
+  "weakPassword": "Password is too weak",
+  "startYourJourney": "Start your journey",
+  "checkYourInbox": "Check your inbox",
+  "passwordStrengthWeak": "Weak",
+  "passwordStrengthMedium": "Medium",
+  "passwordStrengthStrong": "Strong",
+  "passwordStrengthVeryWeak": "Very Weak",
+  "passwordStrengthFair": "Fair",
+  "passwordStrengthVeryStrong": "Very Strong",
+  "name": "Name",
+  "enterName": "Enter your name"
 }
