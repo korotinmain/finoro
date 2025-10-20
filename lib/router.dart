@@ -5,20 +5,23 @@ import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'screens/login_screen.dart';
+import 'screens/launch_screen.dart';
 import 'screens/forgot_password_screen.dart';
 import 'screens/home_screen.dart';
 
 final _auth = FirebaseAuth.instance;
 
 class Routes {
+  static const launch = '/';
   static const login = '/login';
   static const forgot = '/forgot-password';
   static const home = '/home';
 }
 
 final appRouter = GoRouter(
-  initialLocation: Routes.login,
+  initialLocation: Routes.launch,
   routes: [
+    GoRoute(path: Routes.launch, builder: (_, __) => const LaunchScreen()),
     GoRoute(path: Routes.login, builder: (_, __) => const LoginScreen()),
     GoRoute(
       path: Routes.forgot,
@@ -50,6 +53,12 @@ final appRouter = GoRouter(
   ],
   redirect: (context, state) {
     final loggedIn = _auth.currentUser != null;
+
+    // Allow splash (launch) screen always; it will self-navigate.
+    if (state.matchedLocation == Routes.launch) {
+      return null;
+    }
+
     final goingToLogin = state.matchedLocation == Routes.login;
     final goingToForgot = state.matchedLocation == Routes.forgot;
 
@@ -60,7 +69,6 @@ final appRouter = GoRouter(
     if (loggedIn && (goingToLogin || goingToForgot)) {
       return Routes.home;
     }
-
     return null;
   },
 

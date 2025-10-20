@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "Monthly Budget",
+  "appTitle": "Finoro",
   "welcome": "Welcome",
   "welcomeBack": "Welcome back",
   "email": "Email",
@@ -9,5 +9,14 @@
   "invalidEmail": "Invalid email",
   "invalidPassword": "Invalid password",
   "signInSuccess": "Sign in successful",
-  "signInFailure": "Sign in failed"
+  "signInFailure": "Sign in failed",
+  "forgotPassword": "Forgot Password",
+  "forgotPasswordDescription": "Enter your email and we will send you a reset link.",
+  "sendResetLink": "Send Reset Link",
+  "backToLogin": "Back to login",
+  "enterPassword": "Enter your password",
+  "passwordResetEmailSent": "Password reset email sent",
+  "enterEmailFirst": "Enter your email first",
+  "forgotPasswordButton": "Forgot password?",
+  "splashTagline": "Track. Budget. Grow."
 }

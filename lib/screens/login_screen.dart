@@ -115,10 +115,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                 children: [
                                   const PieLogo(),
                                   const SizedBox(height: 12),
-                                  const Text(
-                                    'Monthly Budget',
+                                  Text(
+                                    t.appTitle,
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -149,8 +149,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                                     ),
                                     validator: (v) {
-                                      if (v == null || v.trim().isEmpty)
+                                      if (v == null || v.trim().isEmpty) {
                                         return t.email;
+                                      }
                                       if (!RegExp(
                                         r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
                                       ).hasMatch(v.trim())) {
@@ -188,7 +189,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     validator:
                                         (v) =>
                                             (v == null || v.isEmpty)
-                                                ? 'Enter your password'
+                                                ? t.enterPassword
                                                 : null,
                                   ),
                                   Align(
@@ -200,7 +201,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                               : () => GoRouter.of(
                                                 context,
                                               ).push(Routes.forgot),
-                                      child: const Text('Forgot password?'),
+                                      child: Text(t.forgotPasswordButton),
                                     ),
                                   ),
                                   const SizedBox(height: 8),

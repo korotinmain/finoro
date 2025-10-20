@@ -24,9 +24,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       final messenger = ScaffoldMessenger.of(context); // capture before await
       await _authService.sendPasswordReset(_email.text.trim());
       if (!mounted) return;
-      messenger.showSnackBar(
-        const SnackBar(content: Text('Password reset email sent')),
-      );
+      final t = AppLocalizations.of(context)!;
+      messenger.showSnackBar(SnackBar(content: Text(t.passwordResetEmailSent)));
     } on AuthException catch (e) {
       final messenger = ScaffoldMessenger.of(context);
       if (!mounted) return;
@@ -91,8 +90,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                 children: [
                                   const PieLogo(),
                                   const SizedBox(height: 12),
-                                  const Text(
-                                    'Forgot Password',
+                                  Text(
+                                    t.forgotPassword,
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 24,
@@ -101,7 +100,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                   ),
                                   const SizedBox(height: 12),
                                   Text(
-                                    'Enter your email and we will send you a reset link.',
+                                    t.forgotPasswordDescription,
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       color: Colors.white.withValues(
@@ -141,9 +140,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                   AuthPrimaryButton(
                                     onPressed: _sendReset,
                                     loading: _sending,
-                                    child: const Text(
-                                      'Send Reset Link',
-                                      style: TextStyle(
+                                    child: Text(
+                                      t.sendResetLink,
+                                      style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
                                       ),
@@ -155,7 +154,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                         _sending
                                             ? null
                                             : () => GoRouter.of(context).pop(),
-                                    child: const Text('Back to login'),
+                                    child: Text(t.backToLogin),
                                   ),
                                 ],
                               ),

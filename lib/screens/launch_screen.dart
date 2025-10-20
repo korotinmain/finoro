@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'login_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:go_router/go_router.dart';
+import '../router.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LaunchScreen extends StatefulWidget {
   const LaunchScreen({super.key});
@@ -13,6 +16,11 @@ class _LaunchScreenState extends State<LaunchScreen>
   late final AnimationController _intro;
   late final Animation<double> _introScale;
   late final Animation<double> _introFade;
+  late final AnimationController _breath;
+  late final Animation<double> _breathScale;
+  late final AnimationController _tagline;
+  late final Animation<double> _taglineFade;
+  late final Animation<Offset> _taglineSlide;
   late final AnimationController _blink;
   late final Animation<double> _blinkAlpha;
   late final AnimationController _sheen;
@@ -51,7 +59,34 @@ class _LaunchScreenState extends State<LaunchScreen>
 
     _sweepT = Tween<double>(begin: 0.0, end: 1.0).animate(_sheen);
 
-    Future.delayed(const Duration(milliseconds: 3600), () async {
+    // Gentle breathing scale after intro finishes.
+    _breath = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 3000),
+    );
+    _breathScale = Tween<double>(
+      begin: 1.0,
+      end: 1.035,
+    ).chain(CurveTween(curve: Curves.easeInOut)).animate(_breath);
+    _breath.repeat(reverse: true);
+
+    // Tagline fade + slide.
+    _tagline = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    _taglineFade = CurvedAnimation(parent: _tagline, curve: Curves.easeOut);
+    _taglineSlide = Tween<Offset>(
+      begin: const Offset(0, 0.20),
+      end: Offset.zero,
+    ).chain(CurveTween(curve: Curves.easeOutCubic)).animate(_tagline);
+    // Start tagline after intro a bit.
+    Future.delayed(const Duration(milliseconds: 900), () {
+      if (mounted) _tagline.forward();
+    });
+
+    // Slightly longer to let breathing + tagline show.
+    Future.delayed(const Duration(milliseconds: 4200), () async {
       if (!mounted) return;
       await _intro.animateBack(
         0.0,
@@ -60,15 +95,10 @@ class _LaunchScreenState extends State<LaunchScreen>
       );
 
       if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 700),
-          pageBuilder: (_, __, ___) => const LoginScreen(),
-          transitionsBuilder:
-              (_, anim, __, child) =>
-                  FadeTransition(opacity: anim, child: child),
-        ),
-      );
+      final loggedIn = FirebaseAuth.instance.currentUser != null;
+      final router = GoRouter.of(context);
+      // Use a fade by pushing the target; since splash is initial route we can replace.
+      router.go(loggedIn ? Routes.home : Routes.login);
     });
   }
 
@@ -77,6 +107,8 @@ class _LaunchScreenState extends State<LaunchScreen>
     _intro.dispose();
     _blink.dispose();
     _sheen.dispose();
+    _breath.dispose();
+    _tagline.dispose();
     super.dispose();
   }
 
@@ -125,10 +157,18 @@ class _LaunchScreenState extends State<LaunchScreen>
                 child: Transform.translate(
                   offset: Offset(0, -visualBias),
                   child: AnimatedBuilder(
-                    animation: Listenable.merge([_intro, _blink, _sheen]),
+                    animation: Listenable.merge([
+                      _intro,
+                      _blink,
+                      _sheen,
+                      _breath,
+                      _tagline,
+                    ]),
                     builder: (_, __) {
                       const double logoSize = 140.0;
-                      final scale = _introScale.value;
+                      // Combine intro scale with breathing.
+                      final scale = _introScale.value * _breathScale.value;
+                      final t = AppLocalizations.of(context)!;
 
                       return Column(
                         mainAxisSize: MainAxisSize.min,
@@ -159,14 +199,31 @@ class _LaunchScreenState extends State<LaunchScreen>
                           const SizedBox(height: 24),
                           Opacity(
                             opacity: _introFade.value,
-                            child: const Text(
-                              'Monthly Budget',
+                            child: Text(
+                              t.appTitle,
                               textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 26,
+                              style: const TextStyle(
+                                fontSize: 28,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
-                                letterSpacing: 0.2,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          FadeTransition(
+                            opacity: _taglineFade,
+                            child: SlideTransition(
+                              position: _taglineSlide,
+                              child: Text(
+                                t.splashTagline,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white.withValues(alpha: 0.80),
+                                  letterSpacing: 0.4,
+                                ),
                               ),
                             ),
                           ),

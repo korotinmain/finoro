@@ -18,7 +18,7 @@ class MoneyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Monthly Budget',
+      title: 'Finoro',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
       supportedLocales: const [Locale('en'), Locale('uk')],

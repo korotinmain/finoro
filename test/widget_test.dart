@@ -15,7 +15,7 @@ void main() {
     testWidgets('renders inputs and CTA', (tester) async {
       await tester.pumpWidget(_wrap(const LoginScreen()));
 
-      expect(find.text('Monthly Budget'), findsOneWidget);
+      expect(find.text('Finoro'), findsOneWidget);
       expect(find.text('Welcome back'), findsOneWidget);
 
       // Email + Password inputs exist

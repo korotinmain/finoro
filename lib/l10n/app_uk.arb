@@ -1,6 +1,6 @@
 {
   "@@locale": "uk",
-  "appTitle": "Monthly Budget",
+  "appTitle": "Finoro",
   "welcome": "Ласкаво просимо",
   "welcomeBack": "З поверненням",
   "email": "Електронна пошта",
@@ -9,5 +9,14 @@
   "invalidEmail": "Введіть електронну пошту",
   "invalidPassword": "Недійсний пароль",
   "signInSuccess": "Вхід успішний",
-  "signInFailure": "Вхід не вдався"
+  "signInFailure": "Вхід не вдався",
+  "forgotPassword": "Забули пароль",
+  "forgotPasswordDescription": "Введіть свою електронну пошту і ми надішлемо лист для скидання.",
+  "sendResetLink": "Надіслати лист",
+  "backToLogin": "Назад до входу",
+  "enterPassword": "Введіть пароль",
+  "passwordResetEmailSent": "Лист для скидання пароля надіслано",
+  "enterEmailFirst": "Спочатку введіть електронну пошту",
+  "forgotPasswordButton": "Забули пароль?",
+  "splashTagline": "Відстежуй. Плануй. Зростай."
 }
