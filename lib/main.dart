@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:money_tracker/firebase_options.dart';
-import 'package:money_tracker/screens/launch_screen.dart';
+import 'package:money_tracker/router.dart';
 import 'app/app_theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -17,7 +17,7 @@ class MoneyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Monthly Budget',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
@@ -37,7 +37,7 @@ class MoneyApp extends StatelessWidget {
         }
         return supported.first; // fallback to English
       },
-      home: const LaunchScreen(),
+      routerConfig: appRouter,
     );
   }
 }

@@ -1,74 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:money_tracker/services/app_launch_service.dart';
-import 'package:money_tracker/services/auth_service.dart';
 import 'package:go_router/go_router.dart';
+import 'package:money_tracker/services/auth_service.dart';
 import 'package:money_tracker/ui/auth_widgets.dart';
-import 'package:money_tracker/router.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class ForgotPasswordScreen extends StatefulWidget {
+  const ForgotPasswordScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
+class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _email = TextEditingController();
-  final _pass = TextEditingController();
-  bool _obscure = true;
-  bool _loading = false;
-  bool _isFirstLaunch = false;
+  final _formKey = GlobalKey<FormState>();
+  bool _sending = false;
   final _authService = AuthService();
 
-  Future<void> _onSignIn() async {
+  Future<void> _sendReset() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() => _loading = true);
+    setState(() => _sending = true);
     try {
-      final router = GoRouter.of(context); // capture before await
-      await _authService.signIn(_email.text, _pass.text);
-      if (!mounted) return; // still guard rebuild
-      router.go('/home');
+      final messenger = ScaffoldMessenger.of(context); // capture before await
+      await _authService.sendPasswordReset(_email.text.trim());
+      if (!mounted) return;
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Password reset email sent')),
+      );
     } on AuthException catch (e) {
-      final messenger = ScaffoldMessenger.of(
-        context,
-      ); // capture before mounted check
+      final messenger = ScaffoldMessenger.of(context);
       if (!mounted) return;
       messenger.showSnackBar(SnackBar(content: Text(e.message)));
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) setState(() => _sending = false);
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _checkFirstLaunch();
-  }
-
-  Future<void> _checkFirstLaunch() async {
-    _isFirstLaunch = await AppLaunchService.isFirstLaunch();
-    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
     _email.dispose();
-    _pass.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final t = AppLocalizations.of(context)!;
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        resizeToAvoidBottomInset: true,
         body: Stack(
           children: [
             const AuthGradientBackground(),
@@ -93,12 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   return SingleChildScrollView(
                     keyboardDismissBehavior:
                         ScrollViewKeyboardDismissBehavior.onDrag,
-                    padding: EdgeInsets.only(
-                      left: 24,
-                      right: 24,
-                      top: 0,
-                      bottom: bottomInset + 24,
-                    ),
+                    padding: EdgeInsets.fromLTRB(24, 0, 24, bottomInset + 24),
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
                         minHeight: constraints.maxHeight,
@@ -116,16 +92,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                   const PieLogo(),
                                   const SizedBox(height: 12),
                                   const Text(
-                                    'Monthly Budget',
+                                    'Forgot Password',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
-                                  const SizedBox(height: 6),
+                                  const SizedBox(height: 12),
                                   Text(
-                                    _isFirstLaunch ? t.welcome : t.welcomeBack,
+                                    'Enter your email and we will send you a reset link.',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       color: Colors.white.withValues(
@@ -137,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   TextFormField(
                                     controller: _email,
                                     keyboardType: TextInputType.emailAddress,
-                                    textInputAction: TextInputAction.next,
+                                    textInputAction: TextInputAction.done,
                                     autofillHints: const [
                                       AutofillHints.username,
                                       AutofillHints.email,
@@ -148,9 +124,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                         Icons.mail_rounded,
                                       ),
                                     ),
+                                    onFieldSubmitted: (_) => _sendReset(),
                                     validator: (v) {
-                                      if (v == null || v.trim().isEmpty)
+                                      if (v == null || v.trim().isEmpty) {
                                         return t.email;
+                                      }
                                       if (!RegExp(
                                         r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
                                       ).hasMatch(v.trim())) {
@@ -159,65 +137,26 @@ class _LoginScreenState extends State<LoginScreen> {
                                       return null;
                                     },
                                   ),
-                                  const SizedBox(height: 14),
-                                  TextFormField(
-                                    controller: _pass,
-                                    obscureText: _obscure,
-                                    textInputAction: TextInputAction.done,
-                                    onFieldSubmitted: (_) => _onSignIn(),
-                                    autofillHints: const [
-                                      AutofillHints.password,
-                                    ],
-                                    decoration: InputDecoration(
-                                      labelText: t.password,
-                                      prefixIcon: const Icon(
-                                        Icons.lock_rounded,
-                                      ),
-                                      suffixIcon: IconButton(
-                                        onPressed:
-                                            () => setState(
-                                              () => _obscure = !_obscure,
-                                            ),
-                                        icon: Icon(
-                                          _obscure
-                                              ? Icons.visibility_rounded
-                                              : Icons.visibility_off_rounded,
-                                        ),
-                                      ),
-                                    ),
-                                    validator:
-                                        (v) =>
-                                            (v == null || v.isEmpty)
-                                                ? 'Enter your password'
-                                                : null,
-                                  ),
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: TextButton(
-                                      onPressed:
-                                          _loading
-                                              ? null
-                                              : () => GoRouter.of(
-                                                context,
-                                              ).push(Routes.forgot),
-                                      child: const Text('Forgot password?'),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
+                                  const SizedBox(height: 24),
                                   AuthPrimaryButton(
-                                    onPressed: _onSignIn,
-                                    loading: _loading,
-                                    child: Text(
-                                      t.signIn,
-                                      style: const TextStyle(
+                                    onPressed: _sendReset,
+                                    loading: _sending,
+                                    child: const Text(
+                                      'Send Reset Link',
+                                      style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(height: 10),
-                                  if (size.height > 760)
-                                    const SizedBox(height: 8),
+                                  const SizedBox(height: 16),
+                                  TextButton(
+                                    onPressed:
+                                        _sending
+                                            ? null
+                                            : () => GoRouter.of(context).pop(),
+                                    child: const Text('Back to login'),
+                                  ),
                                 ],
                               ),
                             ),

@@ -1,7 +1,11 @@
+// lib/services/auth_service.dart
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Stream<User?> authStateChanges() => _auth.authStateChanges();
+  User? get currentUser => _auth.currentUser;
 
   Future<User?> signIn(String email, String password) async {
     try {
@@ -16,6 +20,18 @@ class AuthService {
       throw AuthException('Unexpected error. Please try again.');
     }
   }
+
+  Future<void> sendPasswordReset(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email.trim());
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(_mapCodeToMessage(e.code));
+    } catch (_) {
+      throw AuthException('Unexpected error. Please try again.');
+    }
+  }
+
+  Future<void> signOut() => _auth.signOut();
 
   String _mapCodeToMessage(String code) {
     switch (code) {

@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
 
@@ -11,15 +10,11 @@ class LaunchScreen extends StatefulWidget {
 
 class _LaunchScreenState extends State<LaunchScreen>
     with TickerProviderStateMixin {
-  late final AnimationController _intro; // pop + fade-in
+  late final AnimationController _intro;
   late final Animation<double> _introScale;
   late final Animation<double> _introFade;
-
-  // Ring blink controller
   late final AnimationController _blink;
-  late final Animation<double> _blinkAlpha; // 0..1
-
-  // Light sheen across logo
+  late final Animation<double> _blinkAlpha;
   late final AnimationController _sheen;
   late final Animation<double> _sweepT;
 
@@ -27,7 +22,6 @@ class _LaunchScreenState extends State<LaunchScreen>
   void initState() {
     super.initState();
 
-    // Intro pop + fade
     _intro = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 700),
@@ -40,7 +34,6 @@ class _LaunchScreenState extends State<LaunchScreen>
 
     _introFade = CurvedAnimation(parent: _intro, curve: Curves.easeOut);
 
-    // Blink pulse (soft repeating alpha)
     _blink = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1600),
@@ -51,7 +44,6 @@ class _LaunchScreenState extends State<LaunchScreen>
       end: 1.0,
     ).chain(CurveTween(curve: Curves.easeInOut)).animate(_blink);
 
-    // Light sheen sweep across logo
     _sheen = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2600),
@@ -59,11 +51,8 @@ class _LaunchScreenState extends State<LaunchScreen>
 
     _sweepT = Tween<double>(begin: 0.0, end: 1.0).animate(_sheen);
 
-    // Navigate smoothly after showcase
     Future.delayed(const Duration(milliseconds: 3600), () async {
       if (!mounted) return;
-
-      // Fade out logo + ring softly before navigation
       await _intro.animateBack(
         0.0,
         duration: const Duration(milliseconds: 400),
@@ -100,7 +89,6 @@ class _LaunchScreenState extends State<LaunchScreen>
       backgroundColor: bgTop,
       body: Stack(
         children: [
-          // Background gradient
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -110,8 +98,6 @@ class _LaunchScreenState extends State<LaunchScreen>
               ),
             ),
           ),
-
-          // Depth glows
           Positioned(
             left: -90,
             top: -70,
@@ -130,8 +116,6 @@ class _LaunchScreenState extends State<LaunchScreen>
               color2: const Color(0xFF22D3EE),
             ),
           ),
-
-          // --- Centered logo + blinking ring ---
           Builder(
             builder: (context) {
               final pad = MediaQuery.of(context).padding;
@@ -150,20 +134,16 @@ class _LaunchScreenState extends State<LaunchScreen>
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          // Logo stack
                           SizedBox(
                             width: logoSize + 60,
                             height: logoSize + 60,
                             child: Stack(
                               alignment: Alignment.center,
                               children: [
-                                // Blinking glow ring
                                 _BlinkingRing(
                                   baseSize: logoSize + 44,
                                   alpha: _blinkAlpha.value,
                                 ),
-
-                                // Static logo + gentle sheen
                                 Transform.scale(
                                   scale: scale,
                                   child: _SweptLogo(
