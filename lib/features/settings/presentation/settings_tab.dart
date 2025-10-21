@@ -158,7 +158,7 @@ class SettingsTab extends StatelessWidget {
                           label: t.help,
                           onTap: () {
                             HapticFeedbackHelper.lightImpact();
-                            context.push('/settings/help');
+                            context.go('/settings/help');
                           },
                         ),
                         _SettingsItemData(
