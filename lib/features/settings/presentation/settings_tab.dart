@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:money_tracker/core/constants/app_colors.dart';
 import 'package:money_tracker/core/constants/app_sizes.dart';
+import 'package:money_tracker/core/utils/haptic_feedback.dart';
 import 'package:money_tracker/ui/widgets/glow_blob.dart';
 import 'package:money_tracker/ui/widgets/gradient_button.dart';
 import 'package:money_tracker/ui/widgets/settings_list_item.dart';
@@ -80,41 +81,110 @@ class SettingsTab extends StatelessWidget {
                 SettingsListItem(
                   icon: Icons.manage_accounts_rounded,
                   label: t.accountSettings,
-                  onTap: () => context.push('/settings/account'),
+                  onTap: () async {
+                    await HapticFeedbackHelper.lightImpact();
+                    if (context.mounted) context.push('/settings/account');
+                  },
                 ),
                 SettingsListItem(
                   icon: Icons.palette_rounded,
                   label: t.appearanceSettings,
-                  onTap: () {
-                    // TODO: Navigate to appearance settings
+                  onTap: () async {
+                    await HapticFeedbackHelper.lightImpact();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text(
+                            'Appearance settings coming soon! 🎨',
+                          ),
+                          backgroundColor: AppColors.vibrantPurple,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      );
+                    }
                   },
                 ),
                 SettingsListItem(
                   icon: Icons.notifications_rounded,
                   label: t.notifications,
-                  onTap: () {
-                    // TODO: Navigate to notifications settings
+                  onTap: () async {
+                    await HapticFeedbackHelper.lightImpact();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text(
+                            'Notification settings coming soon! 🔔',
+                          ),
+                          backgroundColor: AppColors.vibrantPurple,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      );
+                    }
                   },
                 ),
                 SettingsListItem(
                   icon: Icons.lock_outline_rounded,
                   label: t.securityPrivacy,
-                  onTap: () {
-                    // TODO: Navigate to security settings
+                  onTap: () async {
+                    await HapticFeedbackHelper.lightImpact();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text(
+                            'Security settings coming soon! 🔐',
+                          ),
+                          backgroundColor: AppColors.vibrantPurple,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      );
+                    }
                   },
                 ),
                 SettingsListItem(
                   icon: Icons.feedback_rounded,
                   label: t.feedback,
-                  onTap: () {
-                    // TODO: Navigate to feedback screen
+                  onTap: () async {
+                    await HapticFeedbackHelper.lightImpact();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Feedback form coming soon! 💬'),
+                          backgroundColor: AppColors.vibrantPurple,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      );
+                    }
                   },
                 ),
                 SettingsListItem(
                   icon: Icons.info_outline_rounded,
                   label: t.about,
-                  onTap: () {
-                    // TODO: Navigate to about screen
+                  onTap: () async {
+                    await HapticFeedbackHelper.lightImpact();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('About screen coming soon! ℹ️'),
+                          backgroundColor: AppColors.vibrantPurple,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      );
+                    }
                   },
                 ),
                 const SizedBox(height: AppSizes.spacing24),
@@ -166,6 +236,8 @@ class _SignOutButton extends StatelessWidget {
   });
 
   Future<void> _handleSignOut(BuildContext context) async {
+    await HapticFeedbackHelper.mediumImpact();
+
     final t = AppLocalizations.of(context)!;
     final shouldSignOut = await showDialog<bool>(
       context: context,
@@ -175,11 +247,17 @@ class _SignOutButton extends StatelessWidget {
             content: Text(confirmMessage),
             actions: [
               TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
+                onPressed: () async {
+                  await HapticFeedbackHelper.lightImpact();
+                  if (ctx.mounted) Navigator.pop(ctx, false);
+                },
                 child: Text(t.cancel),
               ),
               FilledButton(
-                onPressed: () => Navigator.pop(ctx, true),
+                onPressed: () async {
+                  await HapticFeedbackHelper.mediumImpact();
+                  if (ctx.mounted) Navigator.pop(ctx, true);
+                },
                 child: Text(confirm),
               ),
             ],
@@ -188,10 +266,37 @@ class _SignOutButton extends StatelessWidget {
 
     if (shouldSignOut != true || !context.mounted) return;
 
+    await HapticFeedbackHelper.success();
+
     try {
       await FirebaseAuth.instance.signOut();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Successfully signed out'),
+            backgroundColor: Colors.green.shade900,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      }
     } catch (_) {
-      // Handle error silently or show snackbar
+      if (context.mounted) {
+        await HapticFeedbackHelper.error();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Failed to sign out. Please try again.'),
+            backgroundColor: Colors.red.shade900,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      }
+      return;
     }
 
     if (!context.mounted) return;

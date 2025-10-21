@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:money_tracker/core/utils/haptic_feedback.dart';
 
 /// Shell that hosts the main authenticated tabs.
 class AppShell extends StatefulWidget {
@@ -26,7 +27,7 @@ class _AppShellState extends State<AppShell> {
     ),
     _TabInfo(
       path: '/history',
-      icon: Icons.history_rounded,
+      icon: Icons.insights_rounded,
       labelKey: 'tabHistory',
     ),
     _TabInfo(
@@ -41,7 +42,8 @@ class _AppShellState extends State<AppShell> {
     return matchIndex == -1 ? 0 : matchIndex;
   }
 
-  void _onTap(int index) {
+  void _onTap(int index) async {
+    await HapticFeedbackHelper.lightImpact();
     final tab = _tabs[index];
     if (GoRouter.of(context).canPop()) {
       // Popping to root of current branch ensures expected back behavior.
@@ -60,7 +62,7 @@ class _AppShellState extends State<AppShell> {
     final topSafe = media.padding.top; // dynamic island / status bar padding
 
     return Scaffold(
-      extendBody: true,
+      extendBody: false,
       body: Padding(
         padding: EdgeInsets.only(top: topSafe + 4),
         child: widget.child,
@@ -86,64 +88,75 @@ class _BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-        decoration: BoxDecoration(
-          color: const Color(0xFF121317).withValues(alpha: .95),
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: Colors.white.withValues(alpha: .05)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: .45),
-              blurRadius: 24,
-              offset: const Offset(0, 12),
-            ),
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+
+    return Container(
+      padding: EdgeInsets.only(
+        left: 12,
+        right: 12,
+        top: 8,
+        bottom: (bottomPadding > 0 ? bottomPadding : 8),
+      ),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            const Color(0xFF1A1D26).withValues(alpha: 0.95),
+            const Color(0xFF121317).withValues(alpha: 0.98),
           ],
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _BottomItem(
-              index: 0,
-              selectedIndex: selectedIndex,
-              onTap: onTap,
-              icon: Icons.home_rounded,
-              inactiveIcon: Icons.home_outlined,
-              label: labels[0],
-              activeColor: const Color(0xFF7D48FF),
-            ),
-            _BottomItem(
-              index: 1,
-              selectedIndex: selectedIndex,
-              onTap: onTap,
-              icon: Icons.credit_card_rounded,
-              inactiveIcon: Icons.credit_card_outlined,
-              label: labels[1],
-              activeColor: const Color(0xFF7D48FF),
-            ),
-            _BottomItem(
-              index: 2,
-              selectedIndex: selectedIndex,
-              onTap: onTap,
-              icon: Icons.history_rounded,
-              inactiveIcon: Icons.history_outlined,
-              label: labels[2],
-              activeColor: const Color(0xFF7D48FF),
-            ),
-            _BottomItem(
-              index: 3,
-              selectedIndex: selectedIndex,
-              onTap: onTap,
-              icon: Icons.settings_rounded,
-              inactiveIcon: Icons.settings_outlined,
-              label: labels[3],
-              activeColor: const Color(0xFF7D48FF),
-            ),
-          ],
+        border: Border(
+          top: BorderSide(color: Colors.white.withValues(alpha: .04), width: 1),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _BottomItem(
+            index: 0,
+            selectedIndex: selectedIndex,
+            onTap: onTap,
+            icon: Icons.home_rounded,
+            inactiveIcon: Icons.home_outlined,
+            label: labels[0],
+            activeColor: const Color(0xFF7D48FF),
+          ),
+          _BottomItem(
+            index: 1,
+            selectedIndex: selectedIndex,
+            onTap: onTap,
+            icon: Icons.credit_card_rounded,
+            inactiveIcon: Icons.credit_card_outlined,
+            label: labels[1],
+            activeColor: const Color(0xFF7D48FF),
+          ),
+          _BottomItem(
+            index: 2,
+            selectedIndex: selectedIndex,
+            onTap: onTap,
+            icon: Icons.insights_rounded,
+            inactiveIcon: Icons.insights_outlined,
+            label: labels[2],
+            activeColor: const Color(0xFF7D48FF),
+          ),
+          _BottomItem(
+            index: 3,
+            selectedIndex: selectedIndex,
+            onTap: onTap,
+            icon: Icons.settings_rounded,
+            inactiveIcon: Icons.settings_outlined,
+            label: labels[3],
+            activeColor: const Color(0xFF7D48FF),
+          ),
+        ],
       ),
     );
   }
@@ -174,20 +187,38 @@ class _BottomItem extends StatelessWidget {
     final baseColor = theme.colorScheme.onSurface.withValues(alpha: .75);
     return Expanded(
       child: InkWell(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(20),
         onTap: () => onTap(index),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 240),
           curve: Curves.easeOutCubic,
           padding: EdgeInsets.symmetric(
-            vertical: 10,
-            horizontal: selected ? 14 : 0,
+            vertical: 6,
+            horizontal: selected ? 12 : 4,
           ),
           decoration:
               selected
                   ? BoxDecoration(
-                    color: activeColor.withValues(alpha: .18),
-                    borderRadius: BorderRadius.circular(22),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        activeColor.withValues(alpha: .25),
+                        activeColor.withValues(alpha: .15),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: activeColor.withValues(alpha: .3),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: activeColor.withValues(alpha: .2),
+                        blurRadius: 8,
+                        spreadRadius: 0,
+                      ),
+                    ],
                   )
                   : null,
           child: Column(
@@ -196,16 +227,17 @@ class _BottomItem extends StatelessWidget {
               Icon(
                 selected ? icon : inactiveIcon,
                 size: 24,
-                color: selected ? activeColor : baseColor,
+                color:
+                    selected ? Colors.white : baseColor.withValues(alpha: 0.6),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 2),
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 240),
                 curve: Curves.easeOutCubic,
-                style: theme.textTheme.labelMedium!.copyWith(
+                style: theme.textTheme.labelSmall!.copyWith(
                   fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
                   color: selected ? Colors.white : baseColor,
-                  letterSpacing: .2,
+                  letterSpacing: .1,
                 ),
                 child: Text(label, maxLines: 1, overflow: TextOverflow.fade),
               ),
