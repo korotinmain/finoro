@@ -154,5 +154,12 @@
         "type": "String"
       }
     }
-  }
+  },
+  "comingSoonAppearance": "Appearance settings coming soon",
+  "comingSoonNotifications": "Notification settings coming soon",
+  "comingSoonSecurity": "Security settings coming soon",
+  "comingSoonFeedback": "Feedback form coming soon",
+  "comingSoonAbout": "About screen coming soon",
+  "signOutSuccess": "Successfully signed out",
+  "signOutFailed": "Failed to sign out. Please try again"
 }

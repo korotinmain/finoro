@@ -154,5 +154,12 @@
         "type": "String"
       }
     }
-  }
+  },
+  "comingSoonAppearance": "Налаштування вигляду скоро з'являться",
+  "comingSoonNotifications": "Налаштування сповіщень скоро з'являться",
+  "comingSoonSecurity": "Налаштування безпеки скоро з'являться",
+  "comingSoonFeedback": "Форма зворотного зв'язку скоро з'явиться",
+  "comingSoonAbout": "Екран про застосунок скоро з'явиться",
+  "signOutSuccess": "Ви успішно вийшли",
+  "signOutFailed": "Не вдалося вийти. Спробуйте ще раз"
 }

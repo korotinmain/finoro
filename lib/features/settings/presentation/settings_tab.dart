@@ -127,10 +127,7 @@ class SettingsTab extends StatelessWidget {
                           label: t.appearanceSettings,
                           onTap: () {
                             HapticFeedbackHelper.lightImpact();
-                            _showComingSoon(
-                              context,
-                              'Appearance settings coming soon! 🎨',
-                            );
+                            _showComingSoon(context, t.comingSoonAppearance);
                           },
                         ),
                       ],
@@ -144,10 +141,7 @@ class SettingsTab extends StatelessWidget {
                           label: t.notifications,
                           onTap: () {
                             HapticFeedbackHelper.lightImpact();
-                            _showComingSoon(
-                              context,
-                              'Notification settings coming soon! 🔔',
-                            );
+                            _showComingSoon(context, t.comingSoonNotifications);
                           },
                         ),
                         _SettingsItemData(
@@ -155,10 +149,7 @@ class SettingsTab extends StatelessWidget {
                           label: t.securityPrivacy,
                           onTap: () {
                             HapticFeedbackHelper.lightImpact();
-                            _showComingSoon(
-                              context,
-                              'Security settings coming soon! 🔐',
-                            );
+                            _showComingSoon(context, t.comingSoonSecurity);
                           },
                         ),
                       ],
@@ -180,10 +171,7 @@ class SettingsTab extends StatelessWidget {
                           label: t.feedback,
                           onTap: () {
                             HapticFeedbackHelper.lightImpact();
-                            _showComingSoon(
-                              context,
-                              'Feedback form coming soon! 💬',
-                            );
+                            _showComingSoon(context, t.comingSoonFeedback);
                           },
                         ),
                         _SettingsItemData(
@@ -191,10 +179,7 @@ class SettingsTab extends StatelessWidget {
                           label: t.about,
                           onTap: () {
                             HapticFeedbackHelper.lightImpact();
-                            _showComingSoon(
-                              context,
-                              'About screen coming soon! ℹ️',
-                            );
+                            _showComingSoon(context, t.comingSoonAbout);
                           },
                         ),
                       ],
@@ -487,7 +472,7 @@ class _SignOutButton extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Successfully signed out'),
+            content: Text(t.signOutSuccess),
             backgroundColor: Colors.green.shade900,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -501,7 +486,7 @@ class _SignOutButton extends StatelessWidget {
         await HapticFeedbackHelper.error();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Failed to sign out. Please try again.'),
+            content: Text(t.signOutFailed),
             backgroundColor: Colors.red.shade900,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(

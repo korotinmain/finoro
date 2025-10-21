@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:money_tracker/services/app_launch_service.dart';
+import 'package:money_tracker/core/services/app_launch_service.dart';
 import 'package:money_tracker/services/auth_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:money_tracker/ui/auth_widgets.dart';
