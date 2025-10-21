@@ -69,7 +69,7 @@ class _EmptyDashboardViewState extends State<_EmptyDashboardView>
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSizes.spacing24,
-          vertical: AppSizes.spacing36,
+          vertical: AppSizes.spacing20,
         ),
         child: ConstrainedBox(
           constraints: const BoxConstraints(
@@ -83,7 +83,7 @@ class _EmptyDashboardViewState extends State<_EmptyDashboardView>
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const _FinarioLogo(),
-                  const SizedBox(height: AppSizes.spacing28),
+                  const SizedBox(height: AppSizes.spacing20),
                   ShaderMask(
                     shaderCallback:
                         (bounds) =>
@@ -91,32 +91,32 @@ class _EmptyDashboardViewState extends State<_EmptyDashboardView>
                     child: Text(
                       'Welcome to Finario',
                       textAlign: TextAlign.center,
-                      style: theme.textTheme.headlineLarge?.copyWith(
+                      style: theme.textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
                         letterSpacing: 0.5,
                       ),
                     ),
                   ),
-                  const SizedBox(height: AppSizes.spacing14),
+                  const SizedBox(height: AppSizes.spacing12),
                   Text(
                     'Organize your finances through Projects',
                     textAlign: TextAlign.center,
-                    style: theme.textTheme.titleMedium?.copyWith(
+                    style: theme.textTheme.titleSmall?.copyWith(
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(height: AppSizes.spacing12),
+                  const SizedBox(height: AppSizes.spacing8),
                   Text(
                     'Track expenses, manage budgets, and gain insights\nfor each area of your financial life',
                     textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                    style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                      height: 1.5,
+                      height: 1.4,
                     ),
                   ),
-                  const SizedBox(height: AppSizes.spacing38),
+                  const SizedBox(height: AppSizes.spacing24),
                   _DashboardEmptyCard(t: widget.t),
                 ],
               ),
@@ -161,8 +161,8 @@ class _FinarioLogoState extends State<_FinarioLogo>
       animation: _glowController,
       builder: (context, child) {
         return Container(
-          width: 100,
-          height: 100,
+          width: 80,
+          height: 80,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: AppColors.primaryGradient,
@@ -171,8 +171,8 @@ class _FinarioLogoState extends State<_FinarioLogo>
                 color: AppColors.vibrantPurple.withValues(
                   alpha: 0.3 + (_glowController.value * 0.3),
                 ),
-                blurRadius: 40 + (_glowController.value * 20),
-                spreadRadius: 5 + (_glowController.value * 10),
+                blurRadius: 30 + (_glowController.value * 15),
+                spreadRadius: 3 + (_glowController.value * 7),
               ),
             ],
           ),
@@ -180,7 +180,7 @@ class _FinarioLogoState extends State<_FinarioLogo>
             child: Icon(
               Icons.account_balance_wallet_rounded,
               color: Colors.white,
-              size: 48,
+              size: 36,
             ),
           ),
         );
@@ -201,10 +201,10 @@ class _DashboardEmptyCard extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.fromLTRB(
-        AppSizes.spacing32,
-        AppSizes.spacing40,
-        AppSizes.spacing32,
-        AppSizes.spacing32,
+        AppSizes.spacing24,
+        AppSizes.spacing28,
+        AppSizes.spacing24,
+        AppSizes.spacing24,
       ),
       decoration: BoxDecoration(
         color: AppColors.cardBackground.withValues(alpha: 0.72),
@@ -223,10 +223,10 @@ class _DashboardEmptyCard extends StatelessWidget {
         children: [
           Icon(
             Icons.folder_special_rounded,
-            size: 64,
+            size: 48,
             color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
           ),
-          const SizedBox(height: AppSizes.spacing20),
+          const SizedBox(height: AppSizes.spacing14),
           Text(
             'Your Projects',
             style: theme.textTheme.titleLarge?.copyWith(
@@ -234,16 +234,16 @@ class _DashboardEmptyCard extends StatelessWidget {
               color: theme.colorScheme.onSurface.withValues(alpha: 0.9),
             ),
           ),
-          const SizedBox(height: AppSizes.spacing8),
+          const SizedBox(height: AppSizes.spacing6),
           Text(
             'Create your first project to start\ntracking expenses and budgets',
             textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
+            style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-              height: 1.4,
+              height: 1.3,
             ),
           ),
-          const SizedBox(height: AppSizes.spacing32),
+          const SizedBox(height: AppSizes.spacing20),
           GradientButton(
             label: t.createNewProjectButton,
             icon: Icons.add_rounded,
@@ -264,14 +264,15 @@ class _DashboardEmptyCard extends StatelessWidget {
               }
             },
           ),
-          const SizedBox(height: AppSizes.spacing16),
+          const SizedBox(height: AppSizes.spacing12),
           Text(
-            '💡 Tip: Projects help you separate expenses\nfor different areas of your life',
+            '💡 Tip: Projects help separate expenses\nfor different areas of your life',
             textAlign: TextAlign.center,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
               fontStyle: FontStyle.italic,
-              height: 1.4,
+              height: 1.3,
+              fontSize: 12,
             ),
           ),
         ],

@@ -30,26 +30,20 @@ class UserProfileCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(
-        AppSizes.spacing20,
-        AppSizes.cardPaddingV,
-        AppSizes.spacing20,
-        AppSizes.spacing20,
-      ),
+      padding: const EdgeInsets.all(AppSizes.spacing20),
       decoration: BoxDecoration(
         color: AppColors.cardBackground.withValues(alpha: 0.72),
         borderRadius: BorderRadius.circular(AppSizes.radiusXLarge),
         border: Border.all(color: AppColors.white(0.06)),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      child: Row(
         children: [
           Stack(
             clipBehavior: Clip.none,
             children: [
               Container(
-                width: AppSizes.avatarMedium,
-                height: AppSizes.avatarMedium,
+                width: 64,
+                height: 64,
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: AppColors.primaryGradient,
@@ -57,12 +51,12 @@ class UserProfileCard extends StatelessWidget {
                 child: const Icon(
                   Icons.person_rounded,
                   color: Colors.white,
-                  size: AppSizes.iconLarge,
+                  size: 32,
                 ),
               ),
               Positioned(
-                bottom: -4,
-                right: -4,
+                bottom: -2,
+                right: -2,
                 child: Container(
                   padding: const EdgeInsets.all(AppSizes.spacing4),
                   decoration: BoxDecoration(
@@ -82,43 +76,57 @@ class UserProfileCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppSizes.spacing14),
-          Text(
-            displayName,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.3,
-            ),
-          ),
-          const SizedBox(height: AppSizes.spacing6),
-          Text(
-            email,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-            ),
-          ),
-          const SizedBox(height: AppSizes.spacing12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 10,
-                height: 10,
-                decoration: BoxDecoration(
-                  color: statusColor,
-                  shape: BoxShape.circle,
+          const SizedBox(width: AppSizes.spacing16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  displayName,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.2,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              const SizedBox(width: AppSizes.spacing8),
-              Text(
-                isVerified ? verifiedLabel : unverifiedLabel,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
+                const SizedBox(height: AppSizes.spacing4),
+                Text(
+                  email,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
+                const SizedBox(height: AppSizes.spacing8),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: statusColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: AppSizes.spacing6),
+                    Text(
+                      isVerified ? verifiedLabel : unverifiedLabel,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.7,
+                        ),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),

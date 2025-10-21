@@ -20,7 +20,7 @@ class SettingsListItem extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSizes.spacing14),
+      padding: const EdgeInsets.only(bottom: AppSizes.spacing10),
       child: InkWell(
         borderRadius: BorderRadius.circular(AppSizes.radiusMedium),
         onTap: onTap,
@@ -31,41 +31,35 @@ class SettingsListItem extends StatelessWidget {
             border: Border.all(color: AppColors.white(0.06)),
           ),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSizes.spacing20,
-              AppSizes.spacing16,
-              AppSizes.spacing16,
-              AppSizes.spacing16,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSizes.spacing16,
+              vertical: AppSizes.spacing14,
             ),
             child: Row(
               children: [
                 Container(
-                  width: AppSizes.avatarIconContainer,
-                  height: AppSizes.avatarIconContainer,
-                  decoration: const BoxDecoration(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: AppColors.primaryGradient,
+                    gradient: AppColors.primaryGradient.scale(0.7),
                   ),
-                  child: Icon(
-                    icon,
-                    color: Colors.white,
-                    size: AppSizes.iconMedium,
-                  ),
+                  child: Icon(icon, color: Colors.white, size: 20),
                 ),
                 const SizedBox(width: AppSizes.spacing14),
                 Expanded(
                   child: Text(
                     label,
-                    style: theme.textTheme.titleMedium?.copyWith(
+                    style: theme.textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.w600,
-                      letterSpacing: 0.2,
+                      letterSpacing: 0.1,
                     ),
                   ),
                 ),
                 Icon(
                   Icons.chevron_right_rounded,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                  size: 26,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                  size: 22,
                 ),
               ],
             ),
