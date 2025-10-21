@@ -8,7 +8,8 @@ import 'package:money_tracker/screens/forgot_password_screen.dart';
 import 'package:money_tracker/screens/launch_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/login_screen.dart';
-import 'screens/home_screen.dart';
+import 'screens/app_shell.dart';
+import 'screens/tabs.dart';
 
 CustomTransitionPage<T> _fadeSlidePage<T>({
   required GoRouterState state,
@@ -44,8 +45,12 @@ class Routes {
   static const login = '/login';
   static const register = '/register';
   static const forgot = '/forgot-password';
-  static const home = '/home';
   static const confirmEmail = '/confirm-email';
+  // Shell + tabs
+  static const dashboard = '/dashboard';
+  static const expenses = '/expenses';
+  static const history = '/history';
+  static const settings = '/settings';
 }
 
 final appRouter = GoRouter(
@@ -83,11 +88,37 @@ final appRouter = GoRouter(
           (context, state) =>
               _fadeSlidePage(state: state, child: const ForgotPasswordScreen()),
     ),
-    GoRoute(
-      path: Routes.home,
+    // --- Authenticated shell with tabs ---
+    ShellRoute(
       pageBuilder:
-          (context, state) =>
-              _fadeSlidePage(state: state, child: const HomeScreen()),
+          (context, state, child) =>
+              _fadeSlidePage(state: state, child: AppShell(child: child)),
+      routes: [
+        GoRoute(
+          path: Routes.dashboard,
+          pageBuilder:
+              (context, state) =>
+                  _fadeSlidePage(state: state, child: const DashboardTab()),
+        ),
+        GoRoute(
+          path: Routes.expenses,
+          pageBuilder:
+              (context, state) =>
+                  _fadeSlidePage(state: state, child: const ExpensesTab()),
+        ),
+        GoRoute(
+          path: Routes.history,
+          pageBuilder:
+              (context, state) =>
+                  _fadeSlidePage(state: state, child: const HistoryTab()),
+        ),
+        GoRoute(
+          path: Routes.settings,
+          pageBuilder:
+              (context, state) =>
+                  _fadeSlidePage(state: state, child: const SettingsTab()),
+        ),
+      ],
     ),
   ],
   redirect: (context, state) {
@@ -102,6 +133,11 @@ final appRouter = GoRouter(
     final goingToForgot = loc == Routes.forgot;
     final goingToRegister = loc == Routes.register;
     final goingToConfirmEmail = loc == Routes.confirmEmail;
+    final goingToShellTab =
+        loc.startsWith(Routes.dashboard) ||
+        loc.startsWith(Routes.expenses) ||
+        loc.startsWith(Routes.history) ||
+        loc.startsWith(Routes.settings);
 
     // Public routes when NOT logged in: login, register, forgot, confirm-email
     if (!loggedIn &&
@@ -113,7 +149,7 @@ final appRouter = GoRouter(
     }
 
     if (!loggedIn) {
-      // Redirect other private paths to login.
+      if (goingToShellTab) return Routes.login;
       return Routes.login;
     }
 
@@ -131,8 +167,11 @@ final appRouter = GoRouter(
           goingToRegister ||
           goingToForgot ||
           goingToConfirmEmail) {
-        return Routes.home;
+        // Redirect verified user to default tab.
+        return Routes.dashboard;
       }
+      // If user hits root '/', send them to default tab.
+      if (loc == Routes.launch) return Routes.dashboard;
     }
 
     return null;

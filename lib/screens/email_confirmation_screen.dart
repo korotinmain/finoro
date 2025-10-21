@@ -102,7 +102,7 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
       final verified = _auth.currentUser?.emailVerified ?? false;
       if (!mounted) return;
       if (verified) {
-        context.go(Routes.home);
+        context.go(Routes.dashboard);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

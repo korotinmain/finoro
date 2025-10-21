@@ -104,7 +104,7 @@ class _LaunchScreenState extends State<LaunchScreen>
       } else if (!verified) {
         router.go(Routes.confirmEmail);
       } else {
-        router.go(Routes.home);
+        router.go(Routes.dashboard);
       }
     });
   }

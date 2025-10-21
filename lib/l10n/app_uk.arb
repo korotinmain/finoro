@@ -36,5 +36,13 @@
   "passwordStrengthVeryStrong": "Дуже сильний",
   "name": "Ім'я",
   "enterName": "Введіть ім'я",
-  "backToSignIn": "Назад до входу"
+  "backToSignIn": "Назад до входу",
+  "tabDashboard": "Панель",
+  "tabExpenses": "Витрати",
+  "tabHistory": "Історія",
+  "tabSettings": "Налаштування",
+  "noProjectsYet": "Ще немає проєктів",
+  "createProjectPrompt": "Створіть проєкт, щоб почати керувати витратами та заощадженнями.",
+  "createNewProjectButton": "+ Створити новий проєкт",
+  "signOut": "Вийти"
 }

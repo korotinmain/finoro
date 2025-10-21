@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:money_tracker/screens/register_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:money_tracker/ui/password_strength_bar.dart';
 
 Widget _wrap(Widget child) {
   return MaterialApp(

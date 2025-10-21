@@ -36,5 +36,13 @@
   "passwordStrengthVeryStrong": "Very Strong",
   "name": "Name",
   "enterName": "Enter your name",
-  "backToSignIn": "Back to Sign In"
+  "backToSignIn": "Back to Sign In",
+  "tabDashboard": "Dashboard",
+  "tabExpenses": "Expenses",
+  "tabHistory": "History",
+  "tabSettings": "Settings",
+  "noProjectsYet": "No projects yet",
+  "createProjectPrompt": "Create a project to start managing your expenses and savings.",
+  "createNewProjectButton": "+ Create New Project",
+  "signOut": "Sign Out"
 }
