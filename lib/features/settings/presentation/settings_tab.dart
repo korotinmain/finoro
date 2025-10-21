@@ -43,7 +43,6 @@ class SettingsTab extends StatelessWidget {
             ? user!.displayName!.trim()
             : email.split('@').first;
     final verified = user?.emailVerified ?? false;
-
     return Stack(
       children: [
         Container(
@@ -61,14 +60,16 @@ class SettingsTab extends StatelessWidget {
           bottom: -140,
           child: GlowBlob.purpleCyan(size: AppSizes.blobLarge),
         ),
-        SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SafeArea(
+              top: false,
+              bottom: false,
+              child: Padding(
                 padding: const EdgeInsets.fromLTRB(
                   AppSizes.spacing24,
-                  0,
+                  AppSizes.spacing12,
                   AppSizes.spacing24,
                   0,
                 ),
@@ -80,135 +81,136 @@ class SettingsTab extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: AppSizes.spacing20),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSizes.spacing24,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _ProfileCard(
-                        displayName: displayName,
-                        email: email,
-                        isVerified: verified,
-                        verifiedLabel: t.statusVerified,
-                      ),
-                      const SizedBox(height: AppSizes.spacing32),
-                      _SettingsGroup(
-                        title: 'GENERAL',
-                        items: [
-                          _SettingsItemData(
-                            icon: Icons.person_outline_rounded,
-                            label: t.accountSettings,
-                            onTap: () {
-                              HapticFeedbackHelper.lightImpact();
-                              context.push('/settings/account');
-                            },
-                          ),
-                          _SettingsItemData(
-                            icon: Icons.palette_outlined,
-                            label: t.appearanceSettings,
-                            onTap: () {
-                              HapticFeedbackHelper.lightImpact();
-                              _showComingSoon(
-                                context,
-                                'Appearance settings coming soon! 🎨',
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSizes.spacing24),
-                      _SettingsGroup(
-                        title: 'PREFERENCES',
-                        items: [
-                          _SettingsItemData(
-                            icon: Icons.notifications_outlined,
-                            label: t.notifications,
-                            onTap: () {
-                              HapticFeedbackHelper.lightImpact();
-                              _showComingSoon(
-                                context,
-                                'Notification settings coming soon! 🔔',
-                              );
-                            },
-                          ),
-                          _SettingsItemData(
-                            icon: Icons.lock_outline_rounded,
-                            label: t.securityPrivacy,
-                            onTap: () {
-                              HapticFeedbackHelper.lightImpact();
-                              _showComingSoon(
-                                context,
-                                'Security settings coming soon! 🔐',
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSizes.spacing24),
-                      _SettingsGroup(
-                        title: 'SUPPORT',
-                        items: [
-                          _SettingsItemData(
-                            icon: Icons.feedback_outlined,
-                            label: t.feedback,
-                            onTap: () {
-                              HapticFeedbackHelper.lightImpact();
-                              _showComingSoon(
-                                context,
-                                'Feedback form coming soon! 💬',
-                              );
-                            },
-                          ),
-                          _SettingsItemData(
-                            icon: Icons.info_outline_rounded,
-                            label: t.about,
-                            onTap: () {
-                              HapticFeedbackHelper.lightImpact();
-                              _showComingSoon(
-                                context,
-                                'About screen coming soon! ℹ️',
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSizes.spacing32),
-                      _SignOutButton(
-                        label: t.signOut,
-                        confirmTitle: t.confirmSignOutTitle,
-                        confirmMessage: t.confirmSignOutMessage,
-                        confirm: t.confirm,
-                      ),
-                      const SizedBox(height: AppSizes.spacing20),
-                      Center(
-                        child: Opacity(
-                          opacity: 0.35,
-                          child: FutureBuilder<String>(
-                            future: _getVersion(),
-                            builder:
-                                (ctx, snap) => Text(
-                                  snap.hasData
-                                      ? t.versionLabel(snap.data!)
-                                      : ' ',
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    fontSize: 11,
-                                    letterSpacing: 0.5,
-                                  ),
+            ),
+            const SizedBox(height: AppSizes.spacing16),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSizes.spacing24,
+                  0,
+                  AppSizes.spacing24,
+                  AppSizes.spacing24,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _ProfileCard(
+                      displayName: displayName,
+                      email: email,
+                      isVerified: verified,
+                      verifiedLabel: t.statusVerified,
+                    ),
+                    const SizedBox(height: AppSizes.spacing24),
+                    _SettingsGroup(
+                      title: 'GENERAL',
+                      items: [
+                        _SettingsItemData(
+                          icon: Icons.person_outline_rounded,
+                          label: t.accountSettings,
+                          onTap: () {
+                            HapticFeedbackHelper.lightImpact();
+                            context.push('/settings/account');
+                          },
+                        ),
+                        _SettingsItemData(
+                          icon: Icons.palette_outlined,
+                          label: t.appearanceSettings,
+                          onTap: () {
+                            HapticFeedbackHelper.lightImpact();
+                            _showComingSoon(
+                              context,
+                              'Appearance settings coming soon! 🎨',
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSizes.spacing20),
+                    _SettingsGroup(
+                      title: 'PREFERENCES',
+                      items: [
+                        _SettingsItemData(
+                          icon: Icons.notifications_outlined,
+                          label: t.notifications,
+                          onTap: () {
+                            HapticFeedbackHelper.lightImpact();
+                            _showComingSoon(
+                              context,
+                              'Notification settings coming soon! 🔔',
+                            );
+                          },
+                        ),
+                        _SettingsItemData(
+                          icon: Icons.lock_outline_rounded,
+                          label: t.securityPrivacy,
+                          onTap: () {
+                            HapticFeedbackHelper.lightImpact();
+                            _showComingSoon(
+                              context,
+                              'Security settings coming soon! 🔐',
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSizes.spacing20),
+                    _SettingsGroup(
+                      title: 'SUPPORT',
+                      items: [
+                        _SettingsItemData(
+                          icon: Icons.feedback_outlined,
+                          label: t.feedback,
+                          onTap: () {
+                            HapticFeedbackHelper.lightImpact();
+                            _showComingSoon(
+                              context,
+                              'Feedback form coming soon! 💬',
+                            );
+                          },
+                        ),
+                        _SettingsItemData(
+                          icon: Icons.info_outline_rounded,
+                          label: t.about,
+                          onTap: () {
+                            HapticFeedbackHelper.lightImpact();
+                            _showComingSoon(
+                              context,
+                              'About screen coming soon! ℹ️',
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSizes.spacing24),
+                    _SignOutButton(
+                      label: t.signOut,
+                      confirmTitle: t.confirmSignOutTitle,
+                      confirmMessage: t.confirmSignOutMessage,
+                      confirm: t.confirm,
+                    ),
+                    const SizedBox(height: AppSizes.spacing16),
+                    Center(
+                      child: Opacity(
+                        opacity: 0.35,
+                        child: FutureBuilder<String>(
+                          future: _getVersion(),
+                          builder:
+                              (ctx, snap) => Text(
+                                snap.hasData ? t.versionLabel(snap.data!) : ' ',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  fontSize: 11,
+                                  letterSpacing: 0.5,
                                 ),
-                          ),
+                              ),
                         ),
                       ),
-                      const SizedBox(height: AppSizes.spacing20),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: AppSizes.spacing16),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ],
     );
@@ -233,7 +235,7 @@ class _ProfileCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Container(
-      padding: const EdgeInsets.all(AppSizes.spacing20),
+      padding: const EdgeInsets.all(AppSizes.spacing16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
