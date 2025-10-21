@@ -142,5 +142,17 @@
   "helpTip3": "📊 Tip: Check your Insights tab regularly to track spending trends",
   "helpSearchPlaceholder": "Search help topics...",
   "helpNoResults": "No results found",
-  "helpTryDifferentKeywords": "Try different keywords or browse categories below"
+  "helpTryDifferentKeywords": "Try different keywords or browse categories below",
+  "language": "Language",
+  "languageEnglish": "English",
+  "languageUkrainian": "Українська",
+  "selectLanguage": "Select Language",
+  "languageChanged": "Language changed to {language}",
+  "@languageChanged": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -6,6 +6,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:money_tracker/core/constants/app_colors.dart';
 import 'package:money_tracker/core/constants/app_sizes.dart';
 import 'package:money_tracker/core/utils/haptic_feedback.dart';
+import 'package:money_tracker/core/providers/locale_provider.dart';
 import 'package:money_tracker/ui/widgets/glow_blob.dart';
 
 /// Settings tab for app configuration and user preferences
@@ -30,6 +31,11 @@ class SettingsTab extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
+  }
+
+  void _showLanguageDialog(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    showDialog(context: context, builder: (ctx) => _LanguageDialog(t: t));
   }
 
   @override
@@ -106,6 +112,14 @@ class SettingsTab extends StatelessWidget {
                           onTap: () {
                             HapticFeedbackHelper.lightImpact();
                             context.push('/settings/account');
+                          },
+                        ),
+                        _SettingsItemData(
+                          icon: Icons.language_rounded,
+                          label: t.language,
+                          onTap: () {
+                            HapticFeedbackHelper.lightImpact();
+                            _showLanguageDialog(context);
                           },
                         ),
                         _SettingsItemData(
@@ -538,6 +552,149 @@ class _SignOutButton extends StatelessWidget {
                   color: Colors.redAccent,
                 ),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Language selection dialog
+class _LanguageDialog extends StatelessWidget {
+  final AppLocalizations t;
+
+  const _LanguageDialog({required this.t});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final currentLocale = Localizations.localeOf(context);
+
+    return AlertDialog(
+      backgroundColor: AppColors.cardBackground,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
+        side: BorderSide(color: AppColors.white(0.1)),
+      ),
+      title: Text(
+        t.selectLanguage,
+        style: theme.textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _LanguageOption(
+            languageName: t.languageEnglish,
+            languageCode: 'en',
+            isSelected: currentLocale.languageCode == 'en',
+            onTap: () async {
+              await HapticFeedbackHelper.lightImpact();
+              await LocaleService.saveLocale(const Locale('en'));
+              if (context.mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(t.languageChanged(t.languageEnglish)),
+                    backgroundColor: AppColors.vibrantPurple,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                );
+              }
+            },
+          ),
+          const SizedBox(height: AppSizes.spacing8),
+          _LanguageOption(
+            languageName: t.languageUkrainian,
+            languageCode: 'uk',
+            isSelected: currentLocale.languageCode == 'uk',
+            onTap: () async {
+              await HapticFeedbackHelper.lightImpact();
+              await LocaleService.saveLocale(const Locale('uk'));
+              if (context.mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(t.languageChanged(t.languageUkrainian)),
+                    backgroundColor: AppColors.vibrantPurple,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Individual language option in the dialog
+class _LanguageOption extends StatelessWidget {
+  final String languageName;
+  final String languageCode;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _LanguageOption({
+    required this.languageName,
+    required this.languageCode,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppSizes.radiusMedium),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSizes.spacing16,
+            vertical: AppSizes.spacing12,
+          ),
+          decoration: BoxDecoration(
+            color:
+                isSelected
+                    ? AppColors.vibrantPurple.withValues(alpha: 0.2)
+                    : Colors.transparent,
+            borderRadius: BorderRadius.circular(AppSizes.radiusMedium),
+            border: Border.all(
+              color:
+                  isSelected ? AppColors.vibrantPurple : AppColors.white(0.1),
+            ),
+          ),
+          child: Row(
+            children: [
+              Text(
+                languageName,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  color:
+                      isSelected
+                          ? AppColors.vibrantPurple
+                          : theme.colorScheme.onSurface,
+                ),
+              ),
+              const Spacer(),
+              if (isSelected)
+                const Icon(
+                  Icons.check_circle_rounded,
+                  color: AppColors.vibrantPurple,
+                  size: 20,
+                ),
             ],
           ),
         ),
