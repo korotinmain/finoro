@@ -29,7 +29,13 @@ class _LoginScreenState extends State<LoginScreen> {
       final router = GoRouter.of(context); // capture before await
       await _authService.signIn(context, _email.text, _pass.text);
       if (!mounted) return; // still guard rebuild
-      router.go('/home');
+      // Route changed: old '/home' replaced by tab shell with dashboard root.
+      final user = _authService.currentUser;
+      if (user != null && !user.emailVerified) {
+        router.go(Routes.confirmEmail);
+      } else {
+        router.go(Routes.dashboard);
+      }
     } on AuthException catch (e) {
       final messenger = ScaffoldMessenger.of(
         context,

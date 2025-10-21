@@ -37,6 +37,10 @@ class SettingsTab extends StatelessWidget {
     final t = AppLocalizations.of(context)!;
     final user = FirebaseAuth.instance.currentUser;
     final email = user?.email ?? 'anonymous';
+    final displayName =
+        (user?.displayName?.trim().isNotEmpty ?? false)
+            ? user!.displayName!.trim()
+            : email.split('@').first; // fallback nickname
     final verified = user?.emailVerified ?? false;
     final theme = Theme.of(context);
     return SafeArea(
@@ -53,7 +57,11 @@ class SettingsTab extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 28),
-            _SettingsUserCard(email: email, verified: verified),
+            _SettingsUserCard(
+              displayName: displayName,
+              email: email,
+              verified: verified,
+            ),
             const SizedBox(height: 32),
             _SignOutButton(label: t.signOut),
           ],
@@ -64,72 +72,108 @@ class SettingsTab extends StatelessWidget {
 }
 
 class _SettingsUserCard extends StatelessWidget {
+  final String displayName;
   final String email;
   final bool verified;
-  const _SettingsUserCard({required this.email, required this.verified});
+  const _SettingsUserCard({
+    required this.displayName,
+    required this.email,
+    required this.verified,
+  });
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final t = AppLocalizations.of(context)!;
     final statusColor = verified ? Colors.greenAccent : Colors.orangeAccent;
+    final badgeIcon = verified ? Icons.verified_rounded : Icons.error_outline;
+    final badgeColor = verified ? Colors.lightGreenAccent : Colors.amberAccent;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(22, 22, 22, 18),
+      padding: const EdgeInsets.fromLTRB(22, 26, 22, 24),
       decoration: BoxDecoration(
         color: const Color(0xFF141519).withValues(alpha: .72),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(28),
         border: Border.all(color: Colors.white.withValues(alpha: .06)),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 54,
-            height: 54,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF505BFF), Color(0xFF7D48FF)],
-              ),
-            ),
-            child: const Icon(Icons.person_rounded, color: Colors.white),
-          ),
-          const SizedBox(width: 18),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  email,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFF505BFF), Color(0xFF7D48FF)],
                   ),
                 ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: statusColor,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      verified ? 'Verified' : 'Unverified',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(
-                          alpha: .75,
-                        ),
-                      ),
-                    ),
-                  ],
+                child: const Icon(
+                  Icons.person_rounded,
+                  color: Colors.white,
+                  size: 42,
                 ),
-              ],
+              ),
+              Positioned(
+                bottom: -4,
+                right: -4,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black.withValues(alpha: .65),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: .12),
+                      width: 1,
+                    ),
+                  ),
+                  child: Icon(badgeIcon, size: 18, color: badgeColor),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          Text(
+            displayName,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w700,
+              letterSpacing: .3,
             ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            email,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: .6),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: statusColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                verified ? t.statusVerified : t.statusUnverified,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: .75),
+                ),
+              ),
+            ],
           ),
         ],
       ),
