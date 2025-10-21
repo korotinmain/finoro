@@ -43,6 +43,6 @@
   "tabSettings": "Налаштування",
   "noProjectsYet": "Ще немає проєктів",
   "createProjectPrompt": "Створіть проєкт, щоб почати керувати витратами та заощадженнями.",
-  "createNewProjectButton": "+ Створити новий проєкт",
+  "createNewProjectButton": "Створити новий проєкт",
   "signOut": "Вийти"
 }

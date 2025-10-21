@@ -43,6 +43,6 @@
   "tabSettings": "Settings",
   "noProjectsYet": "No projects yet",
   "createProjectPrompt": "Create a project to start managing your expenses and savings.",
-  "createNewProjectButton": "+ Create New Project",
+  "createNewProjectButton": "Create New Project",
   "signOut": "Sign Out"
 }
