@@ -6,6 +6,8 @@ import 'package:money_tracker/services/auth_service.dart';
 import 'package:money_tracker/ui/auth_widgets.dart';
 import 'package:money_tracker/router.dart';
 import 'package:money_tracker/ui/password_strength_bar.dart';
+import 'package:money_tracker/core/utils/haptic_feedback.dart';
+import 'package:money_tracker/core/validators/form_validators.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -49,52 +51,59 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _onSignUp() async {
     final t = AppLocalizations.of(context)!;
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      await HapticFeedbackHelper.error();
+      return;
+    }
+
+    await HapticFeedbackHelper.mediumImpact();
+    FocusScope.of(context).unfocus();
     setState(() => _loading = true);
+
     try {
-      final messenger = ScaffoldMessenger.of(context); // capture
-      final router = GoRouter.of(context); // capture
-      final user = await _auth.signUp(context, _email.text, _pass.text);
+      final messenger = ScaffoldMessenger.of(context);
+      final router = GoRouter.of(context);
+      final user = await _auth.signUp(context, _email.text.trim(), _pass.text);
       if (!mounted) return;
+
       // Update display name if provided
       final nameTrimmed = _name.text.trim();
       if (nameTrimmed.isNotEmpty) {
         await user?.updateDisplayName(nameTrimmed);
       }
+
       // Send verification email; then go to confirmation screen.
       await user?.sendEmailVerification();
-      messenger.showSnackBar(SnackBar(content: Text(t.accountCreated)));
+      await HapticFeedbackHelper.success();
+
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(t.accountCreated),
+          backgroundColor: Colors.green.shade900,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
       router.go(Routes.confirmEmail);
     } on AuthException catch (e) {
+      await HapticFeedbackHelper.error();
       final messenger = ScaffoldMessenger.of(context);
       if (!mounted) return;
-      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(e.message),
+          backgroundColor: Colors.red.shade900,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
     } finally {
       if (mounted) setState(() => _loading = false);
     }
-  }
-
-  String? _validateEmail(String? v) {
-    final t = AppLocalizations.of(context)!;
-    if (v == null || v.trim().isEmpty) return t.email;
-    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(v.trim())) {
-      return t.invalidEmail;
-    }
-    return null;
-  }
-
-  String? _validatePassword(String? v) {
-    final t = AppLocalizations.of(context)!;
-    if (v == null || v.isEmpty) return t.password;
-    if (v.length < 6) return t.weakPassword; // basic
-    return null;
-  }
-
-  String? _validateConfirm(String? v) {
-    final t = AppLocalizations.of(context)!;
-    if (v == null || v.isEmpty) return t.confirmPassword;
-    if (v != _pass.text) return t.passwordsMismatch;
-    return null;
   }
 
   @override
@@ -167,10 +176,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   const SizedBox(height: 24),
                                   TextFormField(
                                     controller: _name,
+                                    enabled: !_loading,
                                     textInputAction: TextInputAction.next,
+                                    textCapitalization:
+                                        TextCapitalization.words,
                                     autofillHints: const [AutofillHints.name],
                                     decoration: InputDecoration(
                                       labelText: t.name,
+                                      hintText: 'Your name',
                                       prefixIcon: const Icon(
                                         Icons.person_rounded,
                                       ),
@@ -185,20 +198,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   const SizedBox(height: 14),
                                   TextFormField(
                                     controller: _email,
+                                    enabled: !_loading,
                                     keyboardType: TextInputType.emailAddress,
                                     textInputAction: TextInputAction.next,
                                     autofillHints: const [AutofillHints.email],
                                     decoration: InputDecoration(
                                       labelText: t.email,
+                                      hintText: 'your@email.com',
                                       prefixIcon: const Icon(
                                         Icons.mail_rounded,
                                       ),
                                     ),
-                                    validator: _validateEmail,
+                                    validator:
+                                        (v) =>
+                                            FormValidators.validateEmail(v, t),
                                   ),
                                   const SizedBox(height: 14),
                                   TextFormField(
                                     controller: _pass,
+                                    enabled: !_loading,
                                     obscureText: _obscure1,
                                     textInputAction: TextInputAction.next,
                                     onChanged: _updateStrength,
@@ -207,14 +225,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     ],
                                     decoration: InputDecoration(
                                       labelText: t.password,
+                                      hintText: 'Create a strong password',
                                       prefixIcon: const Icon(
                                         Icons.lock_rounded,
                                       ),
                                       suffixIcon: IconButton(
-                                        onPressed:
-                                            () => setState(
-                                              () => _obscure1 = !_obscure1,
-                                            ),
+                                        onPressed: () async {
+                                          await HapticFeedbackHelper.lightImpact();
+                                          setState(
+                                            () => _obscure1 = !_obscure1,
+                                          );
+                                        },
                                         icon: Icon(
                                           _obscure1
                                               ? Icons.visibility_rounded
@@ -222,7 +243,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         ),
                                       ),
                                     ),
-                                    validator: _validatePassword,
+                                    validator:
+                                        (v) => FormValidators.validatePassword(
+                                          v,
+                                          t,
+                                        ),
                                   ),
                                   if (_strength >= 0.2) ...[
                                     const SizedBox(height: 6),
@@ -231,6 +256,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   const SizedBox(height: 14),
                                   TextFormField(
                                     controller: _confirm,
+                                    enabled: !_loading,
                                     obscureText: _obscure2,
                                     textInputAction: TextInputAction.done,
                                     onFieldSubmitted: (_) => _onSignUp(),
@@ -239,14 +265,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     ],
                                     decoration: InputDecoration(
                                       labelText: t.confirmPassword,
+                                      hintText: 'Confirm your password',
                                       prefixIcon: const Icon(
                                         Icons.lock_outline_rounded,
                                       ),
                                       suffixIcon: IconButton(
-                                        onPressed:
-                                            () => setState(
-                                              () => _obscure2 = !_obscure2,
-                                            ),
+                                        onPressed: () async {
+                                          await HapticFeedbackHelper.lightImpact();
+                                          setState(
+                                            () => _obscure2 = !_obscure2,
+                                          );
+                                        },
                                         icon: Icon(
                                           _obscure2
                                               ? Icons.visibility_rounded
@@ -254,7 +283,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         ),
                                       ),
                                     ),
-                                    validator: _validateConfirm,
+                                    validator:
+                                        (v) =>
+                                            FormValidators.validatePasswordConfirmation(
+                                              v,
+                                              _pass.text,
+                                              t,
+                                            ),
                                   ),
                                   const SizedBox(height: 20),
                                   AuthPrimaryButton(
@@ -273,7 +308,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     onPressed:
                                         _loading
                                             ? null
-                                            : () => GoRouter.of(context).pop(),
+                                            : () async {
+                                              await HapticFeedbackHelper.lightImpact();
+                                              if (mounted)
+                                                GoRouter.of(context).pop();
+                                            },
                                     child: Text(t.backToLogin),
                                   ),
                                 ],

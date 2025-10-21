@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../router.dart';
 import '../ui/auth_widgets.dart';
+import '../core/utils/haptic_feedback.dart';
 
 class EmailConfirmationScreen extends StatefulWidget {
   const EmailConfirmationScreen({super.key, this.email});
@@ -50,23 +51,41 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
   }
 
   Future<void> _openMail() async {
-    // Attempt to open a generic mail compose window using a mailto: link.
+    await HapticFeedbackHelper.lightImpact();
+
     final uri = Uri(scheme: 'mailto');
+    final messenger = ScaffoldMessenger.of(context);
+
     try {
       if (await canLaunchUrl(uri)) {
+        await HapticFeedbackHelper.success();
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No mail apps installed on this device'),
+        await HapticFeedbackHelper.error();
+        messenger.showSnackBar(
+          SnackBar(
+            content: const Text('No mail apps installed on this device'),
+            backgroundColor: Colors.red.shade900,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No mail apps installed on this device')),
+      await HapticFeedbackHelper.error();
+      messenger.showSnackBar(
+        SnackBar(
+          content: const Text('No mail apps installed on this device'),
+          backgroundColor: Colors.red.shade900,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
       );
     }
   }
@@ -74,54 +93,105 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
   Future<void> _resend() async {
     if (_cooldown > 0 || _sending) return;
 
+    await HapticFeedbackHelper.mediumImpact();
     setState(() => _sending = true);
+
+    final messenger = ScaffoldMessenger.of(context);
+
     try {
       final user = _auth.currentUser;
       if (user == null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('No signed-in user.')));
+        await HapticFeedbackHelper.error();
+        messenger.showSnackBar(
+          SnackBar(
+            content: const Text('No signed-in user.'),
+            backgroundColor: Colors.red.shade900,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
         return;
       }
 
-      // You can pass ActionCodeSettings if you want a custom continueUrl.
       await user.sendEmailVerification();
       if (!mounted) return;
+
+      await HapticFeedbackHelper.success();
       final t = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(t.verificationEmailSent(_email))));
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(t.verificationEmailSent(_email)),
+          backgroundColor: Colors.green.shade900,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
       _startCooldown(60);
     } catch (_) {
       if (!mounted) return;
+      await HapticFeedbackHelper.error();
       final t = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(t.couldNotSendEmail)));
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(t.couldNotSendEmail),
+          backgroundColor: Colors.red.shade900,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
     } finally {
       if (mounted) setState(() => _sending = false);
     }
   }
 
   Future<void> _continueIfVerified() async {
+    await HapticFeedbackHelper.mediumImpact();
+
+    final messenger = ScaffoldMessenger.of(context);
+    final router = GoRouter.of(context);
+
     try {
       await _auth.currentUser?.reload();
       final verified = _auth.currentUser?.emailVerified ?? false;
       if (!mounted) return;
+
       if (verified) {
-        context.go(Routes.dashboard);
+        await HapticFeedbackHelper.success();
+        router.go(Routes.dashboard);
       } else {
+        await HapticFeedbackHelper.error();
         final t = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(t.emailNotVerifiedYet)));
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(t.emailNotVerifiedYet),
+            backgroundColor: Colors.orange.shade900,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
       }
     } catch (_) {
       if (!mounted) return;
+      await HapticFeedbackHelper.error();
       final t = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(t.couldNotRefreshStatus)));
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(t.couldNotRefreshStatus),
+          backgroundColor: Colors.red.shade900,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
     }
   }
 
@@ -215,10 +285,10 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
                             final t = AppLocalizations.of(context)!;
                             return TextButton(
                               onPressed: () async {
+                                await HapticFeedbackHelper.lightImpact();
                                 final router = GoRouter.of(context);
                                 await FirebaseAuth.instance.signOut();
-                                if (!mounted) return;
-                                router.go(Routes.login);
+                                if (context.mounted) router.go(Routes.login);
                               },
                               child: Text(t.backToSignIn),
                             );
@@ -227,24 +297,36 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
 
                         const SizedBox(height: 4),
 
-                        // Resend & change email
+                        // Resend
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             TextButton(
                               onPressed:
                                   (_cooldown > 0 || _sending) ? null : _resend,
-                              child: Text(
-                                _cooldown > 0
-                                    ? t.resendInSeconds(_cooldown)
-                                    : t.resendVerification,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: theme.colorScheme.primary.withValues(
-                                    alpha: .95,
-                                  ),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                              child:
+                                  _sending
+                                      ? SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor: AlwaysStoppedAnimation(
+                                            theme.colorScheme.primary,
+                                          ),
+                                        ),
+                                      )
+                                      : Text(
+                                        _cooldown > 0
+                                            ? t.resendInSeconds(_cooldown)
+                                            : t.resendVerification,
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                              color: theme.colorScheme.primary
+                                                  .withValues(alpha: .95),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                      ),
                             ),
                           ],
                         ),

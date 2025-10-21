@@ -4,6 +4,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../router.dart';
 import '../ui/auth_widgets.dart';
+import '../core/utils/haptic_feedback.dart';
+import '../core/validators/form_validators.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -25,40 +27,65 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
-  String? _emailValidator(String? value) {
-    final t = AppLocalizations.of(context)!;
-    final v = value?.trim() ?? '';
-    if (v.isEmpty) return t.invalidEmail; // reuse existing key
-    final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-    if (!emailRegex.hasMatch(v)) return t.invalidEmail;
-    return null;
-  }
-
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
+    FocusScope.of(context).unfocus();
 
+    if (!_formKey.currentState!.validate()) {
+      await HapticFeedbackHelper.error();
+      return;
+    }
+
+    await HapticFeedbackHelper.mediumImpact();
     setState(() => _loading = true);
+
+    final messenger = ScaffoldMessenger.of(context);
+    final router = GoRouter.of(context);
+
     try {
       await _auth.sendPasswordReset(context, _emailCtrl.text);
       if (!mounted) return;
 
-      // Show success and go back to login
+      await HapticFeedbackHelper.success();
+
       final t = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(t.passwordResetEmailSent)));
-      context.go(Routes.login);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(t.passwordResetEmailSent),
+          backgroundColor: Colors.green.shade900,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+      router.go(Routes.login);
     } on AuthException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.message)));
+      await HapticFeedbackHelper.error();
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(e.message),
+          backgroundColor: Colors.red.shade900,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
     } catch (_) {
       if (!mounted) return;
+      await HapticFeedbackHelper.error();
       final t = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(t.errUnexpected)));
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(t.errUnexpected),
+          backgroundColor: Colors.red.shade900,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -118,9 +145,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
                           _Field(
                             controller: _emailCtrl,
+                            enabled: !_loading,
                             label: AppLocalizations.of(context)!.email,
+                            hint: 'your@email.com',
                             keyboardType: TextInputType.emailAddress,
-                            validator: _emailValidator,
+                            validator:
+                                (v) => FormValidators.validateEmail(
+                                  v,
+                                  AppLocalizations.of(context)!,
+                                ),
                             prefix: const Icon(Icons.mail_outlined),
                             onSubmitted: _submit,
                           ),
@@ -128,7 +161,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
                           GradientPillButton(
                             label: AppLocalizations.of(context)!.sendResetLink,
-                            onPressed: _submit,
+                            onPressed: _loading ? null : _submit,
                             gradient: const LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
@@ -144,7 +177,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                 onPressed:
                                     _loading
                                         ? null
-                                        : () => context.go(Routes.login),
+                                        : () async {
+                                          await HapticFeedbackHelper.lightImpact();
+                                          if (context.mounted)
+                                            context.go(Routes.login);
+                                        },
                                 child: Text(t.backToSignIn),
                               );
                             },
@@ -294,18 +331,22 @@ class _LogoGlow extends StatelessWidget {
 class _Field extends StatelessWidget {
   final TextEditingController controller;
   final String label;
+  final String? hint;
   final Widget? prefix;
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
   final VoidCallback? onSubmitted;
+  final bool enabled;
 
   const _Field({
     required this.controller,
     required this.label,
+    this.hint,
     this.prefix,
     this.keyboardType,
     this.validator,
     this.onSubmitted,
+    this.enabled = true,
   });
 
   @override
@@ -318,12 +359,14 @@ class _Field extends StatelessWidget {
 
     return TextFormField(
       controller: controller,
+      enabled: enabled,
       keyboardType: keyboardType,
       validator: validator,
       onFieldSubmitted: (_) => onSubmitted?.call(),
       style: theme.textTheme.bodyLarge,
       decoration: InputDecoration(
         labelText: label,
+        hintText: hint,
         prefixIcon:
             prefix == null
                 ? null

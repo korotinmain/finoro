@@ -5,6 +5,8 @@ import 'package:money_tracker/services/auth_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:money_tracker/ui/auth_widgets.dart';
 import 'package:money_tracker/router.dart';
+import 'package:money_tracker/core/utils/haptic_feedback.dart';
+import 'package:money_tracker/core/validators/form_validators.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -23,12 +25,22 @@ class _LoginScreenState extends State<LoginScreen> {
   final _authService = AuthService();
 
   Future<void> _onSignIn() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      await HapticFeedbackHelper.error();
+      return;
+    }
+
+    await HapticFeedbackHelper.mediumImpact();
+    FocusScope.of(context).unfocus();
     setState(() => _loading = true);
+
     try {
       final router = GoRouter.of(context); // capture before await
-      await _authService.signIn(context, _email.text, _pass.text);
-      if (!mounted) return; // still guard rebuild
+      await _authService.signIn(context, _email.text.trim(), _pass.text);
+      if (!mounted) return;
+
+      await HapticFeedbackHelper.success();
+
       // Route changed: old '/home' replaced by tab shell with dashboard root.
       final user = _authService.currentUser;
       if (user != null && !user.emailVerified) {
@@ -37,11 +49,19 @@ class _LoginScreenState extends State<LoginScreen> {
         router.go(Routes.dashboard);
       }
     } on AuthException catch (e) {
-      final messenger = ScaffoldMessenger.of(
-        context,
-      ); // capture before mounted check
+      await HapticFeedbackHelper.error();
+      final messenger = ScaffoldMessenger.of(context);
       if (!mounted) return;
-      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(e.message),
+          backgroundColor: Colors.red.shade900,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -142,6 +162,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   const SizedBox(height: 24),
                                   TextFormField(
                                     controller: _email,
+                                    enabled: !_loading,
                                     keyboardType: TextInputType.emailAddress,
                                     textInputAction: TextInputAction.next,
                                     autofillHints: const [
@@ -150,25 +171,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ],
                                     decoration: InputDecoration(
                                       labelText: t.email,
+                                      hintText: 'your@email.com',
                                       prefixIcon: const Icon(
                                         Icons.mail_rounded,
                                       ),
                                     ),
-                                    validator: (v) {
-                                      if (v == null || v.trim().isEmpty) {
-                                        return t.email;
-                                      }
-                                      if (!RegExp(
-                                        r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
-                                      ).hasMatch(v.trim())) {
-                                        return t.invalidEmail;
-                                      }
-                                      return null;
-                                    },
+                                    validator:
+                                        (v) =>
+                                            FormValidators.validateEmail(v, t),
                                   ),
                                   const SizedBox(height: 14),
                                   TextFormField(
                                     controller: _pass,
+                                    enabled: !_loading,
                                     obscureText: _obscure,
                                     textInputAction: TextInputAction.done,
                                     onFieldSubmitted: (_) => _onSignIn(),
@@ -177,14 +192,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ],
                                     decoration: InputDecoration(
                                       labelText: t.password,
+                                      hintText: 'Enter your password',
                                       prefixIcon: const Icon(
                                         Icons.lock_rounded,
                                       ),
                                       suffixIcon: IconButton(
-                                        onPressed:
-                                            () => setState(
-                                              () => _obscure = !_obscure,
-                                            ),
+                                        onPressed: () async {
+                                          await HapticFeedbackHelper.lightImpact();
+                                          setState(() => _obscure = !_obscure);
+                                        },
                                         icon: Icon(
                                           _obscure
                                               ? Icons.visibility_rounded
@@ -204,9 +220,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                       onPressed:
                                           _loading
                                               ? null
-                                              : () => GoRouter.of(
-                                                context,
-                                              ).push(Routes.forgot),
+                                              : () async {
+                                                await HapticFeedbackHelper.lightImpact();
+                                                if (mounted) {
+                                                  GoRouter.of(
+                                                    context,
+                                                  ).push(Routes.forgot);
+                                                }
+                                              },
                                       child: Text(t.forgotPasswordButton),
                                     ),
                                   ),
@@ -226,9 +247,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                     onPressed:
                                         _loading
                                             ? null
-                                            : () => GoRouter.of(
-                                              context,
-                                            ).push(Routes.register),
+                                            : () async {
+                                              await HapticFeedbackHelper.lightImpact();
+                                              if (mounted) {
+                                                GoRouter.of(
+                                                  context,
+                                                ).push(Routes.register);
+                                              }
+                                            },
                                     child: Text(t.signUp),
                                   ),
                                   const SizedBox(height: 10),
