@@ -1,5 +1,7 @@
 // lib/services/auth_service.dart
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -7,7 +9,11 @@ class AuthService {
   Stream<User?> authStateChanges() => _auth.authStateChanges();
   User? get currentUser => _auth.currentUser;
 
-  Future<User?> signIn(String email, String password) async {
+  Future<User?> signIn(
+    BuildContext context,
+    String email,
+    String password,
+  ) async {
     try {
       final cred = await _auth.signInWithEmailAndPassword(
         email: email.trim(),
@@ -15,13 +21,15 @@ class AuthService {
       );
       return cred.user;
     } on FirebaseAuthException catch (e) {
-      throw AuthException(_mapCodeToMessage(e.code));
+      final t = AppLocalizations.of(context)!;
+      throw AuthException(_mapCodeToMessage(t, e.code));
     } catch (_) {
-      throw AuthException('Unexpected error. Please try again.');
+      final t = AppLocalizations.of(context)!;
+      throw AuthException(t.errUnexpected);
     }
   }
 
-  Future<void> sendPasswordReset(String email) async {
+  Future<void> sendPasswordReset(BuildContext context, String email) async {
     final actionCodeSettings = ActionCodeSettings(
       url: 'https://moneytracker-5c1e6.web.app/auth/action',
       handleCodeInApp: false,
@@ -36,15 +44,21 @@ class AuthService {
         actionCodeSettings: actionCodeSettings,
       );
     } on FirebaseAuthException catch (e) {
-      throw AuthException(_mapCodeToMessage(e.code));
+      final t = AppLocalizations.of(context)!;
+      throw AuthException(_mapCodeToMessage(t, e.code));
     } catch (_) {
-      throw AuthException('Unexpected error. Please try again.');
+      final t = AppLocalizations.of(context)!;
+      throw AuthException(t.errUnexpected);
     }
   }
 
   Future<void> signOut() => _auth.signOut();
 
-  Future<User?> signUp(String email, String password) async {
+  Future<User?> signUp(
+    BuildContext context,
+    String email,
+    String password,
+  ) async {
     try {
       final cred = await _auth.createUserWithEmailAndPassword(
         email: email.trim(),
@@ -52,39 +66,41 @@ class AuthService {
       );
       return cred.user;
     } on FirebaseAuthException catch (e) {
-      throw AuthException(_mapSignUpCode(e.code));
+      final t = AppLocalizations.of(context)!;
+      throw AuthException(_mapSignUpCode(t, e.code));
     } catch (_) {
-      throw AuthException('Unexpected error. Please try again.');
+      final t = AppLocalizations.of(context)!;
+      throw AuthException(t.errUnexpected);
     }
   }
 
-  String _mapSignUpCode(String code) {
+  String _mapSignUpCode(AppLocalizations t, String code) {
     switch (code) {
       case 'email-already-in-use':
-        return 'Email already in use.';
+        return t.errEmailInUse;
       case 'invalid-email':
-        return 'Invalid email format.';
+        return t.errInvalidEmailFormat;
       case 'operation-not-allowed':
-        return 'Operation not allowed.';
+        return t.errOperationNotAllowed;
       case 'weak-password':
-        return 'Password is too weak.';
+        return t.errWeakPassword;
       default:
-        return 'Could not create account.';
+        return t.errCouldNotCreateAccount;
     }
   }
 
-  String _mapCodeToMessage(String code) {
+  String _mapCodeToMessage(AppLocalizations t, String code) {
     switch (code) {
       case 'invalid-email':
-        return 'Invalid email format.';
+        return t.errInvalidEmailFormat;
       case 'user-disabled':
-        return 'This account has been disabled.';
+        return t.errAccountDisabled;
       case 'user-not-found':
-        return 'No account found with this email.';
+        return t.errUserNotFound;
       case 'wrong-password':
-        return 'Incorrect password.';
+        return t.errWrongPassword;
       default:
-        return 'Authentication failed.';
+        return t.errAuthFailed;
     }
   }
 }

@@ -44,5 +44,43 @@
   "noProjectsYet": "No projects yet",
   "createProjectPrompt": "Create a project to start managing your expenses and savings.",
   "createNewProjectButton": "Create New Project",
-  "signOut": "Sign Out"
+  "signOut": "Sign Out",
+  "pleaseCheckInbox": "Please check your inbox",
+  "verificationEmailDescription": "We sent a verification email with a link to confirm your address.",
+  "openMail": "Open Mail",
+  "iveVerifiedContinue": "I've verified — Continue",
+  "resendVerification": "Resend verification",
+  "resendInSeconds": "Resend in {seconds} s",
+  "@resendInSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "verificationEmailSent": "Verification email sent to {email}",
+  "@verificationEmailSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "noMailAppsInstalled": "No mail apps installed on this device",
+  "noSignedInUser": "No signed-in user.",
+  "couldNotSendEmail": "Could not send email. Try again later.",
+  "emailNotVerifiedYet": "Email not verified yet. Check your inbox.",
+  "couldNotRefreshStatus": "Could not refresh status.",
+  "statusVerified": "Verified",
+  "statusUnverified": "Unverified",
+  "errUnexpected": "Unexpected error. Please try again.",
+  "errEmailInUse": "Email already in use.",
+  "errInvalidEmailFormat": "Invalid email format.",
+  "errOperationNotAllowed": "Operation not allowed.",
+  "errWeakPassword": "Password is too weak.",
+  "errCouldNotCreateAccount": "Could not create account.",
+  "errAccountDisabled": "This account has been disabled.",
+  "errUserNotFound": "No account found with this email.",
+  "errWrongPassword": "Incorrect password.",
+  "errAuthFailed": "Authentication failed."
 }

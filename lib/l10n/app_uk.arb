@@ -44,5 +44,43 @@
   "noProjectsYet": "Ще немає проєктів",
   "createProjectPrompt": "Створіть проєкт, щоб почати керувати витратами та заощадженнями.",
   "createNewProjectButton": "Створити новий проєкт",
-  "signOut": "Вийти"
+  "signOut": "Вийти",
+  "pleaseCheckInbox": "Перевірте свою поштову скриньку",
+  "verificationEmailDescription": "Ми надіслали лист з посиланням для підтвердження вашої адреси.",
+  "openMail": "Відкрити пошту",
+  "iveVerifiedContinue": "Я підтвердив — Продовжити",
+  "resendVerification": "Надіслати ще раз",
+  "resendInSeconds": "Надіслати через {seconds} с",
+  "@resendInSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "verificationEmailSent": "Лист підтвердження надіслано на {email}",
+  "@verificationEmailSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "noMailAppsInstalled": "Немає встановлених поштових додатків",
+  "noSignedInUser": "Немає авторизованого користувача.",
+  "couldNotSendEmail": "Не вдалось надіслати лист. Спробуйте пізніше.",
+  "emailNotVerifiedYet": "Email ще не підтверджено. Перевірте пошту.",
+  "couldNotRefreshStatus": "Не вдалось оновити статус.",
+  "statusVerified": "Підтверджено",
+  "statusUnverified": "Не підтверджено",
+  "errUnexpected": "Неочікувана помилка. Спробуйте ще раз.",
+  "errEmailInUse": "Електронна пошта вже використовується.",
+  "errInvalidEmailFormat": "Невірний формат електронної пошти.",
+  "errOperationNotAllowed": "Операція заборонена.",
+  "errWeakPassword": "Пароль надто слабкий.",
+  "errCouldNotCreateAccount": "Не вдалося створити акаунт.",
+  "errAccountDisabled": "Цей акаунт вимкнено.",
+  "errUserNotFound": "Акаунт з цією поштою не знайдено.",
+  "errWrongPassword": "Невірний пароль.",
+  "errAuthFailed": "Помилка автентифікації."
 }

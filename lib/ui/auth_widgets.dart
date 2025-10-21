@@ -230,3 +230,105 @@ class AuthPrimaryButton extends StatelessWidget {
     );
   }
 }
+
+/// Reusable gradient filled pill button (general purpose, wider styling control).
+class GradientPillButton extends StatelessWidget {
+  const GradientPillButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.height = 56,
+    this.gradient = const LinearGradient(
+      colors: [Color(0xFF6D4AFF), Color(0xFF3EA7FF)],
+    ),
+    this.borderRadius = 24,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final double height;
+  final LinearGradient gradient;
+  final double borderRadius;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: gradient,
+        borderRadius: BorderRadius.circular(borderRadius),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: .35),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(borderRadius),
+          child: Container(
+            height: height,
+            alignment: Alignment.center,
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                letterSpacing: .2,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Outline ghost pill button.
+class GhostPillButton extends StatelessWidget {
+  const GhostPillButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.height = 52,
+    this.borderRadius = 24,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final double height;
+  final double borderRadius;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: Border.all(color: Colors.white.withValues(alpha: .22)),
+      ),
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(borderRadius),
+          child: Container(
+            height: height,
+            alignment: Alignment.center,
+            child: Text(
+              label,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: theme.colorScheme.onSurface,
+                fontWeight: FontWeight.w700,
+                letterSpacing: .2,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

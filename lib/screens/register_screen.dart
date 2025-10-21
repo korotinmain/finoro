@@ -54,7 +54,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       final messenger = ScaffoldMessenger.of(context); // capture
       final router = GoRouter.of(context); // capture
-      final user = await _auth.signUp(_email.text, _pass.text);
+      final user = await _auth.signUp(context, _email.text, _pass.text);
       if (!mounted) return;
       // Update display name if provided
       final nameTrimmed = _name.text.trim();

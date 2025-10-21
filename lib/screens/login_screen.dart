@@ -27,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _loading = true);
     try {
       final router = GoRouter.of(context); // capture before await
-      await _authService.signIn(_email.text, _pass.text);
+      await _authService.signIn(context, _email.text, _pass.text);
       if (!mounted) return; // still guard rebuild
       router.go('/home');
     } on AuthException catch (e) {

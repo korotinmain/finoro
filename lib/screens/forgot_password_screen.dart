@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../router.dart';
+import '../ui/auth_widgets.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -25,10 +26,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   String? _emailValidator(String? value) {
+    final t = AppLocalizations.of(context)!;
     final v = value?.trim() ?? '';
-    if (v.isEmpty) return 'Email is required';
+    if (v.isEmpty) return t.invalidEmail; // reuse existing key
     final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-    if (!emailRegex.hasMatch(v)) return 'Enter a valid email';
+    if (!emailRegex.hasMatch(v)) return t.invalidEmail;
     return null;
   }
 
@@ -37,13 +39,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     setState(() => _loading = true);
     try {
-      await _auth.sendPasswordReset(_emailCtrl.text);
+      await _auth.sendPasswordReset(context, _emailCtrl.text);
       if (!mounted) return;
 
       // Show success and go back to login
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Reset link sent. Check your email.')),
-      );
+      final t = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(t.passwordResetEmailSent)));
       context.go(Routes.login);
     } on AuthException catch (e) {
       if (!mounted) return;
@@ -52,9 +55,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       ).showSnackBar(SnackBar(content: Text(e.message)));
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Unexpected error. Please try again.')),
-      );
+      final t = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(t.errUnexpected)));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -87,7 +91,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           const _LogoGlow(),
                           const SizedBox(height: 16),
                           Text(
-                            'Reset password',
+                            AppLocalizations.of(context)!.forgotPassword,
                             textAlign: TextAlign.center,
                             style: Theme.of(
                               context,
@@ -98,7 +102,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Enter the email you used. We’ll send you a reset link.',
+                            AppLocalizations.of(
+                              context,
+                            )!.forgotPasswordDescription,
                             textAlign: TextAlign.center,
                             style: Theme.of(
                               context,
@@ -112,23 +118,22 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
                           _Field(
                             controller: _emailCtrl,
-                            label: 'Email',
+                            label: AppLocalizations.of(context)!.email,
                             keyboardType: TextInputType.emailAddress,
                             validator: _emailValidator,
                             prefix: const Icon(Icons.mail_outlined),
-                            onSubmitted: (_) => _submit(),
+                            onSubmitted: _submit,
                           ),
                           const SizedBox(height: 20),
 
-                          _GradientButton(
-                            label: 'Send reset link',
-                            loading: _loading,
+                          GradientPillButton(
+                            label: AppLocalizations.of(context)!.sendResetLink,
+                            onPressed: _submit,
                             gradient: const LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [brandPurple, brandBlue],
                             ),
-                            onPressed: _submit,
                           ),
                           const SizedBox(height: 12),
 
@@ -290,18 +295,14 @@ class _Field extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final Widget? prefix;
-  final Widget? suffix;
-  final bool obscure;
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
-  final void Function(String)? onSubmitted;
+  final VoidCallback? onSubmitted;
 
   const _Field({
     required this.controller,
     required this.label,
     this.prefix,
-    this.suffix,
-    this.obscure = false,
     this.keyboardType,
     this.validator,
     this.onSubmitted,
@@ -317,10 +318,9 @@ class _Field extends StatelessWidget {
 
     return TextFormField(
       controller: controller,
-      obscureText: obscure,
       keyboardType: keyboardType,
       validator: validator,
-      onFieldSubmitted: onSubmitted,
+      onFieldSubmitted: (_) => onSubmitted?.call(),
       style: theme.textTheme.bodyLarge,
       decoration: InputDecoration(
         labelText: label,
@@ -338,7 +338,6 @@ class _Field extends StatelessWidget {
                   ),
                 ),
         prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-        suffixIcon: suffix,
         filled: true,
         fillColor: const Color(0xFF1F2126).withValues(alpha: .85),
         contentPadding: const EdgeInsets.symmetric(
@@ -353,61 +352,4 @@ class _Field extends StatelessWidget {
   }
 }
 
-class _GradientButton extends StatelessWidget {
-  final String label;
-  final VoidCallback? onPressed;
-  final bool loading;
-  final Gradient gradient;
-
-  const _GradientButton({
-    required this.label,
-    required this.onPressed,
-    required this.gradient,
-    this.loading = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final canTap = !loading && onPressed != null;
-
-    return Container(
-      decoration: BoxDecoration(
-        gradient: gradient,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: .35),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
-      child: Material(
-        type: MaterialType.transparency,
-        child: InkWell(
-          onTap: canTap ? onPressed : null,
-          borderRadius: BorderRadius.circular(24),
-          child: Container(
-            height: 56,
-            alignment: Alignment.center,
-            child:
-                loading
-                    ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                    : Text(
-                      label,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: .2,
-                      ),
-                    ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+// Removed unused legacy _GradientButton in favor of shared GradientPillButton.

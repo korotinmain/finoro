@@ -2,10 +2,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:open_mail_app/open_mail_app.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../router.dart';
+import '../ui/auth_widgets.dart';
 
 class EmailConfirmationScreen extends StatefulWidget {
   const EmailConfirmationScreen({super.key, this.email});
@@ -49,19 +50,23 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
   }
 
   Future<void> _openMail() async {
-    final result = await OpenMailApp.openMailApp();
-    if (!mounted) return;
-
-    if (!result.didOpen && !result.canOpen) {
-      // No mail apps installed
+    // Attempt to open a generic mail compose window using a mailto: link.
+    final uri = Uri(scheme: 'mailto');
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No mail apps installed on this device'),
+          ),
+        );
+      }
+    } catch (_) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No mail apps installed on this device')),
-      );
-    } else if (!result.didOpen && result.canOpen) {
-      // iOS: display dialog to pick one
-      showDialog(
-        context: context,
-        builder: (_) => MailAppPickerDialog(mailApps: result.options),
       );
     }
   }
@@ -82,15 +87,17 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
       // You can pass ActionCodeSettings if you want a custom continueUrl.
       await user.sendEmailVerification();
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Verification email sent to $_email')),
-      );
+      final t = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(t.verificationEmailSent(_email))));
       _startCooldown(60);
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not send email. Try again later.')),
-      );
+      final t = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(t.couldNotSendEmail)));
     } finally {
       if (mounted) setState(() => _sending = false);
     }
@@ -104,17 +111,17 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
       if (verified) {
         context.go(Routes.dashboard);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Email not verified yet. Check your inbox.'),
-          ),
-        );
+        final t = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(t.emailNotVerifiedYet)));
       }
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not refresh status.')),
-      );
+      final t = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(t.couldNotRefreshStatus)));
     }
   }
 
@@ -154,7 +161,7 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Please check your inbox',
+                          t.pleaseCheckInbox,
                           textAlign: TextAlign.center,
                           style: theme.textTheme.titleMedium?.copyWith(
                             color: theme.colorScheme.onSurface.withValues(
@@ -171,7 +178,7 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'We sent a verification email with a link to confirm your address.',
+                          t.verificationEmailDescription,
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: theme.colorScheme.onSurface.withValues(
@@ -182,8 +189,8 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
                         const SizedBox(height: 20),
 
                         // Open Mail
-                        _GradientButton(
-                          label: 'Open Mail',
+                        GradientPillButton(
+                          label: t.openMail,
                           onPressed: _openMail,
                           gradient: const LinearGradient(
                             begin: Alignment.topLeft,
@@ -195,8 +202,8 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
                         const SizedBox(height: 12),
 
                         // I've verified — Continue
-                        _GhostButton(
-                          label: "I've verified — Continue",
+                        GhostPillButton(
+                          label: t.iveVerifiedContinue,
                           onPressed: _continueIfVerified,
                         ),
 
@@ -229,8 +236,8 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
                                   (_cooldown > 0 || _sending) ? null : _resend,
                               child: Text(
                                 _cooldown > 0
-                                    ? 'Resend in $_cooldown s'
-                                    : 'Resend verification',
+                                    ? t.resendInSeconds(_cooldown)
+                                    : t.resendVerification,
                                 style: theme.textTheme.bodyMedium?.copyWith(
                                   color: theme.colorScheme.primary.withValues(
                                     alpha: .95,
@@ -383,85 +390,4 @@ class _LogoGlow extends StatelessWidget {
   }
 }
 
-class _GradientButton extends StatelessWidget {
-  final String label;
-  final VoidCallback? onPressed;
-  final Gradient gradient;
-  const _GradientButton({
-    required this.label,
-    required this.onPressed,
-    required this.gradient,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: gradient,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: .35),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
-      child: Material(
-        type: MaterialType.transparency,
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(24),
-          child: Container(
-            height: 56,
-            alignment: Alignment.center,
-            child: Text(
-              label,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-                letterSpacing: .2,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _GhostButton extends StatelessWidget {
-  final String label;
-  final VoidCallback? onPressed;
-  const _GhostButton({required this.label, required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withValues(alpha: .22)),
-      ),
-      child: Material(
-        type: MaterialType.transparency,
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(24),
-          child: Container(
-            height: 52,
-            alignment: Alignment.center,
-            child: Text(
-              label,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: theme.colorScheme.onSurface,
-                fontWeight: FontWeight.w700,
-                letterSpacing: .2,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+// (Local private button widgets replaced by shared GradientPillButton & GhostPillButton.)
