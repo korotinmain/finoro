@@ -87,5 +87,39 @@
   "accountSettings": "Налаштування акаунта",
   "changePassword": "Змінити пароль",
   "manageSignIn": "Керувати входом",
-  "deleteAccount": "Видалити акаунт"
+  "deleteAccount": "Видалити акаунт",
+  "updateDisplayName": "Оновити ім'я",
+  "newDisplayName": "Нове ім'я",
+  "saveChanges": "Зберегти",
+  "cancel": "Скасувати",
+  "nameUpdated": "Ім'я оновлено",
+  "actionFailed": "Дію не виконано. Спробуйте ще раз.",
+  "updatePassword": "Оновити пароль",
+  "passwordCurrent": "Поточний пароль",
+  "passwordNew": "Новий пароль",
+  "passwordConfirm": "Підтвердіть новий пароль",
+  "passwordUpdated": "Пароль оновлено",
+  "deleteAccountConfirmTitle": "Видалити акаунт",
+  "deleteAccountConfirmMessage": "Ця дія остаточна. Введіть DELETE для підтвердження.",
+  "typeDeletePlaceholder": "Введіть DELETE",
+  "accountDeleted": "Акаунт видалено",
+  "enableEmailAlerts": "Увімкнути email-сповіщення",
+  "help": "Допомога",
+  "notifications": "Сповіщення",
+  "securityPrivacy": "Безпека та конфіденційність",
+  "appearanceSettings": "Вигляд",
+  "privacySecurity": "Приватність та безпека",
+  "feedback": "Зворотний зв'язок",
+  "about": "Про застосунок",
+  "confirmSignOutTitle": "Вийти?",
+  "confirmSignOutMessage": "Ви впевнені, що хочете вийти?",
+  "confirm": "Підтвердити",
+  "versionLabel": "Версія {version}",
+  "@versionLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -87,5 +87,39 @@
   "accountSettings": "Account Settings",
   "changePassword": "Change Password",
   "manageSignIn": "Manage Sign-In",
-  "deleteAccount": "Delete Account"
+  "deleteAccount": "Delete Account",
+  "updateDisplayName": "Update Display Name",
+  "newDisplayName": "New display name",
+  "saveChanges": "Save Changes",
+  "cancel": "Cancel",
+  "nameUpdated": "Name updated",
+  "actionFailed": "Action failed. Please try again.",
+  "updatePassword": "Update Password",
+  "passwordCurrent": "Current password",
+  "passwordNew": "New password",
+  "passwordConfirm": "Confirm new password",
+  "passwordUpdated": "Password updated",
+  "deleteAccountConfirmTitle": "Delete Account",
+  "deleteAccountConfirmMessage": "This action is permanent. Type DELETE to confirm.",
+  "typeDeletePlaceholder": "Type DELETE",
+  "accountDeleted": "Account deleted",
+  "enableEmailAlerts": "Enable email alerts",
+  "help": "Help",
+  "notifications": "Notifications",
+  "securityPrivacy": "Security & Privacy",
+  "appearanceSettings": "Appearance",
+  "privacySecurity": "Privacy & Security",
+  "feedback": "Feedback",
+  "about": "About",
+  "confirmSignOutTitle": "Sign Out?",
+  "confirmSignOutMessage": "Are you sure you want to sign out?",
+  "confirm": "Confirm",
+  "versionLabel": "Version {version}",
+  "@versionLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  }
 }
