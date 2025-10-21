@@ -63,7 +63,9 @@ class SettingsTab extends StatelessWidget {
               verified: verified,
             ),
             const SizedBox(height: 32),
-            _SignOutButton(label: t.signOut),
+            _AccountSettingsButton(label: t.accountSettings),
+            const SizedBox(height: 24),
+            Center(child: _SignOutButton(label: t.signOut)),
           ],
         ),
       ),
@@ -224,6 +226,72 @@ class _SignOutButton extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AccountSettingsButton extends StatelessWidget {
+  final String label;
+  const _AccountSettingsButton({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return GestureDetector(
+      onTap: () => GoRouter.of(context).push('/settings/account'),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1F2126).withValues(alpha: .72),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white.withValues(alpha: .08)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: .35),
+              blurRadius: 26,
+              offset: const Offset(0, 14),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 46,
+              height: 46,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF505BFF), Color(0xFF7D48FF)],
+                ),
+              ),
+              child: const Icon(
+                Icons.manage_accounts_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 18),
+            Expanded(
+              child: Text(
+                label,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: .2,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: theme.colorScheme.onSurface.withValues(alpha: .7),
+              size: 28,
+            ),
+          ],
         ),
       ),
     );

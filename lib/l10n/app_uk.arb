@@ -82,5 +82,10 @@
   "errAccountDisabled": "Цей акаунт вимкнено.",
   "errUserNotFound": "Акаунт з цією поштою не знайдено.",
   "errWrongPassword": "Невірний пароль.",
-  "errAuthFailed": "Помилка автентифікації."
+  "errAuthFailed": "Помилка автентифікації.",
+  "accountSectionTitle": "Акаунт",
+  "accountSettings": "Налаштування акаунта",
+  "changePassword": "Змінити пароль",
+  "manageSignIn": "Керувати входом",
+  "deleteAccount": "Видалити акаунт"
 }

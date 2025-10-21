@@ -10,6 +10,7 @@ import 'screens/register_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/app_shell.dart';
 import 'screens/tabs.dart';
+import 'screens/account_settings_page.dart';
 
 CustomTransitionPage<T> _fadeSlidePage<T>({
   required GoRouterState state,
@@ -51,6 +52,7 @@ class Routes {
   static const expenses = '/expenses';
   static const history = '/history';
   static const settings = '/settings';
+  static const accountSettings = '/settings/account';
 }
 
 final appRouter = GoRouter(
@@ -117,6 +119,14 @@ final appRouter = GoRouter(
           pageBuilder:
               (context, state) =>
                   _fadeSlidePage(state: state, child: const SettingsTab()),
+        ),
+        GoRoute(
+          path: Routes.accountSettings,
+          pageBuilder:
+              (context, state) => _fadeSlidePage(
+                state: state,
+                child: const AccountSettingsPage(),
+              ),
         ),
       ],
     ),

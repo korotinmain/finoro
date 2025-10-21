@@ -82,5 +82,10 @@
   "errAccountDisabled": "This account has been disabled.",
   "errUserNotFound": "No account found with this email.",
   "errWrongPassword": "Incorrect password.",
-  "errAuthFailed": "Authentication failed."
+  "errAuthFailed": "Authentication failed.",
+  "accountSectionTitle": "Account",
+  "accountSettings": "Account Settings",
+  "changePassword": "Change Password",
+  "manageSignIn": "Manage Sign-In",
+  "deleteAccount": "Delete Account"
 }
