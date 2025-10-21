@@ -1,5 +1,5 @@
 name: money_tracker
-description: "A new Flutter project."
+description: "Finario - A modern personal finance app that helps you organize, track, and understand your money through Projects."
 
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
@@ -44,13 +44,10 @@ flutter:
     - assets/icon/app_icon.png
 
 flutter_launcher_icons:
-  android: true
+  android: false
   ios: true
   image_path: "assets/icon/app_icon.png"
-  min_sdk_android: 21
   remove_alpha_ios: true
-  adaptive_icon_background: "#0D0F19"
-  adaptive_icon_foreground: "assets/icon/app_icon.png"
 
 localizations:
   arb-dir: lib/l10n
