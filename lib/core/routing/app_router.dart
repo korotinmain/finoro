@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:money_tracker/core/routing/app_routes.dart';
 import 'package:money_tracker/core/routing/route_guard.dart';
 import 'package:money_tracker/core/routing/stream_refresh_notifier.dart';
+import 'package:money_tracker/screens/help_page.dart';
 
 // Auth Screens
 import 'package:money_tracker/screens/launch_screen.dart';
@@ -152,6 +153,14 @@ GoRouter createAppRouter() {
                 (context, state) => _createTransitionPage(
                   state: state,
                   child: const AccountSettingsPage(),
+                ),
+          ),
+          GoRoute(
+            path: AppRoutes.help,
+            pageBuilder:
+                (context, state) => _createTransitionPage(
+                  state: state,
+                  child: const HelpPage(),
                 ),
           ),
         ],

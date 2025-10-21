@@ -11,6 +11,7 @@ import 'screens/login_screen.dart';
 import 'screens/app_shell.dart';
 import 'screens/tabs.dart';
 import 'screens/account_settings_page.dart';
+import 'screens/help_page.dart';
 
 CustomTransitionPage<T> _fadeSlidePage<T>({
   required GoRouterState state,
@@ -53,6 +54,7 @@ class Routes {
   static const history = '/history';
   static const settings = '/settings';
   static const accountSettings = '/settings/account';
+  static const help = '/settings/help';
 }
 
 final appRouter = GoRouter(
@@ -90,6 +92,31 @@ final appRouter = GoRouter(
           (context, state) =>
               _fadeSlidePage(state: state, child: const ForgotPasswordScreen()),
     ),
+    // Settings sub-pages (outside shell, no bottom nav)
+    GoRoute(
+      path: '/settings',
+      redirect: (context, state) {
+        // If accessing /settings directly, allow it
+        if (state.matchedLocation == '/settings') return null;
+        return null;
+      },
+      routes: [
+        GoRoute(
+          path: 'account',
+          pageBuilder:
+              (context, state) => _fadeSlidePage(
+                state: state,
+                child: const AccountSettingsPage(),
+              ),
+        ),
+        GoRoute(
+          path: 'help',
+          pageBuilder:
+              (context, state) =>
+                  _fadeSlidePage(state: state, child: const HelpPage()),
+        ),
+      ],
+    ),
     // --- Authenticated shell with tabs ---
     ShellRoute(
       pageBuilder:
@@ -120,14 +147,6 @@ final appRouter = GoRouter(
               (context, state) =>
                   _fadeSlidePage(state: state, child: const SettingsTab()),
         ),
-        GoRoute(
-          path: Routes.accountSettings,
-          pageBuilder:
-              (context, state) => _fadeSlidePage(
-                state: state,
-                child: const AccountSettingsPage(),
-              ),
-        ),
       ],
     ),
   ],
@@ -144,10 +163,12 @@ final appRouter = GoRouter(
     final goingToRegister = loc == Routes.register;
     final goingToConfirmEmail = loc == Routes.confirmEmail;
     final goingToShellTab =
-        loc.startsWith(Routes.dashboard) ||
-        loc.startsWith(Routes.expenses) ||
-        loc.startsWith(Routes.history) ||
-        loc.startsWith(Routes.settings);
+        loc == Routes.dashboard ||
+        loc == Routes.expenses ||
+        loc == Routes.history ||
+        loc == Routes.settings;
+    final goingToAuthenticatedRoute =
+        goingToShellTab || loc == Routes.accountSettings || loc == Routes.help;
 
     // Public routes when NOT logged in: login, register, forgot, confirm-email
     if (!loggedIn &&
@@ -159,7 +180,7 @@ final appRouter = GoRouter(
     }
 
     if (!loggedIn) {
-      if (goingToShellTab) return Routes.login;
+      if (goingToAuthenticatedRoute) return Routes.login;
       return Routes.login;
     }
 

@@ -121,5 +121,26 @@
         "type": "String"
       }
     }
-  }
+  },
+  "helpCenter": "Help Center",
+  "helpGettingStarted": "Getting Started",
+  "helpGettingStartedDesc": "Learn the basics of managing your finances with Finoro",
+  "helpManagingExpenses": "Managing Expenses",
+  "helpManagingExpensesDesc": "Track and categorize your daily expenses",
+  "helpBudgeting": "Budgeting & Goals",
+  "helpBudgetingDesc": "Set budgets and achieve your financial goals",
+  "helpInsights": "Financial Insights",
+  "helpInsightsDesc": "Understand your spending patterns with analytics",
+  "helpAccountSecurity": "Account & Security",
+  "helpAccountSecurityDesc": "Manage your account settings and privacy",
+  "helpContactSupport": "Contact Support",
+  "helpContactSupportDesc": "Get in touch with our support team",
+  "helpFaqTitle": "Frequently Asked Questions",
+  "helpQuickTips": "Quick Tips",
+  "helpTip1": "💡 Tip: Categorize expenses as you add them for better insights",
+  "helpTip2": "🎯 Tip: Set realistic budgets and review them monthly",
+  "helpTip3": "📊 Tip: Check your Insights tab regularly to track spending trends",
+  "helpSearchPlaceholder": "Search help topics...",
+  "helpNoResults": "No results found",
+  "helpTryDifferentKeywords": "Try different keywords or browse categories below"
 }

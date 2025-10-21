@@ -16,6 +16,7 @@ class AppRoutes {
   static const String history = '/history';
   static const String settings = '/settings';
   static const String accountSettings = '/settings/account';
+  static const String help = '/settings/help';
 
   /// Check if a route is an auth route (unauthenticated)
   static bool isAuthRoute(String route) {

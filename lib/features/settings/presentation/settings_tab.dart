@@ -50,15 +50,11 @@ class SettingsTab extends StatelessWidget {
             gradient: AppColors.backgroundGradient,
           ),
         ),
-        Positioned(
-          left: -80,
-          top: 60,
-          child: GlowBlob.purpleBlue(size: AppSizes.blobMedium),
-        ),
-        Positioned(
+        GlowBlob.purpleBlue(size: AppSizes.blobMedium, left: -80, top: 60),
+        GlowBlob.purpleCyan(
+          size: AppSizes.blobLarge,
           right: -110,
           bottom: -140,
-          child: GlowBlob.purpleCyan(size: AppSizes.blobLarge),
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,6 +153,14 @@ class SettingsTab extends StatelessWidget {
                     _SettingsGroup(
                       title: 'SUPPORT',
                       items: [
+                        _SettingsItemData(
+                          icon: Icons.help_outline_rounded,
+                          label: t.help,
+                          onTap: () {
+                            HapticFeedbackHelper.lightImpact();
+                            context.push('/settings/help');
+                          },
+                        ),
                         _SettingsItemData(
                           icon: Icons.feedback_outlined,
                           label: t.feedback,
