@@ -27,11 +27,11 @@ class _AppShellState extends State<AppShell> {
       icon: Icons.credit_card_rounded,
       labelKey: 'tabExpenses',
     ),
-    _TabInfo(
-      path: '/history',
-      icon: Icons.insights_rounded,
-      labelKey: 'tabHistory',
-    ),
+    // _TabInfo(
+    //   path: '/history',
+    //   icon: Icons.insights_rounded,
+    //   labelKey: 'tabHistory',
+    // ),
     _TabInfo(
       path: '/settings',
       icon: Icons.settings_rounded,
@@ -60,19 +60,27 @@ class _AppShellState extends State<AppShell> {
     final selectedIndex = _indexFromLocation(loc);
     final t = AppLocalizations.of(context)!;
 
-    final media = MediaQuery.of(context);
-    final topSafe = media.padding.top; // dynamic island / status bar padding
-
     return Scaffold(
-      extendBody: false,
-      body: Padding(
-        padding: EdgeInsets.only(top: topSafe + 4),
-        child: widget.child,
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [AppColors.gradientStart1, AppColors.gradientEnd1],
+              ),
+            ),
+          ),
+          SafeArea(top: false, bottom: true, child: widget.child),
+        ],
       ),
       bottomNavigationBar: _BottomNavBar(
         selectedIndex: selectedIndex,
         onTap: _onTap,
-        labels: [t.tabDashboard, t.tabExpenses, t.tabHistory, t.tabSettings],
+        labels: [t.tabDashboard, t.tabExpenses, t.tabSettings],
       ),
     );
   }
@@ -140,22 +148,22 @@ class _BottomNavBar extends StatelessWidget {
             label: labels[1],
             activeColor: AppColors.deepPurple,
           ),
+          // _BottomItem(
+          //   index: 2,
+          //   selectedIndex: selectedIndex,
+          //   onTap: onTap,
+          //   icon: Icons.insights_rounded,
+          //   inactiveIcon: Icons.insights_outlined,
+          //   label: labels[2],
+          //   activeColor: AppColors.deepPurple,
+          // ),
           _BottomItem(
             index: 2,
             selectedIndex: selectedIndex,
             onTap: onTap,
-            icon: Icons.insights_rounded,
-            inactiveIcon: Icons.insights_outlined,
-            label: labels[2],
-            activeColor: AppColors.deepPurple,
-          ),
-          _BottomItem(
-            index: 3,
-            selectedIndex: selectedIndex,
-            onTap: onTap,
             icon: Icons.settings_rounded,
             inactiveIcon: Icons.settings_outlined,
-            label: labels[3],
+            label: labels[2],
             activeColor: AppColors.deepPurple,
           ),
         ],

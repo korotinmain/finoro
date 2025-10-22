@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:money_tracker/ui/widgets/glow_blob.dart';
-import 'package:money_tracker/core/constants/app_colors.dart';
 import 'package:money_tracker/core/constants/app_sizes.dart';
 
 class LaunchScreen extends StatefulWidget {

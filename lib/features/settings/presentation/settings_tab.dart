@@ -7,9 +7,7 @@ import 'package:money_tracker/core/constants/app_colors.dart';
 import 'package:money_tracker/core/constants/app_sizes.dart';
 import 'package:money_tracker/core/utils/haptic_feedback.dart';
 import 'package:money_tracker/core/providers/locale_provider.dart';
-import 'package:money_tracker/ui/widgets/glow_blob.dart';
 
-/// Settings tab for app configuration and user preferences
 class SettingsTab extends StatelessWidget {
   const SettingsTab({super.key});
 
@@ -49,173 +47,171 @@ class SettingsTab extends StatelessWidget {
             ? user!.displayName!.trim()
             : email.split('@').first;
     final verified = user?.emailVerified ?? false;
-    return Stack(
-      children: [
-        Container(
-          decoration: const BoxDecoration(
-            gradient: AppColors.backgroundGradient,
-          ),
-        ),
-        GlowBlob.purpleBlue(size: AppSizes.blobMedium, left: -80, top: 60),
-        GlowBlob.purpleCyan(
-          size: AppSizes.blobLarge,
-          right: -110,
-          bottom: -140,
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SafeArea(
-              top: false,
-              bottom: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSizes.spacing24,
-                  AppSizes.spacing12,
-                  AppSizes.spacing24,
-                  0,
-                ),
-                child: Text(
-                  t.tabSettings,
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 32,
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Stack(
+        children: [
+          SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSizes.spacing24,
+                    AppSizes.spacing12,
+                    AppSizes.spacing24,
+                    0,
+                  ),
+                  child: Text(
+                    t.tabSettings,
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 32,
+                    ),
                   ),
                 ),
-              ),
-            ),
-            const SizedBox(height: AppSizes.spacing16),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSizes.spacing24,
-                  0,
-                  AppSizes.spacing24,
-                  AppSizes.spacing24,
+                const SizedBox(height: AppSizes.spacing16),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSizes.spacing24,
+                      0,
+                      AppSizes.spacing24,
+                      AppSizes.spacing24,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _ProfileCard(
+                          displayName: displayName,
+                          email: email,
+                          isVerified: verified,
+                          verifiedLabel: t.statusVerified,
+                        ),
+                        const SizedBox(height: AppSizes.spacing24),
+                        _SettingsGroup(
+                          title: 'GENERAL',
+                          items: [
+                            _SettingsItemData(
+                              icon: Icons.person_outline_rounded,
+                              label: t.accountSettings,
+                              onTap: () {
+                                HapticFeedbackHelper.lightImpact();
+                                context.push('/settings/account');
+                              },
+                            ),
+                            _SettingsItemData(
+                              icon: Icons.language_rounded,
+                              label: t.language,
+                              onTap: () {
+                                HapticFeedbackHelper.lightImpact();
+                                _showLanguageDialog(context);
+                              },
+                            ),
+                            _SettingsItemData(
+                              icon: Icons.palette_outlined,
+                              label: t.appearanceSettings,
+                              onTap: () {
+                                HapticFeedbackHelper.lightImpact();
+                                _showComingSoon(
+                                  context,
+                                  t.comingSoonAppearance,
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSizes.spacing20),
+                        _SettingsGroup(
+                          title: 'PREFERENCES',
+                          items: [
+                            _SettingsItemData(
+                              icon: Icons.notifications_outlined,
+                              label: t.notifications,
+                              onTap: () {
+                                HapticFeedbackHelper.lightImpact();
+                                _showComingSoon(
+                                  context,
+                                  t.comingSoonNotifications,
+                                );
+                              },
+                            ),
+                            _SettingsItemData(
+                              icon: Icons.lock_outline_rounded,
+                              label: t.securityPrivacy,
+                              onTap: () {
+                                HapticFeedbackHelper.lightImpact();
+                                _showComingSoon(context, t.comingSoonSecurity);
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSizes.spacing20),
+                        _SettingsGroup(
+                          title: 'SUPPORT',
+                          items: [
+                            _SettingsItemData(
+                              icon: Icons.help_outline_rounded,
+                              label: t.help,
+                              onTap: () {
+                                HapticFeedbackHelper.lightImpact();
+                                context.push('/settings/help');
+                              },
+                            ),
+                            _SettingsItemData(
+                              icon: Icons.feedback_outlined,
+                              label: t.feedback,
+                              onTap: () {
+                                HapticFeedbackHelper.lightImpact();
+                                _showComingSoon(context, t.comingSoonFeedback);
+                              },
+                            ),
+                            _SettingsItemData(
+                              icon: Icons.info_outline_rounded,
+                              label: t.about,
+                              onTap: () {
+                                HapticFeedbackHelper.lightImpact();
+                                _showComingSoon(context, t.comingSoonAbout);
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSizes.spacing24),
+                        _SignOutButton(
+                          label: t.signOut,
+                          confirmTitle: t.confirmSignOutTitle,
+                          confirmMessage: t.confirmSignOutMessage,
+                          confirm: t.confirm,
+                        ),
+                        const SizedBox(height: AppSizes.spacing16),
+                        Center(
+                          child: Opacity(
+                            opacity: 0.35,
+                            child: FutureBuilder<String>(
+                              future: _getVersion(),
+                              builder:
+                                  (ctx, snap) => Text(
+                                    snap.hasData
+                                        ? t.versionLabel(snap.data!)
+                                        : ' ',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      fontSize: 11,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: AppSizes.spacing16),
+                      ],
+                    ),
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _ProfileCard(
-                      displayName: displayName,
-                      email: email,
-                      isVerified: verified,
-                      verifiedLabel: t.statusVerified,
-                    ),
-                    const SizedBox(height: AppSizes.spacing24),
-                    _SettingsGroup(
-                      title: 'GENERAL',
-                      items: [
-                        _SettingsItemData(
-                          icon: Icons.person_outline_rounded,
-                          label: t.accountSettings,
-                          onTap: () {
-                            HapticFeedbackHelper.lightImpact();
-                            context.push('/settings/account');
-                          },
-                        ),
-                        _SettingsItemData(
-                          icon: Icons.language_rounded,
-                          label: t.language,
-                          onTap: () {
-                            HapticFeedbackHelper.lightImpact();
-                            _showLanguageDialog(context);
-                          },
-                        ),
-                        _SettingsItemData(
-                          icon: Icons.palette_outlined,
-                          label: t.appearanceSettings,
-                          onTap: () {
-                            HapticFeedbackHelper.lightImpact();
-                            _showComingSoon(context, t.comingSoonAppearance);
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSizes.spacing20),
-                    _SettingsGroup(
-                      title: 'PREFERENCES',
-                      items: [
-                        _SettingsItemData(
-                          icon: Icons.notifications_outlined,
-                          label: t.notifications,
-                          onTap: () {
-                            HapticFeedbackHelper.lightImpact();
-                            _showComingSoon(context, t.comingSoonNotifications);
-                          },
-                        ),
-                        _SettingsItemData(
-                          icon: Icons.lock_outline_rounded,
-                          label: t.securityPrivacy,
-                          onTap: () {
-                            HapticFeedbackHelper.lightImpact();
-                            _showComingSoon(context, t.comingSoonSecurity);
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSizes.spacing20),
-                    _SettingsGroup(
-                      title: 'SUPPORT',
-                      items: [
-                        _SettingsItemData(
-                          icon: Icons.help_outline_rounded,
-                          label: t.help,
-                          onTap: () {
-                            HapticFeedbackHelper.lightImpact();
-                            context.push('/settings/help');
-                          },
-                        ),
-                        _SettingsItemData(
-                          icon: Icons.feedback_outlined,
-                          label: t.feedback,
-                          onTap: () {
-                            HapticFeedbackHelper.lightImpact();
-                            _showComingSoon(context, t.comingSoonFeedback);
-                          },
-                        ),
-                        _SettingsItemData(
-                          icon: Icons.info_outline_rounded,
-                          label: t.about,
-                          onTap: () {
-                            HapticFeedbackHelper.lightImpact();
-                            _showComingSoon(context, t.comingSoonAbout);
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSizes.spacing24),
-                    _SignOutButton(
-                      label: t.signOut,
-                      confirmTitle: t.confirmSignOutTitle,
-                      confirmMessage: t.confirmSignOutMessage,
-                      confirm: t.confirm,
-                    ),
-                    const SizedBox(height: AppSizes.spacing16),
-                    Center(
-                      child: Opacity(
-                        opacity: 0.35,
-                        child: FutureBuilder<String>(
-                          future: _getVersion(),
-                          builder:
-                              (ctx, snap) => Text(
-                                snap.hasData ? t.versionLabel(snap.data!) : ' ',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  fontSize: 11,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: AppSizes.spacing16),
-                  ],
-                ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 }
