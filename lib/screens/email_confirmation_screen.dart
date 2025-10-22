@@ -6,7 +6,10 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../router.dart';
-import '../ui/auth_widgets.dart';
+import '../ui/auth_widgets.dart' hide GlowBlob;
+import '../ui/widgets/glow_blob.dart';
+import '../core/constants/app_colors.dart';
+import '../core/constants/app_sizes.dart';
 import '../core/utils/haptic_feedback.dart';
 
 class EmailConfirmationScreen extends StatefulWidget {
@@ -197,8 +200,6 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const brandBlue = Color(0xFF5B7CFF);
-    const brandPurple = Color(0xFF6C4DFF);
     final theme = Theme.of(context);
     final t = AppLocalizations.of(context)!;
 
@@ -262,10 +263,13 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
                         GradientPillButton(
                           label: t.openMail,
                           onPressed: _openMail,
-                          gradient: const LinearGradient(
+                          gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
-                            colors: [brandPurple, brandBlue],
+                            colors: [
+                              AppColors.vibrantPurple,
+                              AppColors.primaryPurple,
+                            ],
                           ),
                         ),
 
@@ -360,15 +364,11 @@ class _BackgroundBlobs extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          Positioned(
-            left: -100,
-            top: -80,
-            child: _blob(const Color(0xFF2D2A48), const Size(260, 260)),
-          ),
-          Positioned(
+          GlowBlob.purpleBlue(size: AppSizes.blobMedium, left: -100, top: -80),
+          GlowBlob.purpleCyan(
+            size: AppSizes.blobSmall,
             right: -80,
             bottom: -60,
-            child: _blob(const Color(0xFF2B3C75), const Size(240, 240)),
           ),
           Positioned.fill(
             child: DecoratedBox(
@@ -388,21 +388,6 @@ class _BackgroundBlobs extends StatelessWidget {
       ),
     );
   }
-
-  Widget _blob(Color color, Size size) => Container(
-    width: size.width,
-    height: size.height,
-    decoration: BoxDecoration(
-      shape: BoxShape.circle,
-      gradient: RadialGradient(
-        colors: [
-          color.withValues(alpha: .95),
-          color.withValues(alpha: .6),
-          color.withValues(alpha: .0),
-        ],
-      ),
-    ),
-  );
 }
 
 class _GlassCard extends StatelessWidget {
@@ -410,12 +395,16 @@ class _GlassCard extends StatelessWidget {
   const _GlassCard({required this.child});
   @override
   Widget build(BuildContext context) {
-    final bg = const Color(0xFF141519);
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+      padding: EdgeInsets.fromLTRB(
+        AppSizes.spacing24,
+        AppSizes.spacing28,
+        AppSizes.spacing24,
+        AppSizes.spacing24,
+      ),
       decoration: BoxDecoration(
-        color: bg.withValues(alpha: .72),
-        borderRadius: BorderRadius.circular(28),
+        color: AppColors.cardBackground.withValues(alpha: .72),
+        borderRadius: BorderRadius.circular(AppSizes.radiusXXLarge),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: .45),
@@ -439,28 +428,27 @@ class _LogoGlow extends StatelessWidget {
   const _LogoGlow();
   @override
   Widget build(BuildContext context) {
-    const logoColor = Color(0xFF6C7BFF);
     return Column(
       children: [
         Container(
-          width: 64,
-          height: 64,
-          decoration: const BoxDecoration(
+          width: AppSizes.iconXLarge,
+          height: AppSizes.iconXLarge,
+          decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: logoColor,
+            color: AppColors.primaryPurple,
           ),
           child: const Center(
             child: Icon(Icons.pie_chart_rounded, color: Colors.white),
           ),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: AppSizes.spacing4),
         Container(
           width: 60,
           height: 8,
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-                color: logoColor.withValues(alpha: .55),
+                color: AppColors.primaryPurple.withValues(alpha: .55),
                 blurRadius: 30,
                 spreadRadius: 10,
               ),

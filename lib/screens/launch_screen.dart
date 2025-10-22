@@ -3,6 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import '../router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:money_tracker/ui/widgets/glow_blob.dart';
+import 'package:money_tracker/core/constants/app_colors.dart';
+import 'package:money_tracker/core/constants/app_sizes.dart';
 
 class LaunchScreen extends StatefulWidget {
   const LaunchScreen({super.key});
@@ -137,23 +140,11 @@ class _LaunchScreenState extends State<LaunchScreen>
               ),
             ),
           ),
-          Positioned(
-            left: -90,
-            top: -70,
-            child: _GlowBlob(
-              size: 260,
-              color1: const Color(0xFF6D4AFF),
-              color2: const Color(0xFF3EA7FF),
-            ),
-          ),
-          Positioned(
+          GlowBlob.purpleBlue(size: AppSizes.blobMedium, left: -90, top: -70),
+          GlowBlob.purpleCyan(
+            size: AppSizes.blobLarge,
             right: -80,
             bottom: -90,
-            child: _GlowBlob(
-              size: 300,
-              color1: const Color(0xFF8B5CF6),
-              color2: const Color(0xFF22D3EE),
-            ),
           ),
           Builder(
             builder: (context) {
@@ -338,38 +329,4 @@ class _SweptLogo extends StatelessWidget {
   }
 }
 
-/// Soft background glow blobs.
-class _GlowBlob extends StatelessWidget {
-  const _GlowBlob({
-    required this.size,
-    required this.color1,
-    required this.color2,
-  });
-  final double size;
-  final Color color1;
-  final Color color2;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: RadialGradient(
-          colors: [
-            color1.withValues(alpha: 0.55),
-            color2.withValues(alpha: 0.35),
-          ],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: color1.withValues(alpha: 0.35),
-            blurRadius: 80,
-            spreadRadius: 10,
-          ),
-        ],
-      ),
-    );
-  }
-}
+// Removed _GlowBlob - now using shared GlowBlob widget

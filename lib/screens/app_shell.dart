@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:money_tracker/core/utils/haptic_feedback.dart';
+import 'package:money_tracker/core/constants/app_colors.dart';
+import 'package:money_tracker/core/constants/app_sizes.dart';
 
 /// Shell that hosts the main authenticated tabs.
 class AppShell extends StatefulWidget {
@@ -92,18 +94,18 @@ class _BottomNavBar extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.only(
-        left: 12,
-        right: 12,
-        top: 8,
-        bottom: (bottomPadding > 0 ? bottomPadding : 8),
+        left: AppSizes.spacing12,
+        right: AppSizes.spacing12,
+        top: AppSizes.spacing8,
+        bottom: (bottomPadding > 0 ? bottomPadding : AppSizes.spacing8),
       ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            const Color(0xFF1A1D26).withValues(alpha: 0.95),
-            const Color(0xFF121317).withValues(alpha: 0.98),
+            AppColors.darkSecondary.withValues(alpha: 0.95),
+            AppColors.navBarBackground.withValues(alpha: 0.98),
           ],
         ),
         border: Border(
@@ -127,7 +129,7 @@ class _BottomNavBar extends StatelessWidget {
             icon: Icons.home_rounded,
             inactiveIcon: Icons.home_outlined,
             label: labels[0],
-            activeColor: const Color(0xFF7D48FF),
+            activeColor: AppColors.deepPurple,
           ),
           _BottomItem(
             index: 1,
@@ -136,7 +138,7 @@ class _BottomNavBar extends StatelessWidget {
             icon: Icons.credit_card_rounded,
             inactiveIcon: Icons.credit_card_outlined,
             label: labels[1],
-            activeColor: const Color(0xFF7D48FF),
+            activeColor: AppColors.deepPurple,
           ),
           _BottomItem(
             index: 2,
@@ -145,7 +147,7 @@ class _BottomNavBar extends StatelessWidget {
             icon: Icons.insights_rounded,
             inactiveIcon: Icons.insights_outlined,
             label: labels[2],
-            activeColor: const Color(0xFF7D48FF),
+            activeColor: AppColors.deepPurple,
           ),
           _BottomItem(
             index: 3,
@@ -154,7 +156,7 @@ class _BottomNavBar extends StatelessWidget {
             icon: Icons.settings_rounded,
             inactiveIcon: Icons.settings_outlined,
             label: labels[3],
-            activeColor: const Color(0xFF7D48FF),
+            activeColor: AppColors.deepPurple,
           ),
         ],
       ),
@@ -187,14 +189,14 @@ class _BottomItem extends StatelessWidget {
     final baseColor = theme.colorScheme.onSurface.withValues(alpha: .75);
     return Expanded(
       child: InkWell(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppSizes.radiusMedium),
         onTap: () => onTap(index),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 240),
           curve: Curves.easeOutCubic,
           padding: EdgeInsets.symmetric(
-            vertical: 6,
-            horizontal: selected ? 12 : 4,
+            vertical: AppSizes.spacing6,
+            horizontal: selected ? AppSizes.spacing12 : AppSizes.spacing4,
           ),
           decoration:
               selected
@@ -207,7 +209,7 @@ class _BottomItem extends StatelessWidget {
                         activeColor.withValues(alpha: .15),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(AppSizes.radiusMedium),
                     border: Border.all(
                       color: activeColor.withValues(alpha: .3),
                       width: 1,
@@ -226,7 +228,7 @@ class _BottomItem extends StatelessWidget {
             children: [
               Icon(
                 selected ? icon : inactiveIcon,
-                size: 24,
+                size: AppSizes.iconMedium,
                 color:
                     selected ? Colors.white : baseColor.withValues(alpha: 0.6),
               ),

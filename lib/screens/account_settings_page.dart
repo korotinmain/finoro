@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:money_tracker/core/constants/app_colors.dart';
+import 'package:money_tracker/core/constants/app_sizes.dart';
 
 class AccountSettingsPage extends StatelessWidget {
   const AccountSettingsPage({super.key});
@@ -10,7 +12,12 @@ class AccountSettingsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(t.accountSettings)),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 40),
+        padding: const EdgeInsets.fromLTRB(
+          AppSizes.spacing20,
+          AppSizes.spacing12,
+          AppSizes.spacing20,
+          AppSizes.spacing40,
+        ),
         children: [
           _SectionHeader(label: t.accountSectionTitle, icon: Icons.person),
           _SettingsTile(
@@ -56,11 +63,16 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+      padding: const EdgeInsets.fromLTRB(
+        AppSizes.spacing4,
+        AppSizes.spacing16,
+        AppSizes.spacing4,
+        AppSizes.spacing8,
+      ),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: theme.colorScheme.primary),
-          const SizedBox(width: 8),
+          Icon(icon, size: AppSizes.iconSmall, color: AppColors.vibrantPurple),
+          const SizedBox(width: AppSizes.spacing8),
           Text(
             label,
             style: theme.textTheme.titleMedium?.copyWith(
@@ -87,12 +99,15 @@ class _SettingsTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final color = danger ? Colors.redAccent : theme.colorScheme.primary;
+    final color = danger ? Colors.redAccent : AppColors.vibrantPurple;
     return InkWell(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+        padding: const EdgeInsets.symmetric(
+          vertical: AppSizes.spacing14,
+          horizontal: AppSizes.spacing8,
+        ),
         child: Row(
           children: [
             Expanded(
@@ -104,7 +119,11 @@ class _SettingsTile extends StatelessWidget {
                 ),
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: color),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: color,
+              size: AppSizes.iconMedium,
+            ),
           ],
         ),
       ),

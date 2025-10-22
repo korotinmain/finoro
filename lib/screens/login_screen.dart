@@ -3,10 +3,12 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:money_tracker/core/services/app_launch_service.dart';
 import 'package:money_tracker/services/auth_service.dart';
 import 'package:go_router/go_router.dart';
-import 'package:money_tracker/ui/auth_widgets.dart';
+import 'package:money_tracker/ui/auth_widgets.dart' hide GlowBlob;
+import 'package:money_tracker/ui/widgets/glow_blob.dart';
 import 'package:money_tracker/router.dart';
 import 'package:money_tracker/core/utils/haptic_feedback.dart';
 import 'package:money_tracker/core/validators/form_validators.dart';
+import 'package:money_tracker/core/constants/app_sizes.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -98,17 +100,9 @@ class _LoginScreenState extends State<LoginScreen> {
         body: Stack(
           children: [
             const AuthGradientBackground(),
-            const GlowBlob(
-              size: 220,
-              color1: Color(0xFF6D4AFF),
-              color2: Color(0xFF3EA7FF),
-              left: -80,
-              top: -60,
-            ),
-            const GlowBlob(
-              size: 260,
-              color1: Color(0xFF8B5CF6),
-              color2: Color(0xFF22D3EE),
+            GlowBlob.purpleBlue(size: AppSizes.blobSmall, left: -80, top: -60),
+            GlowBlob.purpleCyan(
+              size: AppSizes.blobMedium,
               right: -70,
               bottom: -70,
             ),

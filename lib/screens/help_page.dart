@@ -121,7 +121,7 @@ class _HelpPageState extends State<HelpPage> {
                         icon: const Icon(Icons.arrow_back_rounded),
                         onPressed: () {
                           HapticFeedbackHelper.lightImpact();
-                          context.go('/settings');
+                          context.pop();
                         },
                       ),
                       const SizedBox(width: AppSizes.spacing8),
