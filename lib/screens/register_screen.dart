@@ -2,9 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:money_tracker/core/routing/app_routes.dart';
 import 'package:money_tracker/core/utils/haptic_feedback.dart';
 import 'package:money_tracker/core/validators/form_validators.dart';
-import 'package:money_tracker/router.dart';
 import 'package:money_tracker/services/auth_service.dart';
 import 'package:money_tracker/ui/auth_widgets.dart' hide GlowBlob;
 import 'package:money_tracker/ui/password_strength_bar.dart';
@@ -87,7 +87,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         ),
       );
-      router.go(Routes.confirmEmail);
+      router.go(AppRoutes.confirmEmail);
     } on AuthException catch (e) {
       await HapticFeedbackHelper.error();
       final messenger = ScaffoldMessenger.of(context);

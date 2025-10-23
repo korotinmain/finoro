@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:money_tracker/core/routing/app_routes.dart';
 import 'package:money_tracker/core/services/app_launch_service.dart';
 import 'package:money_tracker/core/utils/haptic_feedback.dart';
 import 'package:money_tracker/core/validators/form_validators.dart';
-import 'package:money_tracker/router.dart';
 import 'package:money_tracker/services/auth_service.dart';
 import 'package:money_tracker/ui/auth_widgets.dart' hide GlowBlob;
 import 'package:money_tracker/ui/widgets/glow_blob.dart';
@@ -45,9 +45,9 @@ class _LoginScreenState extends State<LoginScreen> {
       // Route changed: old '/home' replaced by tab shell with dashboard root.
       final user = _authService.currentUser;
       if (user != null && !user.emailVerified) {
-        router.go(Routes.confirmEmail);
+        router.go(AppRoutes.confirmEmail);
       } else {
-        router.go(Routes.dashboard);
+        router.go(AppRoutes.dashboard);
       }
     } on AuthException catch (e) {
       await HapticFeedbackHelper.error();
@@ -216,7 +216,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                 if (mounted) {
                                                   GoRouter.of(
                                                     context,
-                                                  ).push(Routes.forgot);
+                                                  ).push(AppRoutes.forgotPassword);
                                                 }
                                               },
                                       child: Text(t.forgotPasswordButton),
@@ -243,7 +243,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                               if (mounted) {
                                                 GoRouter.of(
                                                   context,
-                                                ).push(Routes.register);
+                                                ).push(AppRoutes.register);
                                               }
                                             },
                                     child: Text(t.signUp),

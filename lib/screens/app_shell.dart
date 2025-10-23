@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:money_tracker/core/constants/app_colors.dart';
 import 'package:money_tracker/core/constants/app_sizes.dart';
+import 'package:money_tracker/core/routing/app_routes.dart';
 import 'package:money_tracker/core/utils/haptic_feedback.dart';
 
 /// Shell that hosts the main authenticated tabs.
@@ -18,12 +19,12 @@ class _AppShellState extends State<AppShell> {
   // Keep ordered list of tab routes.
   static const _tabs = [
     _TabInfo(
-      path: '/dashboard',
+      path: AppRoutes.dashboard,
       icon: Icons.home_rounded,
       labelKey: 'tabDashboard',
     ),
     _TabInfo(
-      path: '/expenses',
+      path: AppRoutes.expenses,
       icon: Icons.credit_card_rounded,
       labelKey: 'tabExpenses',
     ),
@@ -33,7 +34,7 @@ class _AppShellState extends State<AppShell> {
     //   labelKey: 'tabHistory',
     // ),
     _TabInfo(
-      path: '/settings',
+      path: AppRoutes.settings,
       icon: Icons.settings_rounded,
       labelKey: 'tabSettings',
     ),

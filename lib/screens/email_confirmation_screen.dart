@@ -9,8 +9,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_sizes.dart';
+import '../core/routing/app_routes.dart';
 import '../core/utils/haptic_feedback.dart';
-import '../router.dart';
 import '../ui/auth_widgets.dart' hide GlowBlob;
 import '../ui/widgets/glow_blob.dart';
 
@@ -168,7 +168,7 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
 
       if (verified) {
         await HapticFeedbackHelper.success();
-        router.go(Routes.dashboard);
+        router.go(AppRoutes.dashboard);
       } else {
         await HapticFeedbackHelper.error();
         final t = AppLocalizations.of(context)!;
@@ -294,7 +294,9 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
                                 await HapticFeedbackHelper.lightImpact();
                                 final router = GoRouter.of(context);
                                 await FirebaseAuth.instance.signOut();
-                                if (context.mounted) router.go(Routes.login);
+                                if (context.mounted) {
+                                  router.go(AppRoutes.login);
+                                }
                               },
                               child: Text(t.backToSignIn),
                             );

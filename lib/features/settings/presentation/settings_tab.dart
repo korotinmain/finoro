@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:money_tracker/core/constants/app_colors.dart';
 import 'package:money_tracker/core/constants/app_sizes.dart';
 import 'package:money_tracker/core/providers/locale_provider.dart';
+import 'package:money_tracker/core/routing/app_routes.dart';
 import 'package:money_tracker/core/utils/haptic_feedback.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -97,7 +98,7 @@ class SettingsTab extends StatelessWidget {
                               label: t.accountSettings,
                               onTap: () {
                                 HapticFeedbackHelper.lightImpact();
-                                context.push('/settings/account');
+                                context.push(AppRoutes.accountSettings);
                               },
                             ),
                             _SettingsItemData(
@@ -155,7 +156,7 @@ class SettingsTab extends StatelessWidget {
                               label: t.help,
                               onTap: () {
                                 HapticFeedbackHelper.lightImpact();
-                                context.push('/settings/help');
+                                context.push(AppRoutes.help);
                               },
                             ),
                             _SettingsItemData(
@@ -495,7 +496,7 @@ class _SignOutButton extends StatelessWidget {
     }
 
     if (!context.mounted) return;
-    context.go('/login');
+    context.go(AppRoutes.login);
   }
 
   @override

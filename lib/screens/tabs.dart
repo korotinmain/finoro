@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:money_tracker/core/routing/app_routes.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class DashboardTab extends StatelessWidget {
@@ -109,7 +110,7 @@ class SettingsTab extends StatelessWidget {
                 _GlassSettingsItem(
                   icon: Icons.manage_accounts_rounded,
                   label: t.accountSettings,
-                  onTap: () => GoRouter.of(context).push('/settings/account'),
+                  onTap: () => GoRouter.of(context).push(AppRoutes.accountSettings),
                 ),
                 _GlassSettingsItem(
                   icon: Icons.palette_rounded,
@@ -329,7 +330,7 @@ class _SignOutButton extends StatelessWidget {
               await FirebaseAuth.instance.signOut();
             } catch (_) {}
             if (!context.mounted) return;
-            GoRouter.of(context).go('/login');
+            GoRouter.of(context).go(AppRoutes.login);
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 18),

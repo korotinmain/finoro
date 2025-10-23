@@ -4,9 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_sizes.dart';
+import '../core/routing/app_routes.dart';
 import '../core/utils/haptic_feedback.dart';
 import '../core/validators/form_validators.dart';
-import '../router.dart';
 import '../services/auth_service.dart';
 import '../ui/auth_widgets.dart' hide GlowBlob;
 import '../ui/widgets/glow_blob.dart';
@@ -62,7 +62,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ),
         ),
       );
-      router.go(Routes.login);
+      router.go(AppRoutes.login);
     } on AuthException catch (e) {
       if (!mounted) return;
       await HapticFeedbackHelper.error();
@@ -184,7 +184,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                         : () async {
                                           await HapticFeedbackHelper.lightImpact();
                                           if (context.mounted) {
-                                            context.go(Routes.login);
+                                            context.go(AppRoutes.login);
                                           }
                                         },
                                 child: Text(t.backToSignIn),

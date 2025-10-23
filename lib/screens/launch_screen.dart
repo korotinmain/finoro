@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:money_tracker/core/constants/app_sizes.dart';
 import 'package:money_tracker/ui/widgets/glow_blob.dart';
 
-import '../router.dart';
+import '../core/routing/app_routes.dart';
 
 class LaunchScreen extends StatefulWidget {
   const LaunchScreen({super.key});
@@ -103,11 +103,11 @@ class _LaunchScreenState extends State<LaunchScreen>
       final verified = user?.emailVerified ?? false;
       final router = GoRouter.of(context);
       if (!loggedIn) {
-        router.go(Routes.login);
+        router.go(AppRoutes.login);
       } else if (!verified) {
-        router.go(Routes.confirmEmail);
+        router.go(AppRoutes.confirmEmail);
       } else {
-        router.go(Routes.dashboard);
+        router.go(AppRoutes.dashboard);
       }
     });
   }
