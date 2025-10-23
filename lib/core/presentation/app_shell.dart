@@ -47,12 +47,15 @@ class _AppShellState extends State<AppShell> {
 
   void _onTap(int index) async {
     await HapticFeedbackHelper.lightImpact();
+    if (!mounted) return;
+
+    final router = GoRouter.of(context);
     final tab = _tabs[index];
-    if (GoRouter.of(context).canPop()) {
+    if (router.canPop()) {
       // Popping to root of current branch ensures expected back behavior.
-      GoRouter.of(context).pop();
+      router.pop();
     }
-    GoRouter.of(context).go(tab.path);
+    router.go(tab.path);
   }
 
   @override

@@ -25,6 +25,7 @@ class AccountSettingsPage extends StatelessWidget {
 
   Future<void> _confirmDelete(BuildContext context, AppLocalizations t) async {
     await HapticFeedbackHelper.mediumImpact();
+    if (!context.mounted) return;
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -50,6 +51,7 @@ class AccountSettingsPage extends StatelessWidget {
 
     if (shouldDelete == true) {
       await HapticFeedbackHelper.error();
+      if (!context.mounted) return;
       _showToast(context, t.comingSoonDeleteAccount);
     }
   }

@@ -55,6 +55,7 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
   Future<void> _openMail() async {
     await HapticFeedbackHelper.lightImpact();
 
+    if (!mounted) return;
     final uri = Uri(scheme: 'mailto');
     final messenger = ScaffoldMessenger.of(context);
 
@@ -96,6 +97,7 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
     if (_cooldown > 0 || _sending) return;
 
     await HapticFeedbackHelper.mediumImpact();
+    if (!mounted) return;
     setState(() => _sending = true);
 
     final messenger = ScaffoldMessenger.of(context);
@@ -104,6 +106,7 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
       final user = _auth.currentUser;
       if (user == null) {
         await HapticFeedbackHelper.error();
+        if (!mounted) return;
         messenger.showSnackBar(
           SnackBar(
             content: const Text('No signed-in user.'),
@@ -121,6 +124,7 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
       if (!mounted) return;
 
       await HapticFeedbackHelper.success();
+      if (!mounted) return;
       final t = AppLocalizations.of(context)!;
       messenger.showSnackBar(
         SnackBar(
@@ -134,8 +138,8 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
       );
       _startCooldown();
     } catch (_) {
-      if (!mounted) return;
       await HapticFeedbackHelper.error();
+      if (!mounted) return;
       final t = AppLocalizations.of(context)!;
       messenger.showSnackBar(
         SnackBar(
@@ -155,6 +159,7 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
   Future<void> _continueIfVerified() async {
     await HapticFeedbackHelper.mediumImpact();
 
+    if (!mounted) return;
     final messenger = ScaffoldMessenger.of(context);
     final router = GoRouter.of(context);
 
@@ -165,9 +170,11 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
 
       if (verified) {
         await HapticFeedbackHelper.success();
+        if (!mounted) return;
         router.go(AppRoutes.dashboard);
       } else {
         await HapticFeedbackHelper.error();
+        if (!mounted) return;
         final t = AppLocalizations.of(context)!;
         messenger.showSnackBar(
           SnackBar(
@@ -181,8 +188,8 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
         );
       }
     } catch (_) {
-      if (!mounted) return;
       await HapticFeedbackHelper.error();
+      if (!mounted) return;
       final t = AppLocalizations.of(context)!;
       messenger.showSnackBar(
         SnackBar(
@@ -289,11 +296,11 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
                             return TextButton(
                               onPressed: () async {
                                 await HapticFeedbackHelper.lightImpact();
+                                if (!context.mounted) return;
                                 final router = GoRouter.of(context);
                                 await FirebaseAuth.instance.signOut();
-                                if (context.mounted) {
-                                  router.go(AppRoutes.login);
-                                }
+                                if (!context.mounted) return;
+                                router.go(AppRoutes.login);
                               },
                               child: Text(t.backToSignIn),
                             );

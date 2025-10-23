@@ -14,6 +14,7 @@ class AuthService {
     String email,
     String password,
   ) async {
+    final t = AppLocalizations.of(context)!;
     try {
       final cred = await _auth.signInWithEmailAndPassword(
         email: email.trim(),
@@ -21,15 +22,14 @@ class AuthService {
       );
       return cred.user;
     } on FirebaseAuthException catch (e) {
-      final t = AppLocalizations.of(context)!;
       throw AuthException(_mapCodeToMessage(t, e.code));
     } catch (_) {
-      final t = AppLocalizations.of(context)!;
       throw AuthException(t.errUnexpected);
     }
   }
 
   Future<void> sendPasswordReset(BuildContext context, String email) async {
+    final t = AppLocalizations.of(context)!;
     final actionCodeSettings = ActionCodeSettings(
       url: 'https://moneytracker-5c1e6.web.app/auth/action',
       androidPackageName: 'com.korotindenys.moneyTracker',
@@ -42,10 +42,8 @@ class AuthService {
         actionCodeSettings: actionCodeSettings,
       );
     } on FirebaseAuthException catch (e) {
-      final t = AppLocalizations.of(context)!;
       throw AuthException(_mapCodeToMessage(t, e.code));
     } catch (_) {
-      final t = AppLocalizations.of(context)!;
       throw AuthException(t.errUnexpected);
     }
   }
@@ -57,6 +55,7 @@ class AuthService {
     String email,
     String password,
   ) async {
+    final t = AppLocalizations.of(context)!;
     try {
       final cred = await _auth.createUserWithEmailAndPassword(
         email: email.trim(),
@@ -64,10 +63,8 @@ class AuthService {
       );
       return cred.user;
     } on FirebaseAuthException catch (e) {
-      final t = AppLocalizations.of(context)!;
       throw AuthException(_mapSignUpCode(t, e.code));
     } catch (_) {
-      final t = AppLocalizations.of(context)!;
       throw AuthException(t.errUnexpected);
     }
   }

@@ -57,14 +57,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     await HapticFeedbackHelper.mediumImpact();
+    if (!mounted) return;
     FocusScope.of(context).unfocus();
     setState(() => _loading = true);
 
     try {
-      final messenger = ScaffoldMessenger.of(context);
-      final router = GoRouter.of(context);
       final user = await _auth.signUp(context, _email.text.trim(), _pass.text);
       if (!mounted) return;
+
+      final messenger = ScaffoldMessenger.of(context);
+      final router = GoRouter.of(context);
 
       // Update display name if provided
       final nameTrimmed = _name.text.trim();
@@ -75,6 +77,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       // Send verification email; then go to confirmation screen.
       await user?.sendEmailVerification();
       await HapticFeedbackHelper.success();
+      if (!mounted) return;
 
       messenger.showSnackBar(
         SnackBar(
@@ -89,8 +92,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       router.go(AppRoutes.confirmEmail);
     } on AuthException catch (e) {
       await HapticFeedbackHelper.error();
-      final messenger = ScaffoldMessenger.of(context);
       if (!mounted) return;
+      final messenger = ScaffoldMessenger.of(context);
       messenger.showSnackBar(
         SnackBar(
           content: Text(e.message),
@@ -223,6 +226,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       suffixIcon: IconButton(
                                         onPressed: () async {
                                           await HapticFeedbackHelper.lightImpact();
+                                          if (!mounted) return;
                                           setState(
                                             () => _obscure1 = !_obscure1,
                                           );
@@ -263,6 +267,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       suffixIcon: IconButton(
                                         onPressed: () async {
                                           await HapticFeedbackHelper.lightImpact();
+                                          if (!mounted) return;
                                           setState(
                                             () => _obscure2 = !_obscure2,
                                           );
@@ -301,9 +306,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             ? null
                                             : () async {
                                               await HapticFeedbackHelper.lightImpact();
-                                              if (mounted) {
-                                                GoRouter.of(context).pop();
-                                              }
+                                              if (!context.mounted) return;
+                                              GoRouter.of(context).pop();
                                             },
                                     child: Text(t.backToLogin),
                                   ),

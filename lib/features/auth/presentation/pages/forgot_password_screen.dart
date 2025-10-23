@@ -39,6 +39,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     }
 
     await HapticFeedbackHelper.mediumImpact();
+    if (!mounted) return;
     setState(() => _loading = true);
 
     final messenger = ScaffoldMessenger.of(context);
@@ -49,6 +50,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       if (!mounted) return;
 
       await HapticFeedbackHelper.success();
+      if (!mounted) return;
 
       final t = AppLocalizations.of(context)!;
       messenger.showSnackBar(
@@ -63,8 +65,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       );
       router.go(AppRoutes.login);
     } on AuthException catch (e) {
-      if (!mounted) return;
       await HapticFeedbackHelper.error();
+      if (!mounted) return;
       messenger.showSnackBar(
         SnackBar(
           content: Text(e.message),
@@ -76,8 +78,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         ),
       );
     } catch (_) {
-      if (!mounted) return;
       await HapticFeedbackHelper.error();
+      if (!mounted) return;
       final t = AppLocalizations.of(context)!;
       messenger.showSnackBar(
         SnackBar(
@@ -182,9 +184,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                         ? null
                                         : () async {
                                           await HapticFeedbackHelper.lightImpact();
-                                          if (context.mounted) {
-                                            context.go(AppRoutes.login);
-                                          }
+                                          if (!context.mounted) return;
+                                          context.go(AppRoutes.login);
                                         },
                                 child: Text(t.backToSignIn),
                               );

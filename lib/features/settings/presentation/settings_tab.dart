@@ -433,6 +433,7 @@ class _SignOutButton extends StatelessWidget {
 
   Future<void> _handleSignOut(BuildContext context) async {
     await HapticFeedbackHelper.mediumImpact();
+    if (!context.mounted) return;
 
     final t = AppLocalizations.of(context)!;
     final shouldSignOut = await showDialog<bool>(
@@ -463,6 +464,7 @@ class _SignOutButton extends StatelessWidget {
     if (shouldSignOut != true || !context.mounted) return;
 
     await HapticFeedbackHelper.success();
+    if (!context.mounted) return;
 
     try {
       await FirebaseAuth.instance.signOut();
@@ -479,8 +481,9 @@ class _SignOutButton extends StatelessWidget {
         );
       }
     } catch (_) {
+      if (!context.mounted) return;
+      await HapticFeedbackHelper.error();
       if (context.mounted) {
-        await HapticFeedbackHelper.error();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(t.signOutFailed),

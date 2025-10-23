@@ -32,6 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     await HapticFeedbackHelper.mediumImpact();
+    if (!mounted) return;
     FocusScope.of(context).unfocus();
     setState(() => _loading = true);
 
@@ -41,6 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
 
       await HapticFeedbackHelper.success();
+      if (!mounted) return;
 
       // Route changed: old '/home' replaced by tab shell with dashboard root.
       final user = _authService.currentUser;
@@ -51,8 +53,8 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } on AuthException catch (e) {
       await HapticFeedbackHelper.error();
-      final messenger = ScaffoldMessenger.of(context);
       if (!mounted) return;
+      final messenger = ScaffoldMessenger.of(context);
       messenger.showSnackBar(
         SnackBar(
           content: Text(e.message),
@@ -208,17 +210,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                   Align(
                                     alignment: Alignment.centerRight,
                                     child: TextButton(
-                                      onPressed:
-                                          _loading
-                                              ? null
-                                              : () async {
-                                                await HapticFeedbackHelper.lightImpact();
-                                                if (mounted) {
-                                                  GoRouter.of(
-                                                    context,
-                                                  ).push(AppRoutes.forgotPassword);
-                                                }
-                                              },
+                                      onPressed: _loading
+                                          ? null
+                                          : () async {
+                                              await HapticFeedbackHelper.lightImpact();
+                                              if (!context.mounted) return;
+                                              GoRouter.of(context).push(
+                                                AppRoutes.forgotPassword,
+                                              );
+                                            },
                                       child: Text(t.forgotPasswordButton),
                                     ),
                                   ),
@@ -235,17 +235,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   ),
                                   TextButton(
-                                    onPressed:
-                                        _loading
-                                            ? null
-                                            : () async {
-                                              await HapticFeedbackHelper.lightImpact();
-                                              if (mounted) {
-                                                GoRouter.of(
-                                                  context,
-                                                ).push(AppRoutes.register);
-                                              }
-                                            },
+                                    onPressed: _loading
+                                        ? null
+                                        : () async {
+                                            await HapticFeedbackHelper.lightImpact();
+                                            if (!context.mounted) return;
+                                            GoRouter.of(context).push(
+                                              AppRoutes.register,
+                                            );
+                                          },
                                     child: Text(t.signUp),
                                   ),
                                   const SizedBox(height: 10),
