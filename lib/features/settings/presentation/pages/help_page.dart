@@ -103,7 +103,6 @@ class _HelpPageState extends State<HelpPage> {
             bottom: -100,
           ),
           SafeArea(
-            top: false,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
