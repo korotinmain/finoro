@@ -1,18 +1,15 @@
-// lib/screens/email_confirmation_screen.dart
 import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:money_tracker/core/constants/app_colors.dart';
+import 'package:money_tracker/core/constants/app_sizes.dart';
+import 'package:money_tracker/core/routing/app_routes.dart';
+import 'package:money_tracker/core/utils/haptic_feedback.dart';
+import 'package:money_tracker/ui/auth_widgets.dart' hide GlowBlob;
+import 'package:money_tracker/ui/widgets/glow_blob.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import '../core/constants/app_colors.dart';
-import '../core/constants/app_sizes.dart';
-import '../core/routing/app_routes.dart';
-import '../core/utils/haptic_feedback.dart';
-import '../ui/auth_widgets.dart' hide GlowBlob;
-import '../ui/widgets/glow_blob.dart';
 
 class EmailConfirmationScreen extends StatefulWidget {
   const EmailConfirmationScreen({super.key, this.email});

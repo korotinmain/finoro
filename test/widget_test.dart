@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:money_tracker/app/app_theme.dart';
-import 'package:money_tracker/screens/login_screen.dart';
+import 'package:money_tracker/features/auth/presentation/pages/login_screen.dart';
 
 Widget _wrap(Widget child) => MaterialApp(
   debugShowCheckedModeBanner: false,

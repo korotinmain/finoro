@@ -5,19 +5,17 @@ import 'package:money_tracker/core/presentation/app_shell.dart';
 import 'package:money_tracker/core/routing/app_routes.dart';
 import 'package:money_tracker/core/routing/route_guard.dart';
 import 'package:money_tracker/core/routing/stream_refresh_notifier.dart';
-// Feature Tabs
+import 'package:money_tracker/features/auth/presentation/pages/email_confirmation_screen.dart';
+import 'package:money_tracker/features/auth/presentation/pages/forgot_password_screen.dart';
+import 'package:money_tracker/features/auth/presentation/pages/login_screen.dart';
+import 'package:money_tracker/features/auth/presentation/pages/register_screen.dart';
 import 'package:money_tracker/features/dashboard/presentation/dashboard_tab.dart';
 import 'package:money_tracker/features/expenses/presentation/expenses_tab.dart';
 import 'package:money_tracker/features/history/presentation/history_tab.dart';
+import 'package:money_tracker/features/onboarding/presentation/pages/launch_screen.dart';
 import 'package:money_tracker/features/settings/presentation/pages/account_settings_page.dart';
 import 'package:money_tracker/features/settings/presentation/pages/help_page.dart';
 import 'package:money_tracker/features/settings/presentation/settings_tab.dart';
-import 'package:money_tracker/screens/email_confirmation_screen.dart';
-import 'package:money_tracker/screens/forgot_password_screen.dart';
-// Auth Screens
-import 'package:money_tracker/screens/launch_screen.dart';
-import 'package:money_tracker/screens/login_screen.dart';
-import 'package:money_tracker/screens/register_screen.dart';
 
 /// Create a custom page transition with fade and slide effect
 CustomTransitionPage<T> _createTransitionPage<T>({

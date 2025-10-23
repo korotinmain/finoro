@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
-
-import '../core/constants/app_colors.dart';
-import '../core/constants/app_sizes.dart';
-import '../core/routing/app_routes.dart';
-import '../core/utils/haptic_feedback.dart';
-import '../core/validators/form_validators.dart';
-import '../services/auth_service.dart';
-import '../ui/auth_widgets.dart' hide GlowBlob;
-import '../ui/widgets/glow_blob.dart';
+import 'package:money_tracker/core/constants/app_colors.dart';
+import 'package:money_tracker/core/constants/app_sizes.dart';
+import 'package:money_tracker/core/routing/app_routes.dart';
+import 'package:money_tracker/core/utils/haptic_feedback.dart';
+import 'package:money_tracker/core/validators/form_validators.dart';
+import 'package:money_tracker/services/auth_service.dart';
+import 'package:money_tracker/ui/auth_widgets.dart' hide GlowBlob;
+import 'package:money_tracker/ui/widgets/glow_blob.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
