@@ -67,9 +67,7 @@ class FirebaseAuthRepository implements IAuthRepository {
   Future<void> sendPasswordResetEmail(String email) async {
     final actionCodeSettings = ActionCodeSettings(
       url: AppStrings.actionCodeUrl,
-      handleCodeInApp: false,
       androidPackageName: AppStrings.androidPackageName,
-      androidInstallApp: false,
       androidMinimumVersion: AppStrings.androidMinVersion,
       iOSBundleId: AppStrings.iosBundleId,
     );

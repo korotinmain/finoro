@@ -81,19 +81,19 @@ class _InsightsEmptyViewState extends State<_InsightsEmptyView>
                   ),
                 ),
                 const SizedBox(height: AppSizes.spacing32),
-                _ChartPlaceholder(
+                const _ChartPlaceholder(
                   title: 'Spending Overview',
                   icon: Icons.show_chart_rounded,
                   description: 'Track your spending trends over time',
                 ),
                 const SizedBox(height: AppSizes.spacing20),
-                _ChartPlaceholder(
+                const _ChartPlaceholder(
                   title: 'Category Breakdown',
                   icon: Icons.pie_chart_rounded,
                   description: 'See where your money goes by category',
                 ),
                 const SizedBox(height: AppSizes.spacing20),
-                _ChartPlaceholder(
+                const _ChartPlaceholder(
                   title: 'Budget Analysis',
                   icon: Icons.analytics_rounded,
                   description: 'Compare spending against your budgets',
@@ -243,7 +243,7 @@ class _ComingSoonBanner extends StatelessWidget {
               color: AppColors.vibrantPurple.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
-            child: Icon(
+            child: const Icon(
               Icons.insights_rounded,
               color: AppColors.vibrantPurple,
               size: 28,

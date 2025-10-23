@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../services/auth_service.dart';
-import '../router.dart';
-import '../ui/auth_widgets.dart' hide GlowBlob;
-import '../ui/widgets/glow_blob.dart';
+import 'package:go_router/go_router.dart';
+
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_sizes.dart';
 import '../core/utils/haptic_feedback.dart';
 import '../core/validators/form_validators.dart';
+import '../router.dart';
+import '../services/auth_service.dart';
+import '../ui/auth_widgets.dart' hide GlowBlob;
+import '../ui/widgets/glow_blob.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -162,7 +163,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           GradientPillButton(
                             label: AppLocalizations.of(context)!.sendResetLink,
                             onPressed: _loading ? null : _submit,
-                            gradient: LinearGradient(
+                            gradient: const LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
@@ -182,8 +183,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                         ? null
                                         : () async {
                                           await HapticFeedbackHelper.lightImpact();
-                                          if (context.mounted)
+                                          if (context.mounted) {
                                             context.go(Routes.login);
+                                          }
                                         },
                                 child: Text(t.backToSignIn),
                               );
@@ -251,7 +253,7 @@ class _GlassCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(
+      padding: const EdgeInsets.fromLTRB(
         AppSizes.spacing24,
         AppSizes.spacing28,
         AppSizes.spacing24,
@@ -288,7 +290,7 @@ class _LogoGlow extends StatelessWidget {
         Container(
           width: AppSizes.iconXLarge,
           height: AppSizes.iconXLarge,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             shape: BoxShape.circle,
             color: AppColors.primaryPurple,
           ),
@@ -296,7 +298,7 @@ class _LogoGlow extends StatelessWidget {
             child: Icon(Icons.pie_chart_rounded, color: Colors.white),
           ),
         ),
-        SizedBox(height: AppSizes.spacing4),
+        const SizedBox(height: AppSizes.spacing4),
         Container(
           width: 60,
           height: 8,
@@ -358,7 +360,7 @@ class _Field extends StatelessWidget {
             prefix == null
                 ? null
                 : Padding(
-                  padding: EdgeInsetsDirectional.only(
+                  padding: const EdgeInsetsDirectional.only(
                     start: AppSizes.spacing14,
                     end: AppSizes.spacing10,
                   ),
@@ -370,10 +372,10 @@ class _Field extends StatelessWidget {
                     child: prefix!,
                   ),
                 ),
-        prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+        prefixIconConstraints: const BoxConstraints(),
         filled: true,
         fillColor: AppColors.glassBackground.withValues(alpha: .85),
-        contentPadding: EdgeInsets.symmetric(
+        contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSizes.spacing18,
           vertical: AppSizes.spacing18,
         ),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:money_tracker/core/utils/haptic_feedback.dart';
 import 'package:money_tracker/core/constants/app_colors.dart';
 import 'package:money_tracker/core/constants/app_sizes.dart';
+import 'package:money_tracker/core/utils/haptic_feedback.dart';
 
 /// Shell that hosts the main authenticated tabs.
 class AppShell extends StatefulWidget {
@@ -74,7 +74,7 @@ class _AppShellState extends State<AppShell> {
               ),
             ),
           ),
-          SafeArea(top: false, bottom: true, child: widget.child),
+          SafeArea(top: false, child: widget.child),
         ],
       ),
       bottomNavigationBar: _BottomNavBar(
@@ -117,7 +117,7 @@ class _BottomNavBar extends StatelessWidget {
           ],
         ),
         border: Border(
-          top: BorderSide(color: Colors.white.withValues(alpha: .04), width: 1),
+          top: BorderSide(color: Colors.white.withValues(alpha: .04)),
         ),
         boxShadow: [
           BoxShadow(
@@ -220,13 +220,11 @@ class _BottomItem extends StatelessWidget {
                     borderRadius: BorderRadius.circular(AppSizes.radiusMedium),
                     border: Border.all(
                       color: activeColor.withValues(alpha: .3),
-                      width: 1,
                     ),
                     boxShadow: [
                       BoxShadow(
                         color: activeColor.withValues(alpha: .2),
                         blurRadius: 8,
-                        spreadRadius: 0,
                       ),
                     ],
                   )

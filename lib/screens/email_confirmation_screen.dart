@@ -1,16 +1,18 @@
 // lib/screens/email_confirmation_screen.dart
 import 'dart:async';
-import 'package:flutter/material.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../router.dart';
-import '../ui/auth_widgets.dart' hide GlowBlob;
-import '../ui/widgets/glow_blob.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_sizes.dart';
 import '../core/utils/haptic_feedback.dart';
+import '../router.dart';
+import '../ui/auth_widgets.dart' hide GlowBlob;
+import '../ui/widgets/glow_blob.dart';
 
 class EmailConfirmationScreen extends StatefulWidget {
   const EmailConfirmationScreen({super.key, this.email});
@@ -133,7 +135,7 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
           ),
         ),
       );
-      _startCooldown(60);
+      _startCooldown();
     } catch (_) {
       if (!mounted) return;
       await HapticFeedbackHelper.error();
@@ -263,7 +265,7 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
                         GradientPillButton(
                           label: t.openMail,
                           onPressed: _openMail,
-                          gradient: LinearGradient(
+                          gradient: const LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
@@ -396,7 +398,7 @@ class _GlassCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(
+      padding: const EdgeInsets.fromLTRB(
         AppSizes.spacing24,
         AppSizes.spacing28,
         AppSizes.spacing24,
@@ -433,7 +435,7 @@ class _LogoGlow extends StatelessWidget {
         Container(
           width: AppSizes.iconXLarge,
           height: AppSizes.iconXLarge,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             shape: BoxShape.circle,
             color: AppColors.primaryPurple,
           ),
@@ -441,7 +443,7 @@ class _LogoGlow extends StatelessWidget {
             child: Icon(Icons.pie_chart_rounded, color: Colors.white),
           ),
         ),
-        SizedBox(height: AppSizes.spacing4),
+        const SizedBox(height: AppSizes.spacing4),
         Container(
           width: 60,
           height: 8,

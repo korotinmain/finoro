@@ -64,7 +64,6 @@ class UserProfileCard extends StatelessWidget {
                     color: AppColors.black(0.65),
                     border: Border.all(
                       color: AppColors.white(0.12),
-                      width: AppSizes.borderThin,
                     ),
                   ),
                   child: Icon(

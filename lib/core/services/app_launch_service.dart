@@ -1,5 +1,5 @@
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:money_tracker/core/constants/app_strings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Service for managing app launch state
 class AppLaunchService {

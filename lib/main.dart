@@ -1,11 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:money_tracker/firebase_options.dart';
-import 'package:money_tracker/core/routing/app_router.dart';
-import 'package:money_tracker/core/providers/locale_provider.dart';
-import 'app/app_theme.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:money_tracker/core/providers/locale_provider.dart';
+import 'package:money_tracker/core/routing/app_router.dart';
+import 'package:money_tracker/firebase_options.dart';
+
+import 'app/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

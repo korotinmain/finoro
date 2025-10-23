@@ -2,11 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:money_tracker/core/constants/app_colors.dart';
 import 'package:money_tracker/core/constants/app_sizes.dart';
-import 'package:money_tracker/core/utils/haptic_feedback.dart';
 import 'package:money_tracker/core/providers/locale_provider.dart';
+import 'package:money_tracker/core/utils/haptic_feedback.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsTab extends StatelessWidget {
   const SettingsTab({super.key});

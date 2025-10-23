@@ -1,7 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class DashboardTab extends StatelessWidget {
@@ -227,7 +227,6 @@ class _SettingsUserCard extends StatelessWidget {
                     color: Colors.black.withValues(alpha: .65),
                     border: Border.all(
                       color: Colors.white.withValues(alpha: .12),
-                      width: 1,
                     ),
                   ),
                   child: Icon(badgeIcon, size: 18, color: badgeColor),
@@ -336,7 +335,6 @@ class _SignOutButton extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 18),
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Icon(Icons.logout_rounded, color: Colors.white),
                 const SizedBox(width: 12),
@@ -461,7 +459,6 @@ class _EmptyDashboardState extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 620),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
                 t.noProjectsYet,

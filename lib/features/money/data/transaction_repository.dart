@@ -1,5 +1,5 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:money_tracker/core/providers/auth_providers.dart';
 import 'package:money_tracker/features/money/domain/transaction.dart';
 

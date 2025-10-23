@@ -32,9 +32,7 @@ class AuthService {
   Future<void> sendPasswordReset(BuildContext context, String email) async {
     final actionCodeSettings = ActionCodeSettings(
       url: 'https://moneytracker-5c1e6.web.app/auth/action',
-      handleCodeInApp: false,
       androidPackageName: 'com.korotindenys.moneyTracker',
-      androidInstallApp: false,
       androidMinimumVersion: '21',
       iOSBundleId: 'com.korotindenys.moneyTracker',
     );

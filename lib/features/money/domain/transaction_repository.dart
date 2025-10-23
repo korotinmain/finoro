@@ -1,5 +1,5 @@
-import 'transaction.dart';
 import 'currency.dart';
+import 'transaction.dart';
 
 abstract class TransactionRepository {
   Stream<List<MoneyTx>> watch({DateTime? from, DateTime? to, Currency? currency});

@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:go_router/go_router.dart';
-import '../router.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:money_tracker/ui/widgets/glow_blob.dart';
+import 'package:go_router/go_router.dart';
 import 'package:money_tracker/core/constants/app_sizes.dart';
+import 'package:money_tracker/ui/widgets/glow_blob.dart';
+
+import '../router.dart';
 
 class LaunchScreen extends StatefulWidget {
   const LaunchScreen({super.key});
@@ -169,7 +170,6 @@ class _LaunchScreenState extends State<LaunchScreen>
 
                       return Column(
                         mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           SizedBox(
                             width: logoSize + 60,

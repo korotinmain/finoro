@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:money_tracker/core/constants/app_colors.dart';
 import 'package:money_tracker/core/constants/app_sizes.dart';
-import 'package:money_tracker/ui/widgets/gradient_button.dart';
 import 'package:money_tracker/core/utils/haptic_feedback.dart';
+import 'package:money_tracker/ui/widgets/gradient_button.dart';
 
 /// Dashboard tab showing project overview
 class DashboardTab extends StatelessWidget {
@@ -80,7 +80,6 @@ class _EmptyDashboardViewState extends State<_EmptyDashboardView>
             child: ScaleTransition(
               scale: _scaleAnimation,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const _FinarioLogo(),
                   const SizedBox(height: AppSizes.spacing20),

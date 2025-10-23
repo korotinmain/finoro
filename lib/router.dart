@@ -1,17 +1,19 @@
 // lib/router.dart
 import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:money_tracker/screens/email_confirmation_screen.dart';
 import 'package:money_tracker/screens/forgot_password_screen.dart';
 import 'package:money_tracker/screens/launch_screen.dart';
-import 'screens/register_screen.dart';
-import 'screens/login_screen.dart';
-import 'screens/app_shell.dart';
-import 'screens/tabs.dart';
+
 import 'screens/account_settings_page.dart';
+import 'screens/app_shell.dart';
 import 'screens/help_page.dart';
+import 'screens/login_screen.dart';
+import 'screens/register_screen.dart';
+import 'screens/tabs.dart';
 
 CustomTransitionPage<T> _fadeSlidePage<T>({
   required GoRouterState state,

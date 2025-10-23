@@ -2,14 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:money_tracker/services/auth_service.dart';
-import 'package:money_tracker/ui/auth_widgets.dart' hide GlowBlob;
-import 'package:money_tracker/ui/widgets/glow_blob.dart';
-import 'package:money_tracker/router.dart';
-import 'package:money_tracker/core/constants/app_sizes.dart';
-import 'package:money_tracker/ui/password_strength_bar.dart';
 import 'package:money_tracker/core/utils/haptic_feedback.dart';
 import 'package:money_tracker/core/validators/form_validators.dart';
+import 'package:money_tracker/router.dart';
+import 'package:money_tracker/services/auth_service.dart';
+import 'package:money_tracker/ui/auth_widgets.dart' hide GlowBlob;
+import 'package:money_tracker/ui/password_strength_bar.dart';
+import 'package:money_tracker/ui/widgets/glow_blob.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -119,9 +118,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         body: Stack(
           children: [
             const AuthGradientBackground(),
-            GlowBlob.purpleBlue(size: AppSizes.blobSmall, left: -80, top: -60),
+            GlowBlob.purpleBlue(left: -80, top: -60),
             GlowBlob.purpleCyan(
-              size: AppSizes.blobMedium,
               right: -70,
               bottom: -70,
             ),
@@ -304,8 +302,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             ? null
                                             : () async {
                                               await HapticFeedbackHelper.lightImpact();
-                                              if (mounted)
+                                              if (mounted) {
                                                 GoRouter.of(context).pop();
+                                              }
                                             },
                                     child: Text(t.backToLogin),
                                   ),

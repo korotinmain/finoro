@@ -5,7 +5,6 @@ class AppTheme {
     useMaterial3: true,
     brightness: Brightness.dark,
     colorSchemeSeed: const Color(0xFF6D4AFF),
-    fontFamily: null, // plug in a custom font later if you want
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: Colors.white.withValues(alpha: 0.04),

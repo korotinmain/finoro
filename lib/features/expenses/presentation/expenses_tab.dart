@@ -69,7 +69,6 @@ class _EmptyExpensesViewState extends State<_EmptyExpensesView>
           child: FadeTransition(
             opacity: _fadeAnimation,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 _GlassmorphicCard(
                   child: Column(
@@ -81,7 +80,7 @@ class _EmptyExpensesViewState extends State<_EmptyExpensesView>
                           shape: BoxShape.circle,
                           color: AppColors.vibrantPurple.withValues(alpha: 0.1),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.receipt_long_rounded,
                           size: 40,
                           color: AppColors.vibrantPurple,
@@ -244,17 +243,17 @@ class _QuickTipsCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSizes.spacing12),
-          _TipItem(
+          const _TipItem(
             icon: Icons.category_rounded,
             text: 'Categorize expenses for better insights',
           ),
           const SizedBox(height: AppSizes.spacing8),
-          _TipItem(
+          const _TipItem(
             icon: Icons.attach_money_rounded,
             text: 'Set budgets for each project',
           ),
           const SizedBox(height: AppSizes.spacing8),
-          _TipItem(
+          const _TipItem(
             icon: Icons.receipt_rounded,
             text: 'Keep receipts organized by project',
           ),
