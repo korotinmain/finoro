@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:money_tracker/core/presentation/app_shell.dart';
 import 'package:money_tracker/core/routing/app_routes.dart';
 import 'package:money_tracker/core/routing/route_guard.dart';
 import 'package:money_tracker/core/routing/stream_refresh_notifier.dart';
@@ -11,8 +12,6 @@ import 'package:money_tracker/features/history/presentation/history_tab.dart';
 import 'package:money_tracker/features/settings/presentation/pages/account_settings_page.dart';
 import 'package:money_tracker/features/settings/presentation/pages/help_page.dart';
 import 'package:money_tracker/features/settings/presentation/settings_tab.dart';
-// App Shell
-import 'package:money_tracker/screens/app_shell.dart';
 import 'package:money_tracker/screens/email_confirmation_screen.dart';
 import 'package:money_tracker/screens/forgot_password_screen.dart';
 // Auth Screens
