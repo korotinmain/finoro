@@ -8,14 +8,13 @@ import 'package:money_tracker/core/routing/stream_refresh_notifier.dart';
 import 'package:money_tracker/features/dashboard/presentation/dashboard_tab.dart';
 import 'package:money_tracker/features/expenses/presentation/expenses_tab.dart';
 import 'package:money_tracker/features/history/presentation/history_tab.dart';
+import 'package:money_tracker/features/settings/presentation/pages/account_settings_page.dart';
+import 'package:money_tracker/features/settings/presentation/pages/help_page.dart';
 import 'package:money_tracker/features/settings/presentation/settings_tab.dart';
-// Settings Pages
-import 'package:money_tracker/screens/account_settings_page.dart';
 // App Shell
 import 'package:money_tracker/screens/app_shell.dart';
 import 'package:money_tracker/screens/email_confirmation_screen.dart';
 import 'package:money_tracker/screens/forgot_password_screen.dart';
-import 'package:money_tracker/screens/help_page.dart';
 // Auth Screens
 import 'package:money_tracker/screens/launch_screen.dart';
 import 'package:money_tracker/screens/login_screen.dart';
