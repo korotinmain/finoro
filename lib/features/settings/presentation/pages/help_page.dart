@@ -200,7 +200,7 @@ class _HelpPageState extends State<HelpPage> {
   }
 
   void _showTopicDetails(BuildContext context, _HelpTopic topic) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,

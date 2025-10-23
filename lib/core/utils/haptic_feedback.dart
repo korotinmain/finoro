@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 
 /// iOS-style haptic feedback utilities
@@ -62,10 +64,12 @@ class HapticFeedbackHelper {
   }
 }
 
-/// Extension on common widgets to easily add haptic feedback
-extension HapticFeedbackExtension on Function() {
+typedef AsyncVoidCallback = Future<void> Function();
+
+/// Extension on synchronous callbacks to easily add haptic feedback
+extension HapticFeedbackExtension on VoidCallback {
   /// Wraps a callback with light haptic feedback
-  Function() withLightHaptic() {
+  AsyncVoidCallback withLightHaptic() {
     return () async {
       await HapticFeedbackHelper.lightImpact();
       this();
@@ -73,7 +77,7 @@ extension HapticFeedbackExtension on Function() {
   }
 
   /// Wraps a callback with medium haptic feedback
-  Function() withMediumHaptic() {
+  AsyncVoidCallback withMediumHaptic() {
     return () async {
       await HapticFeedbackHelper.mediumImpact();
       this();
@@ -81,10 +85,37 @@ extension HapticFeedbackExtension on Function() {
   }
 
   /// Wraps a callback with heavy haptic feedback
-  Function() withHeavyHaptic() {
+  AsyncVoidCallback withHeavyHaptic() {
     return () async {
       await HapticFeedbackHelper.heavyImpact();
       this();
+    };
+  }
+}
+
+/// Extension for already async callbacks so they can be wrapped without losing awaiting behaviour
+extension AsyncHapticFeedbackExtension on AsyncVoidCallback {
+  /// Wraps an async callback with light haptic feedback
+  AsyncVoidCallback withLightHaptic() {
+    return () async {
+      await HapticFeedbackHelper.lightImpact();
+      await this();
+    };
+  }
+
+  /// Wraps an async callback with medium haptic feedback
+  AsyncVoidCallback withMediumHaptic() {
+    return () async {
+      await HapticFeedbackHelper.mediumImpact();
+      await this();
+    };
+  }
+
+  /// Wraps an async callback with heavy haptic feedback
+  AsyncVoidCallback withHeavyHaptic() {
+    return () async {
+      await HapticFeedbackHelper.heavyImpact();
+      await this();
     };
   }
 }

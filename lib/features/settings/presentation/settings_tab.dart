@@ -34,7 +34,7 @@ class SettingsTab extends StatelessWidget {
 
   void _showLanguageDialog(BuildContext context) {
     final t = AppLocalizations.of(context)!;
-    showDialog(context: context, builder: (ctx) => _LanguageDialog(t: t));
+    showDialog<void>(context: context, builder: (ctx) => _LanguageDialog(t: t));
   }
 
   @override
@@ -436,7 +436,7 @@ class _SignOutButton extends StatelessWidget {
     if (!context.mounted) return;
 
     final t = AppLocalizations.of(context)!;
-    final shouldSignOut = await showDialog<bool>(
+    final shouldSignOut = await showDialog<bool?>(
       context: context,
       builder:
           (ctx) => AlertDialog(
