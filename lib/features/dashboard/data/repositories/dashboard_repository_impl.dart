@@ -1,0 +1,75 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:money_tracker/features/dashboard/data/datasources/dashboard_remote_data_source.dart';
+import 'package:money_tracker/features/dashboard/domain/entities/project_overview.dart';
+import 'package:money_tracker/features/dashboard/domain/repositories/dashboard_repository.dart';
+
+class DashboardRepositoryImpl implements DashboardRepository {
+  DashboardRepositoryImpl(this._remoteDataSource);
+
+  final DashboardRemoteDataSource _remoteDataSource;
+
+  @override
+  @override
+  Stream<List<ProjectOverview>> watchProjects(String userId) {
+    return _remoteDataSource.watchProjects(userId).map((rawProjects) {
+      return rawProjects
+          .map(_mapProject)
+          .whereType<ProjectOverview>()
+          .toList(growable: false);
+    });
+  }
+
+  ProjectOverview? _mapProject(Map<String, dynamic> data) {
+    final id = data['id'] as String?;
+    if (id == null || id.isEmpty) {
+      return null;
+    }
+
+    final name = (data['name'] as String?)?.trim();
+    final budget = _toDouble(
+      data['budget'] ?? data['totalBudget'],
+    );
+    final spent = _toDouble(
+      data['spent'] ?? data['totalSpent'],
+    );
+
+    return ProjectOverview(
+      id: id,
+      name: (name == null || name.isEmpty) ? 'Untitled Project' : name,
+      budget: budget,
+      spent: spent,
+      currency: (data['currency'] as String?)?.trim().isNotEmpty == true
+          ? (data['currency'] as String).trim()
+          : 'USD',
+      coverImageUrl: data['coverImageUrl'] as String?,
+      createdAt: _parseDate(data['createdAt']),
+      updatedAt: _parseDate(data['updatedAt']),
+    );
+  }
+
+  double _toDouble(dynamic value) {
+    if (value is num) {
+      return value.toDouble();
+    }
+    if (value is String) {
+      return double.tryParse(value) ?? 0;
+    }
+    return 0;
+  }
+
+  DateTime? _parseDate(dynamic value) {
+    if (value is Timestamp) {
+      return value.toDate();
+    }
+    if (value is DateTime) {
+      return value;
+    }
+    if (value is String) {
+      return DateTime.tryParse(value);
+    }
+    if (value is num) {
+      return DateTime.fromMillisecondsSinceEpoch(value.toInt());
+    }
+    return null;
+  }
+}
