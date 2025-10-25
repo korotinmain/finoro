@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,20 +6,12 @@ import 'package:money_tracker/core/constants/app_colors.dart';
 import 'package:money_tracker/core/constants/app_sizes.dart';
 import 'package:money_tracker/core/routing/app_routes.dart';
 import 'package:money_tracker/core/utils/haptic_feedback.dart';
+import 'package:money_tracker/features/settings/domain/entities/user_profile.dart';
 import 'package:money_tracker/features/settings/presentation/providers/locale_controller.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:money_tracker/features/settings/presentation/providers/settings_providers.dart';
 
-class SettingsTab extends StatelessWidget {
+class SettingsTab extends ConsumerWidget {
   const SettingsTab({super.key});
-
-  Future<String> _getVersion() async {
-    try {
-      final info = await PackageInfo.fromPlatform();
-      return '${info.version}+${info.buildNumber}';
-    } catch (_) {
-      return '1.0.0';
-    }
-  }
 
   void _showComingSoon(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -39,16 +30,18 @@ class SettingsTab extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final user = FirebaseAuth.instance.currentUser;
-    final email = user?.email ?? 'anonymous';
-    final displayName =
-        (user?.displayName?.trim().isNotEmpty ?? false)
-            ? user!.displayName!.trim()
-            : email.split('@').first;
-    final verified = user?.emailVerified ?? false;
+    final profileAsync = ref.watch(userProfileProvider);
+    final profile = profileAsync.maybeWhen(
+      data: (value) => value,
+      orElse: () => null,
+    );
+    final displayName = _resolveDisplayName(profile);
+    final email = profile?.email ?? 'anonymous';
+    final verified = profile?.isEmailVerified ?? false;
+    final appInfoAsync = ref.watch(appInfoProvider);
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Stack(
@@ -189,13 +182,25 @@ class SettingsTab extends StatelessWidget {
                         Center(
                           child: Opacity(
                             opacity: 0.35,
-                            child: FutureBuilder<String>(
-                              future: _getVersion(),
-                              builder:
-                                  (ctx, snap) => Text(
-                                    snap.hasData
-                                        ? t.versionLabel(snap.data!)
-                                        : ' ',
+                            child: appInfoAsync.when(
+                              data:
+                                  (info) => Text(
+                                    t.versionLabel(info.version),
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      fontSize: 11,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                              loading: () => Text(
+                                ' ',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  fontSize: 11,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              error:
+                                  (_, __) => Text(
+                                    ' ',
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       fontSize: 11,
                                       letterSpacing: 0.5,
@@ -318,6 +323,20 @@ class _ProfileCard extends StatelessWidget {
   }
 }
 
+String _resolveDisplayName(UserProfile? profile) {
+  if (profile == null) {
+    return 'anonymous';
+  }
+  final trimmed = profile.displayName.trim();
+  if (trimmed.isNotEmpty) {
+    return trimmed;
+  }
+  if (profile.email.isNotEmpty) {
+    return profile.email.split('@').first;
+  }
+  return 'anonymous';
+}
+
 class _SettingsGroup extends StatelessWidget {
   final String title;
   final List<_SettingsItemData> items;
@@ -419,7 +438,7 @@ class _SettingsItem extends StatelessWidget {
   }
 }
 
-class _SignOutButton extends StatelessWidget {
+class _SignOutButton extends ConsumerWidget {
   final String label;
   final String confirmTitle;
   final String confirmMessage;
@@ -432,7 +451,10 @@ class _SignOutButton extends StatelessWidget {
     required this.confirm,
   });
 
-  Future<void> _handleSignOut(BuildContext context) async {
+  Future<void> _handleSignOut(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
     await HapticFeedbackHelper.mediumImpact();
     if (!context.mounted) return;
 
@@ -468,7 +490,7 @@ class _SignOutButton extends StatelessWidget {
     if (!context.mounted) return;
 
     try {
-      await FirebaseAuth.instance.signOut();
+      await ref.read(signOutUserUseCaseProvider).call();
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -504,14 +526,14 @@ class _SignOutButton extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(AppSizes.radiusMedium),
-        onTap: () => _handleSignOut(context),
+        onTap: () => _handleSignOut(context, ref),
         child: Container(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSizes.spacing16,
