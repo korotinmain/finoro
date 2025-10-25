@@ -2,8 +2,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:money_tracker/core/providers/locale_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:money_tracker/core/routing/app_router.dart';
+import 'package:money_tracker/features/settings/presentation/providers/locale_controller.dart';
 import 'package:money_tracker/firebase_options.dart';
 
 import 'app/app_theme.dart';
@@ -11,49 +12,20 @@ import 'app/app_theme.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MoneyApp());
+  runApp(const ProviderScope(child: MoneyApp()));
 }
 
-class MoneyApp extends StatefulWidget {
+class MoneyApp extends ConsumerWidget {
   const MoneyApp({super.key});
 
   @override
-  State<MoneyApp> createState() => _MoneyAppState();
-}
-
-class _MoneyAppState extends State<MoneyApp> {
-  @override
-  void initState() {
-    super.initState();
-    _loadLocale();
-    // Listen to locale changes
-    localeNotifier.addListener(_onLocaleChanged);
-  }
-
-  @override
-  void dispose() {
-    localeNotifier.removeListener(_onLocaleChanged);
-    super.dispose();
-  }
-
-  void _onLocaleChanged() {
-    setState(() {});
-  }
-
-  Future<void> _loadLocale() async {
-    final locale = await LocaleService.loadLocale();
-    if (mounted) {
-      localeNotifier.value = locale;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedLocale = ref.watch(localeControllerProvider);
     return MaterialApp.router(
       title: 'Finoro',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
-      locale: localeNotifier.value,
+      locale: selectedLocale,
       supportedLocales: const [Locale('en'), Locale('uk')],
       localizationsDelegates: const [
         AppLocalizations.delegate,
@@ -61,14 +33,17 @@ class _MoneyAppState extends State<MoneyApp> {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      localeResolutionCallback: (locale, supported) {
-        // If user has set a preference, use it
-        if (localeNotifier.value != null) {
-          return localeNotifier.value;
+      localeResolutionCallback: (systemLocale, supported) {
+        if (selectedLocale != null &&
+            supported.any(
+              (supportedLocale) =>
+                  supportedLocale.languageCode == selectedLocale.languageCode,
+            )) {
+          return selectedLocale;
         }
         // Automatically use system language if available
         for (final supportedLocale in supported) {
-          if (supportedLocale.languageCode == locale?.languageCode) {
+          if (supportedLocale.languageCode == systemLocale?.languageCode) {
             return supportedLocale;
           }
         }

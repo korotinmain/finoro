@@ -1,12 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:money_tracker/core/constants/app_colors.dart';
 import 'package:money_tracker/core/constants/app_sizes.dart';
-import 'package:money_tracker/core/providers/locale_provider.dart';
 import 'package:money_tracker/core/routing/app_routes.dart';
 import 'package:money_tracker/core/utils/haptic_feedback.dart';
+import 'package:money_tracker/features/settings/presentation/providers/locale_controller.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsTab extends StatelessWidget {
@@ -546,15 +547,18 @@ class _SignOutButton extends StatelessWidget {
 }
 
 /// Language selection dialog
-class _LanguageDialog extends StatelessWidget {
+class _LanguageDialog extends ConsumerWidget {
   final AppLocalizations t;
 
   const _LanguageDialog({required this.t});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final currentLocale = Localizations.localeOf(context);
+    final selectedLocale = ref.watch(localeControllerProvider);
+    final activeLocaleCode =
+        selectedLocale?.languageCode ?? Localizations.localeOf(context).languageCode;
+    final controller = ref.read(localeControllerProvider.notifier);
 
     return AlertDialog(
       backgroundColor: AppColors.cardBackground,
@@ -574,10 +578,10 @@ class _LanguageDialog extends StatelessWidget {
           _LanguageOption(
             languageName: t.languageEnglish,
             languageCode: 'en',
-            isSelected: currentLocale.languageCode == 'en',
+            isSelected: activeLocaleCode == 'en',
             onTap: () async {
               await HapticFeedbackHelper.lightImpact();
-              await LocaleService.saveLocale(const Locale('en'));
+              await controller.setLocale(const Locale('en'));
               if (context.mounted) {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -597,10 +601,10 @@ class _LanguageDialog extends StatelessWidget {
           _LanguageOption(
             languageName: t.languageUkrainian,
             languageCode: 'uk',
-            isSelected: currentLocale.languageCode == 'uk',
+            isSelected: activeLocaleCode == 'uk',
             onTap: () async {
               await HapticFeedbackHelper.lightImpact();
-              await LocaleService.saveLocale(const Locale('uk'));
+              await controller.setLocale(const Locale('uk'));
               if (context.mounted) {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(

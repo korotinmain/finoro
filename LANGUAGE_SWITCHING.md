@@ -24,16 +24,14 @@ The app now supports dynamic language switching between English and Ukrainian.
 - `selectLanguage`: "Виберіть мову"
 - `languageChanged`: "Мову змінено на {language}"
 
-### 2. Locale Service
+### 2. Locale Stack
 
-**File:** `lib/core/providers/locale_provider.dart`
+**Files:** `lib/features/settings/data/**/*`, `lib/features/settings/domain/**/*`, `lib/features/settings/presentation/providers/locale_controller.dart`
 
-Provides:
-
-- `LocaleService.loadLocale()`: Loads saved locale from SharedPreferences
-- `LocaleService.saveLocale(Locale)`: Saves locale and notifies listeners
-- `LocaleService.clearLocale()`: Clears saved preference
-- `localeNotifier`: ValueNotifier for reactive locale changes
+- Data source reads and writes the locale preference via SharedPreferences.
+- Repository converts stored data to the `AppLocale` domain entity.
+- Use cases expose `load`, `save`, and `clear` operations.
+- `LocaleController` (Riverpod `Notifier`) drives locale state for the UI.
 
 ### 3. Main App Integration
 
@@ -41,10 +39,10 @@ Provides:
 
 Changes:
 
-- `MoneyApp` converted to `StatefulWidget`
-- Listens to `localeNotifier` for changes
-- Loads saved locale on app start
-- Applies user preference or falls back to system locale
+- App wrapped with `ProviderScope`
+- `MoneyApp` implemented as `ConsumerWidget`
+- Watches `localeControllerProvider` for preference changes
+- Falls back to system locale when no preference is stored
 
 ### 4. Settings UI
 
@@ -71,8 +69,8 @@ Features:
    - User taps "Language" in Settings
    - Dialog shows with English and Ukrainian options
    - User selects desired language
-   - Selection is saved to SharedPreferences
-   - `localeNotifier` updates, triggering app rebuild
+   - Selection is persisted via `LocaleController`
+   - `localeControllerProvider` updates, triggering app rebuild
    - All UI text updates immediately to new language
    - Success notification shows in selected language
 
