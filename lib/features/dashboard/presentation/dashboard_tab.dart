@@ -81,14 +81,14 @@ class _EmptyDashboardViewState extends State<_EmptyDashboardView>
               scale: _scaleAnimation,
               child: Column(
                 children: [
-                  const _FinarioLogo(),
+                  const _FinoroLogo(),
                   const SizedBox(height: AppSizes.spacing20),
                   ShaderMask(
                     shaderCallback:
                         (bounds) =>
                             AppColors.primaryGradient.createShader(bounds),
                     child: Text(
-                      'Welcome to Finario',
+                      'Welcome to Finoro',
                       textAlign: TextAlign.center,
                       style: theme.textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.w800,
@@ -127,15 +127,15 @@ class _EmptyDashboardViewState extends State<_EmptyDashboardView>
   }
 }
 
-/// Finario logo with glow effect
-class _FinarioLogo extends StatefulWidget {
-  const _FinarioLogo();
+/// Finoro logo with glow effect
+class _FinoroLogo extends StatefulWidget {
+  const _FinoroLogo();
 
   @override
-  State<_FinarioLogo> createState() => _FinarioLogoState();
+  State<_FinoroLogo> createState() => _FinoroLogoState();
 }
 
-class _FinarioLogoState extends State<_FinarioLogo>
+class _FinoroLogoState extends State<_FinoroLogo>
     with SingleTickerProviderStateMixin {
   late AnimationController _glowController;
 

@@ -1,4 +1,4 @@
-# 🚀 Finario Quick Start: Implement Your First Project
+# 🚀 Finoro Quick Start: Implement Your First Project
 
 **Goal**: Create a working Projects Dashboard in 4-6 hours
 
@@ -6,7 +6,7 @@
 
 ## 📋 Overview
 
-This guide will walk you through implementing the **core Project feature** - the heart of Finario. By the end, you'll have:
+This guide will walk you through implementing the **core Project feature** - the heart of Finoro. By the end, you'll have:
 
 ✅ Projects data model with Firestore  
 ✅ Projects Dashboard with empty state  
@@ -277,7 +277,7 @@ class ProjectsDashboardScreen extends ConsumerWidget {
             const SizedBox(height: AppSizes.spacing32),
 
             Text(
-              'Welcome to Finario',
+              'Welcome to Finoro',
               style: theme.textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.w800,
               ),
@@ -609,6 +609,6 @@ Once the dashboard is working:
 
 ## 🚀 You're Ready!
 
-Start with Step 1 and work through each section. Test as you go. By the end, you'll have a working Projects Dashboard - the core of Finario!
+Start with Step 1 and work through each section. Test as you go. By the end, you'll have a working Projects Dashboard - the core of Finoro!
 
 **Happy coding! 💪**

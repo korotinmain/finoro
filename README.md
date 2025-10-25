@@ -1,8 +1,8 @@
-# Finario 💰
+# Finoro 💰
 
 **A modern personal finance app that helps you organize, track, and understand your money through Projects.**
 
-Finario transforms personal finance into organized, visual stories. Each Project is a flexible financial space that groups budgets, expenses, and incomes under a single goal — whether it's a vacation fund, monthly budget, side hustle, or home renovation.
+Finoro transforms personal finance into organized, visual stories. Each Project is a flexible financial space that groups budgets, expenses, and incomes under a single goal — whether it's a vacation fund, monthly budget, side hustle, or home renovation.
 
 ## ✨ Core Concept
 

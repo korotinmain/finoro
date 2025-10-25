@@ -1,6 +1,6 @@
-# 🚀 Finario Implementation Guide
+# 🚀 Finoro Implementation Guide
 
-**Transforming Money Tracker into Finario: A Project-Based Personal Finance App**
+**Transforming Money Tracker into Finoro: A Project-Based Personal Finance App**
 
 ---
 
@@ -38,7 +38,7 @@ User
 User → Transactions (all mixed together)
 ```
 
-**Finario**: Project-based organization
+**Finoro**: Project-based organization
 
 ```
 User → Projects → Transactions (grouped by project)
@@ -503,7 +503,7 @@ class _EmptyState extends StatelessWidget {
 
             // Title
             Text(
-              'Welcome to Finario',
+              'Welcome to Finoro',
               style: theme.textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.w800,
               ),
@@ -1006,4 +1006,4 @@ All cards should use the GlassCard widget with:
 4. **Use haptic feedback** - Make it feel premium
 5. **Focus on UX** - Smooth, fast, beautiful
 
-**Let's build Finario! 🎯**
+**Let's build Finoro! 🎯**
