@@ -1,36 +1,36 @@
 import 'dart:async';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:money_tracker/core/constants/app_colors.dart';
 import 'package:money_tracker/core/constants/app_sizes.dart';
+import 'package:money_tracker/core/errors/auth_exception.dart';
 import 'package:money_tracker/core/routing/app_routes.dart';
 import 'package:money_tracker/core/utils/haptic_feedback.dart';
+import 'package:money_tracker/features/auth/presentation/providers/auth_providers.dart';
+import 'package:money_tracker/features/auth/presentation/utils/auth_exception_localization.dart';
 import 'package:money_tracker/ui/auth_widgets.dart' hide GlowBlob;
 import 'package:money_tracker/ui/widgets/glow_blob.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class EmailConfirmationScreen extends StatefulWidget {
+class EmailConfirmationScreen extends ConsumerStatefulWidget {
   const EmailConfirmationScreen({super.key, this.email});
 
-  /// If not provided, we'll read FirebaseAuth.currentUser?.email
+  /// If not provided, we'll read the currently authenticated user's email.
   final String? email;
 
   @override
-  State<EmailConfirmationScreen> createState() =>
+  ConsumerState<EmailConfirmationScreen> createState() =>
       _EmailConfirmationScreenState();
 }
 
-class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
-  final _auth = FirebaseAuth.instance;
-
+class _EmailConfirmationScreenState
+    extends ConsumerState<EmailConfirmationScreen> {
   bool _sending = false;
   int _cooldown = 0;
   Timer? _t;
-
-  String get _email =>
-      widget.email ?? (_auth.currentUser?.email ?? 'your@email.com');
+  String get _fallbackEmail => widget.email ?? 'your@email.com';
 
   @override
   void dispose() {
@@ -103,32 +103,20 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
     final messenger = ScaffoldMessenger.of(context);
 
     try {
-      final user = _auth.currentUser;
-      if (user == null) {
-        await HapticFeedbackHelper.error();
-        if (!mounted) return;
-        messenger.showSnackBar(
-          SnackBar(
-            content: const Text('No signed-in user.'),
-            backgroundColor: Colors.red.shade900,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        );
-        return;
-      }
-
-      await user.sendEmailVerification();
+      final sendVerification = ref.read(sendEmailVerificationProvider);
+      await sendVerification();
       if (!mounted) return;
 
       await HapticFeedbackHelper.success();
       if (!mounted) return;
       final t = AppLocalizations.of(context)!;
+      final email =
+          widget.email ??
+          ref.read(currentAuthUserProvider)?.email ??
+          _fallbackEmail;
       messenger.showSnackBar(
         SnackBar(
-          content: Text(t.verificationEmailSent(_email)),
+          content: Text(t.verificationEmailSent(email)),
           backgroundColor: Colors.green.shade900,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -137,6 +125,20 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
         ),
       );
       _startCooldown();
+    } on AuthException catch (e) {
+      await HapticFeedbackHelper.error();
+      if (!mounted) return;
+      final t = AppLocalizations.of(context)!;
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(e.localizedMessage(t)),
+          backgroundColor: Colors.red.shade900,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
     } catch (_) {
       await HapticFeedbackHelper.error();
       if (!mounted) return;
@@ -164,8 +166,9 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
     final router = GoRouter.of(context);
 
     try {
-      await _auth.currentUser?.reload();
-      final verified = _auth.currentUser?.emailVerified ?? false;
+      final reload = ref.read(reloadCurrentUserProvider);
+      final user = await reload();
+      final verified = user?.isEmailVerified ?? false;
       if (!mounted) return;
 
       if (verified) {
@@ -187,13 +190,13 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
           ),
         );
       }
-    } catch (_) {
+    } on AuthException catch (e) {
       await HapticFeedbackHelper.error();
       if (!mounted) return;
       final t = AppLocalizations.of(context)!;
       messenger.showSnackBar(
         SnackBar(
-          content: Text(t.couldNotRefreshStatus),
+          content: Text(e.localizedMessage(t)),
           backgroundColor: Colors.red.shade900,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -249,7 +252,9 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          _email,
+                          widget.email ??
+                              ref.watch(currentAuthUserProvider)?.email ??
+                              _fallbackEmail,
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodyLarge,
                         ),
@@ -298,7 +303,8 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
                                 await HapticFeedbackHelper.lightImpact();
                                 if (!context.mounted) return;
                                 final router = GoRouter.of(context);
-                                await FirebaseAuth.instance.signOut();
+                                final signOut = ref.read(signOutProvider);
+                                await signOut();
                                 if (!context.mounted) return;
                                 router.go(AppRoutes.login);
                               },

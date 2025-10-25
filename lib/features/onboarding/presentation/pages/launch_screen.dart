@@ -1,19 +1,20 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:money_tracker/core/constants/app_sizes.dart';
 import 'package:money_tracker/core/routing/app_routes.dart';
+import 'package:money_tracker/features/auth/presentation/providers/auth_providers.dart';
 import 'package:money_tracker/ui/widgets/glow_blob.dart';
 
-class LaunchScreen extends StatefulWidget {
+class LaunchScreen extends ConsumerStatefulWidget {
   const LaunchScreen({super.key});
 
   @override
-  State<LaunchScreen> createState() => _LaunchScreenState();
+  ConsumerState<LaunchScreen> createState() => _LaunchScreenState();
 }
 
-class _LaunchScreenState extends State<LaunchScreen>
+class _LaunchScreenState extends ConsumerState<LaunchScreen>
     with TickerProviderStateMixin {
   late final AnimationController _intro;
   late final Animation<double> _introScale;
@@ -97,9 +98,9 @@ class _LaunchScreenState extends State<LaunchScreen>
       );
 
       if (!mounted) return;
-      final user = FirebaseAuth.instance.currentUser;
+      final user = ref.read(getCurrentUserProvider)();
       final loggedIn = user != null;
-      final verified = user?.emailVerified ?? false;
+      final verified = user?.isEmailVerified ?? false;
       final router = GoRouter.of(context);
       if (!loggedIn) {
         router.go(AppRoutes.login);

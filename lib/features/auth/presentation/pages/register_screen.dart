@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:money_tracker/core/errors/auth_exception.dart';
 import 'package:money_tracker/core/routing/app_routes.dart';
 import 'package:money_tracker/core/utils/haptic_feedback.dart';
 import 'package:money_tracker/core/validators/form_validators.dart';
-import 'package:money_tracker/services/auth_service.dart';
+import 'package:money_tracker/features/auth/presentation/providers/auth_providers.dart';
+import 'package:money_tracker/features/auth/presentation/utils/auth_exception_localization.dart';
 import 'package:money_tracker/ui/auth_widgets.dart' hide GlowBlob;
 import 'package:money_tracker/ui/password_strength_bar.dart';
 import 'package:money_tracker/ui/widgets/glow_blob.dart';
 
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _email = TextEditingController();
   final _name = TextEditingController();
@@ -25,7 +28,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscure1 = true;
   bool _obscure2 = true;
   bool _loading = false;
-  final _auth = AuthService();
   double _strength = 0; // 0..1
 
   void _updateStrength(String value) {
@@ -62,7 +64,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() => _loading = true);
 
     try {
-      final user = await _auth.signUp(context, _email.text.trim(), _pass.text);
+      final register = ref.read(registerWithEmailProvider);
+      final updateDisplayName = ref.read(updateDisplayNameProvider);
+      final sendVerification = ref.read(sendEmailVerificationProvider);
+      final reloadUser = ref.read(reloadCurrentUserProvider);
+      await register(
+        email: _email.text.trim(),
+        password: _pass.text,
+      );
       if (!mounted) return;
 
       final messenger = ScaffoldMessenger.of(context);
@@ -71,11 +80,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       // Update display name if provided
       final nameTrimmed = _name.text.trim();
       if (nameTrimmed.isNotEmpty) {
-        await user?.updateDisplayName(nameTrimmed);
+        await updateDisplayName(nameTrimmed);
+        await reloadUser();
       }
 
       // Send verification email; then go to confirmation screen.
-      await user?.sendEmailVerification();
+      await sendVerification();
       await HapticFeedbackHelper.success();
       if (!mounted) return;
 
@@ -96,7 +106,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final messenger = ScaffoldMessenger.of(context);
       messenger.showSnackBar(
         SnackBar(
-          content: Text(e.message),
+          content: Text(e.localizedMessage(AppLocalizations.of(context)!)),
           backgroundColor: Colors.red.shade900,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(

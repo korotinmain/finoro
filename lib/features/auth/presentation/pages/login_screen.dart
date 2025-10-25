@@ -1,29 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:money_tracker/core/errors/auth_exception.dart';
 import 'package:money_tracker/core/routing/app_routes.dart';
 import 'package:money_tracker/core/services/app_launch_service.dart';
 import 'package:money_tracker/core/utils/haptic_feedback.dart';
 import 'package:money_tracker/core/validators/form_validators.dart';
-import 'package:money_tracker/services/auth_service.dart';
+import 'package:money_tracker/features/auth/presentation/providers/auth_providers.dart';
+import 'package:money_tracker/features/auth/presentation/utils/auth_exception_localization.dart';
 import 'package:money_tracker/ui/auth_widgets.dart' hide GlowBlob;
 import 'package:money_tracker/ui/widgets/glow_blob.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _email = TextEditingController();
   final _pass = TextEditingController();
   bool _obscure = true;
   bool _loading = false;
   bool _isFirstLaunch = false;
-  final _authService = AuthService();
 
   Future<void> _onSignIn() async {
     if (!_formKey.currentState!.validate()) {
@@ -37,16 +39,19 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _loading = true);
 
     try {
+      final signIn = ref.read(signInWithEmailProvider);
       final router = GoRouter.of(context); // capture before await
-      await _authService.signIn(context, _email.text.trim(), _pass.text);
+      final user = await signIn(
+        email: _email.text.trim(),
+        password: _pass.text,
+      );
       if (!mounted) return;
 
       await HapticFeedbackHelper.success();
       if (!mounted) return;
 
       // Route changed: old '/home' replaced by tab shell with dashboard root.
-      final user = _authService.currentUser;
-      if (user != null && !user.emailVerified) {
+      if (user != null && !user.isEmailVerified) {
         router.go(AppRoutes.confirmEmail);
       } else {
         router.go(AppRoutes.dashboard);
@@ -57,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final messenger = ScaffoldMessenger.of(context);
       messenger.showSnackBar(
         SnackBar(
-          content: Text(e.message),
+          content: Text(e.localizedMessage(AppLocalizations.of(context)!)),
           backgroundColor: Colors.red.shade900,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(

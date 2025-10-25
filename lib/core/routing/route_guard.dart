@@ -1,19 +1,19 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:money_tracker/core/routing/app_routes.dart';
+import 'package:money_tracker/features/auth/domain/repositories/auth_repository.dart';
 
 /// Handles routing logic and authentication-based redirects
 /// Follows Single Responsibility Principle
 class RouteGuard {
-  final FirebaseAuth _auth;
+  final AuthRepository _authRepository;
 
-  RouteGuard(this._auth);
+  RouteGuard(this._authRepository);
 
   /// Determine redirect based on authentication state and destination
   /// Returns null if the route is allowed, or a redirect path otherwise
   String? redirect(String currentLocation) {
-    final user = _auth.currentUser;
+    final user = _authRepository.currentUser;
     final isLoggedIn = user != null;
-    final isVerified = user?.emailVerified ?? false;
+    final isVerified = user?.isEmailVerified ?? false;
 
     // Always allow splash/launch screen
     if (currentLocation == AppRoutes.launch) {

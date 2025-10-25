@@ -21,6 +21,7 @@ class MoneyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedLocale = ref.watch(localeControllerProvider);
+    final router = ref.watch(appRouterProvider);
     return MaterialApp.router(
       title: 'Finoro',
       debugShowCheckedModeBanner: false,
@@ -49,7 +50,7 @@ class MoneyApp extends ConsumerWidget {
         }
         return supported.first; // fallback to English
       },
-      routerConfig: createAppRouter(),
+      routerConfig: router,
     );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:money_tracker/core/providers/auth_providers.dart';
+import 'package:money_tracker/features/auth/presentation/providers/auth_providers.dart';
 import 'package:money_tracker/features/money/domain/transaction.dart';
 
 /// Repository interface for transaction operations
@@ -87,7 +87,7 @@ final transactionRepositoryProvider = Provider<ITransactionRepository>((ref) {
 
 /// Provider for watching user transactions
 final userTransactionsProvider = StreamProvider<List<MoneyTx>>((ref) {
-  final user = ref.watch(currentUserProvider);
+  final user = ref.watch(currentAuthUserProvider);
   if (user == null) {
     return Stream.value([]);
   }

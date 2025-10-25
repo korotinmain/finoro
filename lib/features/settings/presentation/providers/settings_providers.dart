@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:money_tracker/core/providers/auth_providers.dart';
+import 'package:money_tracker/features/auth/presentation/providers/auth_providers.dart';
 import 'package:money_tracker/features/settings/data/repositories/account_settings_repository_impl.dart';
 import 'package:money_tracker/features/settings/data/repositories/app_info_repository_impl.dart';
 import 'package:money_tracker/features/settings/domain/entities/app_info.dart';

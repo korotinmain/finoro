@@ -1,13 +1,14 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:money_tracker/core/constants/app_colors.dart';
 import 'package:money_tracker/core/constants/app_sizes.dart';
 import 'package:money_tracker/core/utils/haptic_feedback.dart';
+import 'package:money_tracker/features/auth/presentation/providers/auth_providers.dart';
 import 'package:money_tracker/ui/widgets/glow_blob.dart';
 
-class AccountSettingsPage extends StatelessWidget {
+class AccountSettingsPage extends ConsumerWidget {
   const AccountSettingsPage({super.key});
 
   void _showToast(BuildContext context, String message) {
@@ -57,16 +58,16 @@ class AccountSettingsPage extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final user = FirebaseAuth.instance.currentUser;
+    final user = ref.watch(currentAuthUserProvider);
     final email = user?.email ?? 'anonymous@finoro.app';
     final displayName =
         (user?.displayName?.trim().isNotEmpty ?? false)
             ? user!.displayName!.trim()
             : email.split('@').first;
-    final isVerified = user?.emailVerified ?? false;
+    final isVerified = user?.isEmailVerified ?? false;
 
     return Scaffold(
       body: Stack(

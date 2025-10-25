@@ -1,5 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:money_tracker/core/presentation/app_shell.dart';
 import 'package:money_tracker/core/routing/app_routes.dart';
@@ -9,6 +9,7 @@ import 'package:money_tracker/features/auth/presentation/pages/email_confirmatio
 import 'package:money_tracker/features/auth/presentation/pages/forgot_password_screen.dart';
 import 'package:money_tracker/features/auth/presentation/pages/login_screen.dart';
 import 'package:money_tracker/features/auth/presentation/pages/register_screen.dart';
+import 'package:money_tracker/features/auth/presentation/providers/auth_providers.dart';
 import 'package:money_tracker/features/dashboard/presentation/dashboard_tab.dart';
 import 'package:money_tracker/features/expenses/presentation/expenses_tab.dart';
 import 'package:money_tracker/features/history/presentation/history_tab.dart';
@@ -47,15 +48,20 @@ CustomTransitionPage<T> _createTransitionPage<T>({
   );
 }
 
-/// Configure and return the app's GoRouter instance
-GoRouter createAppRouter() {
-  final auth = FirebaseAuth.instance;
-  final routeGuard = RouteGuard(auth);
+/// Provider that configures and exposes the GoRouter instance
+final appRouterProvider = Provider<GoRouter>((ref) {
+  final authRepository = ref.watch(authRepositoryProvider);
+  final routeGuard = RouteGuard(authRepository);
+  final refreshNotifier = StreamRefreshNotifier(
+    authRepository.watchAuthUser(),
+  );
 
-  return GoRouter(
+  ref.onDispose(refreshNotifier.dispose);
+
+  final router = GoRouter(
     initialLocation: AppRoutes.launch,
     redirect: (context, state) => routeGuard.redirect(state.matchedLocation),
-    refreshListenable: StreamRefreshNotifier(auth.authStateChanges()),
+    refreshListenable: refreshNotifier,
     routes: [
       // Launch/Splash Screen
       GoRoute(
@@ -159,4 +165,6 @@ GoRouter createAppRouter() {
       ),
     ],
   );
-}
+  ref.onDispose(router.dispose);
+  return router;
+});
