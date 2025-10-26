@@ -1,8 +1,13 @@
-import 'currency.dart';
 import 'transaction.dart';
 
 abstract class TransactionRepository {
-  Stream<List<MoneyTx>> watch({DateTime? from, DateTime? to, Currency? currency});
-  Future<void> add(MoneyTx tx);
-  Future<void> remove(String id);
+  Stream<List<MoneyTx>> watchTransactions(
+    String userId, {
+    DateTime? from,
+    DateTime? to,
+  });
+
+  Future<void> addTransaction(String userId, MoneyTx tx);
+
+  Future<void> deleteTransaction(String userId, String transactionId);
 }

@@ -1,140 +1,217 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:money_tracker/core/constants/app_colors.dart';
 import 'package:money_tracker/core/constants/app_sizes.dart';
+import 'package:money_tracker/features/money/domain/entities/transaction_summary.dart';
+import 'package:money_tracker/features/money/domain/transaction.dart';
+import 'package:money_tracker/features/money/presentation/providers/money_providers.dart';
 
-/// Insights tab for viewing analytics and charts
-class HistoryTab extends StatelessWidget {
+class HistoryTab extends ConsumerWidget {
   const HistoryTab({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const _InsightsEmptyView();
-  }
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context)!;
+    final transactionsAsync = ref.watch(userTransactionsProvider);
+    final summary = ref.watch(transactionSummaryProvider);
 
-/// Empty state for insights with placeholder charts
-class _InsightsEmptyView extends StatefulWidget {
-  const _InsightsEmptyView();
-
-  @override
-  State<_InsightsEmptyView> createState() => _InsightsEmptyViewState();
-}
-
-class _InsightsEmptyViewState extends State<_InsightsEmptyView>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
-
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
-
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSizes.spacing24,
-          vertical: AppSizes.spacing36,
-        ),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: AppSizes.maxDashboardWidth,
-          ),
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Insights',
-                  style: theme.textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                const SizedBox(height: AppSizes.spacing8),
-                Text(
-                  'Visualize your spending patterns and trends',
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ),
-                const SizedBox(height: AppSizes.spacing32),
-                const _ChartPlaceholder(
-                  title: 'Spending Overview',
-                  icon: Icons.show_chart_rounded,
-                  description: 'Track your spending trends over time',
-                ),
-                const SizedBox(height: AppSizes.spacing20),
-                const _ChartPlaceholder(
-                  title: 'Category Breakdown',
-                  icon: Icons.pie_chart_rounded,
-                  description: 'See where your money goes by category',
-                ),
-                const SizedBox(height: AppSizes.spacing20),
-                const _ChartPlaceholder(
-                  title: 'Budget Analysis',
-                  icon: Icons.analytics_rounded,
-                  description: 'Compare spending against your budgets',
-                ),
-                const SizedBox(height: AppSizes.spacing32),
-                _ComingSoonBanner(),
-              ],
-            ),
-          ),
+    return transactionsAsync.when(
+      data: (transactions) {
+        if (transactions.isEmpty) {
+          return _InsightsEmptyState(t: t);
+        }
+        return _InsightsDashboard(
+          t: t,
+          summary: summary,
+          transactions: transactions,
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, _) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSizes.spacing24),
+          child: Text(error.toString()),
         ),
       ),
     );
   }
 }
 
-/// Chart placeholder card
-class _ChartPlaceholder extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final String description;
+class _InsightsEmptyState extends StatelessWidget {
+  const _InsightsEmptyState({required this.t});
 
-  const _ChartPlaceholder({
-    required this.title,
-    required this.icon,
-    required this.description,
+  final AppLocalizations t;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSizes.spacing24,
+          vertical: AppSizes.spacing36,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              t.historyEmptyTitle,
+              style: theme.textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: AppSizes.spacing12),
+            Text(
+              t.historyEmptyDescription,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InsightsDashboard extends StatelessWidget {
+  const _InsightsDashboard({
+    required this.t,
+    required this.summary,
+    required this.transactions,
   });
+
+  final AppLocalizations t;
+  final TransactionSummary summary;
+  final List<MoneyTx> transactions;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final latestTransactions = transactions.take(5).toList();
+
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSizes.spacing24,
+              AppSizes.spacing24,
+              AppSizes.spacing24,
+              AppSizes.spacing12,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t.historyTitle,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: AppSizes.spacing8),
+                Text(
+                  t.historySubtitle,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ),
+                const SizedBox(height: AppSizes.spacing24),
+                _InsightsSummaryCards(summary: summary, t: t),
+                const SizedBox(height: AppSizes.spacing24),
+                _CategoryBreakdown(transactions: transactions, t: t),
+                const SizedBox(height: AppSizes.spacing24),
+                Text(
+                  t.recentTransactionsTitle,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final tx = latestTransactions[index];
+              return _TransactionRow(transaction: tx);
+            },
+            childCount: latestTransactions.length,
+          ),
+        ),
+        const SliverPadding(padding: EdgeInsets.only(bottom: AppSizes.spacing36)),
+      ],
+    );
+  }
+}
+
+class _InsightsSummaryCards extends StatelessWidget {
+  const _InsightsSummaryCards({required this.summary, required this.t});
+
+  final TransactionSummary summary;
+  final AppLocalizations t;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: AppSizes.spacing16,
+      runSpacing: AppSizes.spacing16,
+      children: [
+        _SummaryCard(
+          title: t.totalExpenseLabel,
+          value: '-${summary.totalExpense.toStringAsFixed(2)}',
+          gradient: AppColors.primaryGradient,
+        ),
+        _SummaryCard(
+          title: t.totalIncomeLabel,
+          value: '+${summary.totalIncome.toStringAsFixed(2)}',
+          gradient: LinearGradient(
+            colors: [Colors.greenAccent.withValues(alpha: 0.2), Colors.greenAccent],
+          ),
+        ),
+        _SummaryCard(
+          title: t.balanceLabel,
+          value: summary.balance.toStringAsFixed(2),
+          gradient: LinearGradient(
+            colors: [AppColors.lightBlue.withValues(alpha: 0.2), AppColors.lightBlue],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SummaryCard extends StatelessWidget {
+  const _SummaryCard({
+    required this.title,
+    required this.value,
+    required this.gradient,
+  });
+
+  final String title;
+  final String value;
+  final Gradient gradient;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Container(
-      padding: const EdgeInsets.all(AppSizes.spacing24),
+      width: 200,
+      padding: const EdgeInsets.all(AppSizes.spacing20),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground.withValues(alpha: 0.72),
+        gradient: gradient,
         borderRadius: BorderRadius.circular(AppSizes.radiusXXLarge),
         border: Border.all(color: AppColors.white(0.06)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 15,
+            blurRadius: 16,
             offset: const Offset(0, 8),
           ),
         ],
@@ -142,69 +219,18 @@ class _ChartPlaceholder extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
-                  borderRadius: BorderRadius.circular(AppSizes.radiusMedium),
-                ),
-                child: Icon(icon, color: Colors.white, size: 24),
-              ),
-              const SizedBox(width: AppSizes.spacing14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: AppSizes.spacing4),
-                    Text(
-                      description,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(
-                          alpha: 0.5,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSizes.spacing20),
-          // Chart placeholder visualization
-          Container(
-            height: 120,
-            decoration: BoxDecoration(
-              color: AppColors.glassBackground.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(AppSizes.radiusMedium),
+          Text(
+            title,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: Colors.white.withValues(alpha: 0.8),
             ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.bar_chart_rounded,
-                    size: 40,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
-                  ),
-                  const SizedBox(height: AppSizes.spacing8),
-                  Text(
-                    'Chart appears here',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ],
-              ),
+          ),
+          const SizedBox(height: AppSizes.spacing8),
+          Text(
+            value,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: Colors.white,
             ),
           ),
         ],
@@ -213,65 +239,99 @@ class _ChartPlaceholder extends StatelessWidget {
   }
 }
 
-/// Coming soon banner
-class _ComingSoonBanner extends StatelessWidget {
+class _CategoryBreakdown extends StatelessWidget {
+  const _CategoryBreakdown({required this.transactions, required this.t});
+
+  final List<MoneyTx> transactions;
+  final AppLocalizations t;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final expenses = transactions.where((tx) => !tx.isIncome);
+    final total = expenses.fold<double>(0, (sum, tx) => sum + tx.amount);
+    final Map<String, double> categoryTotals = {};
+    for (final tx in expenses) {
+      categoryTotals.update(tx.category, (value) => value + tx.amount,
+          ifAbsent: () => tx.amount);
+    }
+    final entries = categoryTotals.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    if (entries.isEmpty) {
+      return Container();
+    }
 
     return Container(
       padding: const EdgeInsets.all(AppSizes.spacing20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.vibrantPurple.withValues(alpha: 0.15),
-            AppColors.deepPurple.withValues(alpha: 0.15),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
-        border: Border.all(
-          color: AppColors.vibrantPurple.withValues(alpha: 0.3),
-        ),
+        color: AppColors.cardBackground.withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(AppSizes.radiusXXLarge),
+        border: Border.all(color: AppColors.white(0.06)),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(AppSizes.spacing12),
-            decoration: BoxDecoration(
-              color: AppColors.vibrantPurple.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.insights_rounded,
-              color: AppColors.vibrantPurple,
-              size: 28,
+          Text(
+            t.categoryBreakdownTitle,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(width: AppSizes.spacing16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Advanced Analytics',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: theme.colorScheme.onSurface,
+          const SizedBox(height: AppSizes.spacing16),
+          ...entries.take(5).map((entry) {
+            final percentage = total == 0 ? 0 : entry.value / total;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: AppSizes.spacing12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(entry.key, style: theme.textTheme.bodyMedium),
+                      Text('${(percentage * 100).toStringAsFixed(0)}%'),
+                    ],
                   ),
-                ),
-                const SizedBox(height: AppSizes.spacing4),
-                Text(
-                  'Beautiful charts and insights coming soon',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                  const SizedBox(height: AppSizes.spacing6),
+                  LinearProgressIndicator(
+                    value: percentage.clamp(0.0, 1.0).toDouble(),
+                    backgroundColor: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+                    valueColor: AlwaysStoppedAnimation(
+                      AppColors.vibrantPurple.withValues(alpha: 0.8),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
+                ],
+              ),
+            );
+          }),
         ],
+      ),
+    );
+  }
+}
+
+class _TransactionRow extends StatelessWidget {
+  const _TransactionRow({required this.transaction});
+
+  final MoneyTx transaction;
+
+  @override
+  Widget build(BuildContext context) {
+    final formatter = DateFormat.MMMd();
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppSizes.spacing24,
+        vertical: AppSizes.spacing8,
+      ),
+      title: Text(transaction.description),
+      subtitle: Text('${transaction.category} • ${formatter.format(transaction.date)}'),
+      trailing: Text(
+        '${transaction.isIncome ? '+' : '-'}${transaction.amount.toStringAsFixed(2)} ${transaction.currency.name}',
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: transaction.isIncome ? Colors.greenAccent : Colors.redAccent,
+              fontWeight: FontWeight.w600,
+            ),
       ),
     );
   }
