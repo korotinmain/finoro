@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:money_tracker/features/dashboard/data/datasources/dashboard_remote_data_source.dart';
+import 'package:money_tracker/features/dashboard/domain/entities/create_project_input.dart';
 import 'package:money_tracker/features/dashboard/domain/entities/project_overview.dart';
 import 'package:money_tracker/features/dashboard/domain/repositories/dashboard_repository.dart';
 
@@ -9,13 +10,24 @@ class DashboardRepositoryImpl implements DashboardRepository {
   final DashboardRemoteDataSource _remoteDataSource;
 
   @override
-  @override
   Stream<List<ProjectOverview>> watchProjects(String userId) {
     return _remoteDataSource.watchProjects(userId).map((rawProjects) {
       return rawProjects
           .map(_mapProject)
           .whereType<ProjectOverview>()
           .toList(growable: false);
+    });
+  }
+
+  @override
+  Future<void> createProject(String userId, CreateProjectInput input) async {
+    await _remoteDataSource.createProject(userId, {
+      'name': input.name,
+      'budget': input.budget,
+      'spent': 0.0,
+      'currency': input.currency,
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
     });
   }
 

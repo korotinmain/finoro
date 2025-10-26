@@ -13,7 +13,7 @@ class GradientButton extends StatelessWidget {
     this.isLoading = false,
   });
 
-  final VoidCallback? onPressed;
+  final Future<void> Function()? onPressed;
   final String label;
   final IconData? icon;
   final Gradient gradient;
@@ -31,7 +31,13 @@ class GradientButton extends StatelessWidget {
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
-          onTap: isLoading ? null : onPressed,
+          onTap: isLoading
+              ? null
+              : () async {
+                  if (onPressed != null) {
+                    await onPressed!();
+                  }
+                },
           borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
           child: Padding(
             padding: const EdgeInsets.symmetric(

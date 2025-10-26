@@ -6,6 +6,7 @@ import 'package:money_tracker/features/dashboard/domain/entities/dashboard_summa
 import 'package:money_tracker/features/dashboard/domain/entities/project_overview.dart';
 import 'package:money_tracker/features/dashboard/domain/repositories/dashboard_repository.dart';
 import 'package:money_tracker/features/dashboard/domain/usecases/calculate_dashboard_summary.dart';
+import 'package:money_tracker/features/dashboard/domain/usecases/create_project.dart';
 import 'package:money_tracker/features/dashboard/domain/usecases/watch_projects_overview.dart';
 
 final dashboardRemoteDataSourceProvider =
@@ -24,6 +25,10 @@ final watchProjectsOverviewProvider = Provider<WatchProjectsOverview>((ref) {
 final calculateDashboardSummaryProvider =
     Provider<CalculateDashboardSummary>((ref) {
   return const CalculateDashboardSummary();
+});
+
+final createProjectUseCaseProvider = Provider<CreateProject>((ref) {
+  return CreateProject(ref.watch(dashboardRepositoryProvider));
 });
 
 final dashboardProjectsProvider =

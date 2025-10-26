@@ -1,9 +1,12 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:money_tracker/core/constants/app_colors.dart';
 import 'package:money_tracker/core/constants/app_sizes.dart';
 import 'package:money_tracker/core/utils/haptic_feedback.dart';
+import 'package:money_tracker/features/auth/presentation/providers/auth_providers.dart';
+import 'package:money_tracker/features/dashboard/domain/entities/create_project_input.dart';
 import 'package:money_tracker/features/dashboard/domain/entities/dashboard_summary.dart';
 import 'package:money_tracker/features/dashboard/domain/entities/project_overview.dart';
 import 'package:money_tracker/features/dashboard/presentation/providers/dashboard_providers.dart';
@@ -41,7 +44,6 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
           projects: projects,
           summary: summary,
           t: t,
-          onCreateProject: () => ref.invalidate(dashboardProjectsProvider),
         );
       },
       loading: () {
@@ -50,7 +52,6 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
             projects: _cachedProjects,
             summary: _cachedSummary,
             t: t,
-            onCreateProject: () => ref.invalidate(dashboardProjectsProvider),
           );
         }
         return _EmptyDashboardView(t: t);
@@ -61,7 +62,6 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
             projects: _cachedProjects,
             summary: _cachedSummary,
             t: t,
-            onCreateProject: () => ref.invalidate(dashboardProjectsProvider),
           );
         }
         return _DashboardErrorView(
@@ -74,16 +74,16 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
 }
 
 /// Empty state view for dashboard when no projects exist
-class _EmptyDashboardView extends StatefulWidget {
+class _EmptyDashboardView extends ConsumerStatefulWidget {
   final AppLocalizations t;
 
   const _EmptyDashboardView({required this.t});
 
   @override
-  State<_EmptyDashboardView> createState() => _EmptyDashboardViewState();
+  ConsumerState<_EmptyDashboardView> createState() => _EmptyDashboardViewState();
 }
 
-class _EmptyDashboardViewState extends State<_EmptyDashboardView>
+class _EmptyDashboardViewState extends ConsumerState<_EmptyDashboardView>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
@@ -173,7 +173,14 @@ class _EmptyDashboardViewState extends State<_EmptyDashboardView>
                     ),
                   ),
                   const SizedBox(height: AppSizes.spacing24),
-                  _DashboardEmptyCard(t: widget.t),
+                  _DashboardEmptyCard(
+                    t: widget.t,
+                    onCreateProject: () => _presentCreateProjectSheet(
+                      context,
+                      ref,
+                      widget.t,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -248,8 +255,9 @@ class _FinoroLogoState extends State<_FinoroLogo>
 /// Card displaying empty state with create project button
 class _DashboardEmptyCard extends StatelessWidget {
   final AppLocalizations t;
+  final Future<void> Function() onCreateProject;
 
-  const _DashboardEmptyCard({required this.t});
+  const _DashboardEmptyCard({required this.t, required this.onCreateProject});
 
   @override
   Widget build(BuildContext context) {
@@ -305,19 +313,7 @@ class _DashboardEmptyCard extends StatelessWidget {
             icon: Icons.add_rounded,
             onPressed: () async {
               await HapticFeedbackHelper.mediumImpact();
-              // TODO: Navigate to create project screen
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text('Project creation coming soon! 🚀'),
-                    backgroundColor: AppColors.vibrantPurple,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                );
-              }
+              await onCreateProject();
             },
           ),
           const SizedBox(height: AppSizes.spacing12),
@@ -374,21 +370,222 @@ class _DashboardErrorView extends StatelessWidget {
   }
 }
 
-class _DashboardProjectsView extends StatelessWidget {
+Future<void> _presentCreateProjectSheet(
+  BuildContext context,
+  WidgetRef ref,
+  AppLocalizations t,
+) async {
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  final user = ref.read(currentAuthUserProvider);
+  if (user == null) {
+    scaffoldMessenger.showSnackBar(
+      SnackBar(
+        content: Text(t.noSignedInUser),
+        backgroundColor: Colors.red.shade900,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+    return;
+  }
+
+  final nameController = TextEditingController();
+  final budgetController = TextEditingController();
+  final currencyController = TextEditingController(text: 'USD');
+  final formKey = GlobalKey<FormState>();
+  final createProject = ref.read(createProjectUseCaseProvider);
+
+  bool isSubmitting = false;
+
+  await showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (sheetContext) {
+      return StatefulBuilder(
+        builder: (context, setModalState) {
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(sheetContext).viewInsets.bottom +
+                  AppSizes.spacing24,
+              left: AppSizes.spacing24,
+              right: AppSizes.spacing24,
+              top: AppSizes.spacing24,
+            ),
+            child: Material(
+              borderRadius: BorderRadius.circular(AppSizes.radiusXXLarge),
+              color: AppColors.cardBackground.withValues(alpha: 0.95),
+              child: Form(
+                key: formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        t.createProjectTitle,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                      const SizedBox(height: AppSizes.spacing16),
+                      TextFormField(
+                        controller: nameController,
+                        enabled: !isSubmitting,
+                        textInputAction: TextInputAction.next,
+                        decoration: InputDecoration(labelText: t.projectNameLabel),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return t.fieldRequired;
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: AppSizes.spacing12),
+                      TextFormField(
+                        controller: budgetController,
+                        enabled: !isSubmitting,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        textInputAction: TextInputAction.next,
+                        decoration: InputDecoration(labelText: t.projectBudgetLabel),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return t.fieldRequired;
+                          }
+                          final parsed = double.tryParse(value.replaceAll(',', '.'));
+                          if (parsed == null || parsed <= 0) {
+                            return t.invalidNumber;
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: AppSizes.spacing12),
+                      TextFormField(
+                        controller: currencyController,
+                        enabled: !isSubmitting,
+                        textCapitalization: TextCapitalization.characters,
+                        textInputAction: TextInputAction.done,
+                        decoration: InputDecoration(labelText: t.projectCurrencyLabel),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return t.fieldRequired;
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: AppSizes.spacing24),
+                      FilledButton(
+                        onPressed: isSubmitting
+                            ? null
+                            : () async {
+                                if (!formKey.currentState!.validate()) {
+                                  await HapticFeedbackHelper.error();
+                                  return;
+                                }
+
+                                FocusScope.of(sheetContext).unfocus();
+                                setModalState(() => isSubmitting = true);
+
+                                final budget =
+                                    double.parse(budgetController.text.replaceAll(',', '.'));
+                                final currency =
+                                    currencyController.text.trim().toUpperCase();
+                                final input = CreateProjectInput(
+                                  name: nameController.text.trim(),
+                                  budget: budget,
+                                  currency: currency,
+                                );
+
+                                try {
+                                  await createProject(user.uid, input);
+                                  ref.invalidate(dashboardProjectsProvider);
+                                  await HapticFeedbackHelper.success();
+                                  if (!sheetContext.mounted) return;
+                                  if (Navigator.of(sheetContext).canPop()) {
+                                    Navigator.of(sheetContext).pop();
+                                  }
+                                  if (!context.mounted) return;
+                                  scaffoldMessenger.showSnackBar(
+                                    SnackBar(
+                                      content: Text(t.projectCreationSuccess),
+                                      backgroundColor: AppColors.vibrantPurple,
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                  );
+                                } catch (error) {
+                                  await HapticFeedbackHelper.error();
+                                  final message =
+                                      error is FirebaseException && error.message != null
+                                          ? error.message!
+                                          : t.projectCreationFailed;
+                                  if (context.mounted) {
+                                    scaffoldMessenger.showSnackBar(
+                                      SnackBar(
+                                        content: Text(message),
+                                        backgroundColor: Colors.red.shade900,
+                                        behavior: SnackBarBehavior.floating,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                } finally {
+                                  if (sheetContext.mounted) {
+                                    setModalState(() => isSubmitting = false);
+                                  }
+                                }
+                              },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppSizes.spacing12,
+                          ),
+                          child: isSubmitting
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : Text(
+                                  t.projectCreateAction,
+                                  style: const TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+
+  nameController.dispose();
+  budgetController.dispose();
+  currencyController.dispose();
+}
+
+class _DashboardProjectsView extends ConsumerWidget {
   final List<ProjectOverview> projects;
   final DashboardSummary summary;
   final AppLocalizations t;
-  final VoidCallback onCreateProject;
 
   const _DashboardProjectsView({
     required this.projects,
     required this.summary,
     required this.t,
-    required this.onCreateProject,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
     return Center(
@@ -417,22 +614,8 @@ class _DashboardProjectsView extends StatelessWidget {
                   ),
                   TextButton.icon(
                     onPressed: () async {
-                      await HapticFeedbackHelper.mediumImpact();
-                      onCreateProject();
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text(
-                              'Project creation coming soon! 🚀',
-                            ),
-                            backgroundColor: AppColors.vibrantPurple,
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        );
-                      }
+                      HapticFeedbackHelper.mediumImpact();
+                      await _presentCreateProjectSheet(context, ref, t);
                     },
                     icon: const Icon(Icons.add_rounded),
                     label: Text(t.createNewProjectButton),
