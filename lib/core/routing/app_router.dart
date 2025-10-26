@@ -14,6 +14,7 @@ import 'package:money_tracker/features/onboarding/presentation/pages/launch_scre
 import 'package:money_tracker/features/settings/presentation/pages/account_settings_page.dart';
 import 'package:money_tracker/features/settings/presentation/pages/help_page.dart';
 import 'package:money_tracker/features/settings/presentation/settings_tab.dart';
+import 'package:money_tracker/features/workspaces/presentation/workspace_setup_screen.dart';
 
 /// Create a custom page transition with fade and slide effect
 CustomTransitionPage<T> _createTransitionPage<T>({
@@ -49,9 +50,7 @@ CustomTransitionPage<T> _createTransitionPage<T>({
 final appRouterProvider = Provider<GoRouter>((ref) {
   final authRepository = ref.watch(authRepositoryProvider);
   final routeGuard = RouteGuard(authRepository);
-  final refreshNotifier = StreamRefreshNotifier(
-    authRepository.watchAuthUser(),
-  );
+  final refreshNotifier = StreamRefreshNotifier(authRepository.watchAuthUser());
 
   ref.onDispose(refreshNotifier.dispose);
 
@@ -76,6 +75,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder:
             (context, state) =>
                 _createTransitionPage(state: state, child: const LoginScreen()),
+      ),
+
+      GoRoute(
+        path: AppRoutes.workspaceSetup,
+        pageBuilder: (context, state) {
+          final workspaceId = state.extra as String?;
+          return _createTransitionPage(
+            state: state,
+            child: WorkspaceSetupScreen(workspaceId: workspaceId ?? ''),
+          );
+        },
       ),
 
       // Authenticated Shell with Tabs

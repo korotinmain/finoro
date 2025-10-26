@@ -52,13 +52,16 @@ class ExpensesTab extends ConsumerWidget {
                 ),
                 SliverList.separated(
                   itemCount: transactions.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1, thickness: 0.5),
+                  separatorBuilder:
+                      (_, __) => const Divider(height: 1, thickness: 0.5),
                   itemBuilder: (context, index) {
                     final tx = transactions[index];
                     return _TransactionTile(transaction: tx, t: t, ref: ref);
                   },
                 ),
-                const SliverPadding(padding: EdgeInsets.only(bottom: AppSizes.spacing36)),
+                const SliverPadding(
+                  padding: EdgeInsets.only(bottom: AppSizes.spacing36),
+                ),
               ],
             ),
           ),
@@ -71,7 +74,10 @@ class ExpensesTab extends ConsumerWidget {
                 const SizedBox(width: AppSizes.spacing6),
                 Text(
                   t.createExpenseButton,
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -79,24 +85,22 @@ class ExpensesTab extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, _) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSizes.spacing24),
-          child: Text(
-            error.toString(),
-            style: Theme.of(context).textTheme.bodyMedium,
+      error:
+          (error, _) => Center(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSizes.spacing24),
+              child: Text(
+                error.toString(),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
           ),
-        ),
-      ),
     );
   }
 }
 
 class _ExpensesEmptyState extends StatelessWidget {
-  const _ExpensesEmptyState({
-    required this.onCreateExpense,
-    required this.t,
-  });
+  const _ExpensesEmptyState({required this.onCreateExpense, required this.t});
 
   final Future<void> Function() onCreateExpense;
   final AppLocalizations t;
@@ -158,7 +162,9 @@ class _ExpensesEmptyState extends StatelessWidget {
                       t.expensesEmptyDescription,
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.6,
+                        ),
                         height: 1.5,
                       ),
                     ),
@@ -315,17 +321,21 @@ class _TransactionTile extends StatelessWidget {
       confirmDismiss: (_) async {
         final confirm = await showDialog<bool>(
           context: context,
-          builder: (dialogContext) => AlertDialog(
-            title: Text(t.deleteExpenseTitle),
-            content: Text(t.deleteExpenseConfirmation),
-            actions: [
-              TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: Text(t.cancel)),
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext, true),
-                child: Text(t.delete),
+          builder:
+              (dialogContext) => AlertDialog(
+                title: Text(t.deleteExpenseTitle),
+                content: Text(t.deleteExpenseConfirmation),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(dialogContext, false),
+                    child: Text(t.cancel),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(dialogContext, true),
+                    child: Text(t.delete),
+                  ),
+                ],
               ),
-            ],
-          ),
         );
         return confirm ?? false;
       },
@@ -344,9 +354,9 @@ class _TransactionTile extends StatelessWidget {
         ),
         title: Text(
           transaction.description,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         subtitle: Text(
           '${transaction.category} • ${formatter.format(transaction.date)}',
@@ -355,9 +365,9 @@ class _TransactionTile extends StatelessWidget {
         trailing: Text(
           '$amountPrefix${transaction.amount.toStringAsFixed(2)} ${transaction.currency.name}',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: transaction.isIncome ? Colors.greenAccent : Colors.redAccent,
-                fontWeight: FontWeight.w700,
-              ),
+            color: transaction.isIncome ? Colors.greenAccent : Colors.redAccent,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
     );
@@ -395,15 +405,9 @@ class _QuickTipsCard extends StatelessWidget {
             style: theme.textTheme.bodySmall,
           ),
           const SizedBox(height: AppSizes.spacing6),
-          Text(
-            '• ${t.expensesTipReview}',
-            style: theme.textTheme.bodySmall,
-          ),
+          Text('• ${t.expensesTipReview}', style: theme.textTheme.bodySmall),
           const SizedBox(height: AppSizes.spacing6),
-          Text(
-            '• ${t.expensesTipReceipts}',
-            style: theme.textTheme.bodySmall,
-          ),
+          Text('• ${t.expensesTipReceipts}', style: theme.textTheme.bodySmall),
         ],
       ),
     );
@@ -448,7 +452,8 @@ Future<void> _showAddExpenseSheet(
         builder: (context, setModalState) {
           return Padding(
             padding: EdgeInsets.only(
-              bottom: MediaQuery.of(sheetContext).viewInsets.bottom +
+              bottom:
+                  MediaQuery.of(sheetContext).viewInsets.bottom +
                   AppSizes.spacing24,
               left: AppSizes.spacing24,
               right: AppSizes.spacing24,
@@ -467,15 +472,17 @@ Future<void> _showAddExpenseSheet(
                       Text(
                         t.createExpenseButton,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       const SizedBox(height: AppSizes.spacing16),
                       TextFormField(
                         controller: descriptionController,
                         enabled: !isSubmitting,
                         textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(labelText: t.expenseDescriptionLabel),
+                        decoration: InputDecoration(
+                          labelText: t.expenseDescriptionLabel,
+                        ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return t.fieldRequired;
@@ -488,20 +495,28 @@ Future<void> _showAddExpenseSheet(
                         controller: categoryController,
                         enabled: !isSubmitting,
                         textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(labelText: t.expenseCategoryLabel),
+                        decoration: InputDecoration(
+                          labelText: t.expenseCategoryLabel,
+                        ),
                       ),
                       const SizedBox(height: AppSizes.spacing12),
                       TextFormField(
                         controller: amountController,
                         enabled: !isSubmitting,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
                         textInputAction: TextInputAction.done,
-                        decoration: InputDecoration(labelText: t.expenseAmountLabel),
+                        decoration: InputDecoration(
+                          labelText: t.expenseAmountLabel,
+                        ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return t.fieldRequired;
                           }
-                          final parsed = double.tryParse(value.replaceAll(',', '.'));
+                          final parsed = double.tryParse(
+                            value.replaceAll(',', '.'),
+                          );
                           if (parsed == null || parsed <= 0) {
                             return t.invalidNumber;
                           }
@@ -511,43 +526,56 @@ Future<void> _showAddExpenseSheet(
                       const SizedBox(height: AppSizes.spacing12),
                       DropdownButtonFormField<Currency>(
                         value: selectedCurrency,
-                        items: Currency.values
-                            .map(
-                              (currency) => DropdownMenuItem(
-                                value: currency,
-                                child: Text(currency.name),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: isSubmitting
-                            ? null
-                            : (value) {
-                                if (value != null) {
-                                  setModalState(() => selectedCurrency = value);
-                                }
-                              },
-                        decoration: InputDecoration(labelText: t.projectCurrencyLabel),
+                        items:
+                            Currency.values
+                                .map(
+                                  (currency) => DropdownMenuItem(
+                                    value: currency,
+                                    child: Text(currency.name),
+                                  ),
+                                )
+                                .toList(),
+                        onChanged:
+                            isSubmitting
+                                ? null
+                                : (value) {
+                                  if (value != null) {
+                                    setModalState(
+                                      () => selectedCurrency = value,
+                                    );
+                                  }
+                                },
+                        decoration: InputDecoration(
+                          labelText: t.workspaceCurrencyLabel,
+                        ),
                       ),
                       const SizedBox(height: AppSizes.spacing12),
                       ListTile(
                         contentPadding: EdgeInsets.zero,
                         title: Text(t.expenseDateLabel),
-                        subtitle: Text(DateFormat.yMMMMd().format(selectedDate)),
+                        subtitle: Text(
+                          DateFormat.yMMMMd().format(selectedDate),
+                        ),
                         trailing: IconButton(
                           icon: const Icon(Icons.calendar_today_rounded),
-                          onPressed: isSubmitting
-                              ? null
-                              : () async {
-                                  final picked = await showDatePicker(
-                                    context: sheetContext,
-                                    initialDate: selectedDate,
-                                    firstDate: DateTime(2020),
-                                    lastDate: DateTime.now().add(const Duration(days: 365)),
-                                  );
-                                  if (picked != null) {
-                                    setModalState(() => selectedDate = picked);
-                                  }
-                                },
+                          onPressed:
+                              isSubmitting
+                                  ? null
+                                  : () async {
+                                    final picked = await showDatePicker(
+                                      context: sheetContext,
+                                      initialDate: selectedDate,
+                                      firstDate: DateTime(2020),
+                                      lastDate: DateTime.now().add(
+                                        const Duration(days: 365),
+                                      ),
+                                    );
+                                    if (picked != null) {
+                                      setModalState(
+                                        () => selectedDate = picked,
+                                      );
+                                    }
+                                  },
                         ),
                       ),
                       const SizedBox(height: AppSizes.spacing24),
@@ -564,23 +592,26 @@ Future<void> _showAddExpenseSheet(
                           FocusScope.of(sheetContext).unfocus();
                           setModalState(() => isSubmitting = true);
 
-                          final amount =
-                              double.parse(amountController.text.replaceAll(',', '.'));
+                          final amount = double.parse(
+                            amountController.text.replaceAll(',', '.'),
+                          );
 
                           final tx = MoneyTx(
                             id: _generateTransactionId(),
                             date: selectedDate,
                             description: descriptionController.text.trim(),
-                            category: categoryController.text.trim().isEmpty
-                                ? t.expenseDefaultCategory
-                                : categoryController.text.trim(),
+                            category:
+                                categoryController.text.trim().isEmpty
+                                    ? t.expenseDefaultCategory
+                                    : categoryController.text.trim(),
                             amount: amount,
                             currency: selectedCurrency,
                             isIncome: false,
                           );
 
                           try {
-                            await ref.read(addTransactionUseCaseProvider)
+                            await ref
+                                .read(addTransactionUseCaseProvider)
                                 .call(user.uid, tx);
                             ref.invalidate(userTransactionsProvider);
                             await HapticFeedbackHelper.success();
@@ -604,7 +635,8 @@ Future<void> _showAddExpenseSheet(
                           } catch (error) {
                             await HapticFeedbackHelper.error();
                             final message =
-                                error is FirebaseException && error.message != null
+                                error is FirebaseException &&
+                                        error.message != null
                                     ? error.message!
                                     : t.expenseCreationFailed;
                             if (context.mounted) {

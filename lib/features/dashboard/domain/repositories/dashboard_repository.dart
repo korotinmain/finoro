@@ -1,7 +1,14 @@
-import 'package:money_tracker/features/dashboard/domain/entities/create_project_input.dart';
-import 'package:money_tracker/features/dashboard/domain/entities/project_overview.dart';
+import 'package:money_tracker/features/dashboard/domain/entities/workspace_overview.dart';
+import 'package:money_tracker/features/dashboard/domain/entities/workspace_setup_input.dart';
+import 'package:money_tracker/features/dashboard/domain/usecases/ensure_workspace_initialized.dart';
 
 abstract class DashboardRepository {
-  Stream<List<ProjectOverview>> watchProjects(String userId);
-  Future<void> createProject(String userId, CreateProjectInput input);
+  Stream<List<WorkspaceOverview>> watchWorkspaces(String userId);
+  Future<void> createWorkspace(String userId, WorkspaceSetupInput input);
+  Future<WorkspaceInitializationResult> ensureWorkspace(String userId);
+  Future<void> updateWorkspace(
+    String userId,
+    String workspaceId,
+    WorkspaceSetupInput input,
+  );
 }

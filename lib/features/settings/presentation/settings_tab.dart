@@ -191,13 +191,14 @@ class SettingsTab extends ConsumerWidget {
                                       letterSpacing: 0.5,
                                     ),
                                   ),
-                              loading: () => Text(
-                                ' ',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  fontSize: 11,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
+                              loading:
+                                  () => Text(
+                                    ' ',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      fontSize: 11,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
                               error:
                                   (_, __) => Text(
                                     ' ',
@@ -451,10 +452,7 @@ class _SignOutButton extends ConsumerWidget {
     required this.confirm,
   });
 
-  Future<void> _handleSignOut(
-    BuildContext context,
-    WidgetRef ref,
-  ) async {
+  Future<void> _handleSignOut(BuildContext context, WidgetRef ref) async {
     await HapticFeedbackHelper.mediumImpact();
     if (!context.mounted) return;
 
@@ -579,7 +577,8 @@ class _LanguageDialog extends ConsumerWidget {
     final theme = Theme.of(context);
     final selectedLocale = ref.watch(localeControllerProvider);
     final activeLocaleCode =
-        selectedLocale?.languageCode ?? Localizations.localeOf(context).languageCode;
+        selectedLocale?.languageCode ??
+        Localizations.localeOf(context).languageCode;
     final controller = ref.read(localeControllerProvider.notifier);
 
     return AlertDialog(

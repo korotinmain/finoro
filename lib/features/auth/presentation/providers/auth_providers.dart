@@ -10,8 +10,9 @@ import 'package:money_tracker/features/auth/domain/usecases/sign_in_with_google.
 import 'package:money_tracker/features/auth/domain/usecases/sign_out.dart';
 import 'package:money_tracker/features/auth/domain/usecases/watch_auth_user.dart';
 
-final authRemoteDataSourceProvider =
-    Provider<AuthRemoteDataSource>((ref) => AuthRemoteDataSource());
+final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>(
+  (ref) => AuthRemoteDataSource(),
+);
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepositoryImpl(ref.watch(authRemoteDataSourceProvider));

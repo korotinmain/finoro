@@ -1,15 +1,17 @@
 import 'dart:math' as math;
 
-class ProjectOverview {
-  const ProjectOverview({
+class WorkspaceOverview {
+  const WorkspaceOverview({
     required this.id,
     required this.name,
     required this.budget,
     required this.spent,
     required this.currency,
+    required this.goal,
     this.coverImageUrl,
     this.createdAt,
     this.updatedAt,
+    this.isConfigured = true,
   });
 
   final String id;
@@ -17,9 +19,11 @@ class ProjectOverview {
   final double budget;
   final double spent;
   final String currency;
+  final String goal;
   final String? coverImageUrl;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final bool isConfigured;
 
   double get remaining => budget - spent;
 

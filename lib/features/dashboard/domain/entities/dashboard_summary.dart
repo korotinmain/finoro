@@ -1,11 +1,11 @@
 class DashboardSummary {
   const DashboardSummary({
-    required this.totalProjects,
+    required this.totalWorkspaces,
     required this.totalBudget,
     required this.totalSpent,
   });
 
-  final int totalProjects;
+  final int totalWorkspaces;
   final double totalBudget;
   final double totalSpent;
 
@@ -14,10 +14,10 @@ class DashboardSummary {
   double get utilization =>
       totalBudget <= 0 ? 0 : (totalSpent / totalBudget).clamp(0, 1);
 
-  bool get hasProjects => totalProjects > 0;
+  bool get hasWorkspaces => totalWorkspaces > 0;
 
   static const DashboardSummary empty = DashboardSummary(
-    totalProjects: 0,
+    totalWorkspaces: 0,
     totalBudget: 0,
     totalSpent: 0,
   );

@@ -1,25 +1,25 @@
 import 'package:money_tracker/features/dashboard/domain/entities/dashboard_summary.dart';
-import 'package:money_tracker/features/dashboard/domain/entities/project_overview.dart';
+import 'package:money_tracker/features/dashboard/domain/entities/workspace_overview.dart';
 
 class CalculateDashboardSummary {
   const CalculateDashboardSummary();
 
-  DashboardSummary call(List<ProjectOverview> projects) {
-    if (projects.isEmpty) {
+  DashboardSummary call(List<WorkspaceOverview> workspaces) {
+    if (workspaces.isEmpty) {
       return DashboardSummary.empty;
     }
 
-    final totalBudget = projects.fold<double>(
+    final totalBudget = workspaces.fold<double>(
       0,
-      (sum, project) => sum + project.budget,
+      (sum, workspace) => sum + workspace.budget,
     );
-    final totalSpent = projects.fold<double>(
+    final totalSpent = workspaces.fold<double>(
       0,
-      (sum, project) => sum + project.spent,
+      (sum, workspace) => sum + workspace.spent,
     );
 
     return DashboardSummary(
-      totalProjects: projects.length,
+      totalWorkspaces: workspaces.length,
       totalBudget: totalBudget,
       totalSpent: totalSpent,
     );

@@ -6,6 +6,7 @@ class AppRoutes {
   // Auth Routes
   static const String launch = '/';
   static const String login = '/login';
+  static const String workspaceSetup = '/workspace/setup';
 
   // Main App Routes (Authenticated Shell)
   static const String dashboard = '/dashboard';
@@ -23,6 +24,7 @@ class AppRoutes {
   /// Check if a route is a protected route (requires authentication)
   static bool isProtectedRoute(String route) {
     return route.startsWith(dashboard) ||
+        route.startsWith(workspaceSetup) ||
         route.startsWith(expenses) ||
         route.startsWith(history) ||
         route.startsWith(settings);

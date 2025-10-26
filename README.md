@@ -1,12 +1,12 @@
 # Finoro 💰
 
-**A modern personal finance app that helps you organize, track, and understand your money through Projects.**
+**A modern personal finance app that helps you organize, track, and understand your money through Workspaces.**
 
-Finoro transforms personal finance into organized, visual stories. Each Project is a flexible financial space that groups budgets, expenses, and incomes under a single goal — whether it's a vacation fund, monthly budget, side hustle, or home renovation.
+Finoro transforms personal finance into organized, visual stories. Each Workspace is a flexible financial space that groups budgets, expenses, and incomes under a single goal — whether it's a vacation fund, monthly budget, side hustle, or home renovation.
 
 ## ✨ Core Concept
 
-**Projects** are financial containers that bring together:
+**Workspaces** are financial containers that bring together:
 
 - 📊 **Budgets** — set your financial plan or spending limits
 - 💸 **Expenses** — track real spending with categories
@@ -106,7 +106,8 @@ lib/
 │   ├── history/       # Insights & analytics
 │   ├── money/         # Shared money domain models/usecases
 │   ├── onboarding/    # Launch experience
-│   ├── projects/      # Project management (domain/data)
+│   ├── projects/      # Legacy project management (domain/data)
+│   ├── workspaces/    # Workspace onboarding & setup
 │   └── settings/      # Settings & account pages
 └── ui/               # Reusable UI components
     ├── auth_widgets.dart

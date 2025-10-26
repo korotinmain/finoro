@@ -4,11 +4,9 @@ import 'package:money_tracker/core/errors/auth_exception.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class AuthRemoteDataSource {
-  AuthRemoteDataSource({
-    FirebaseAuth? firebaseAuth,
-    GoogleSignIn? googleSignIn,
-  })  : _auth = firebaseAuth ?? FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn(scopes: const ['email']);
+  AuthRemoteDataSource({FirebaseAuth? firebaseAuth, GoogleSignIn? googleSignIn})
+    : _auth = firebaseAuth ?? FirebaseAuth.instance,
+      _googleSignIn = googleSignIn ?? GoogleSignIn(scopes: const ['email']);
 
   final FirebaseAuth _auth;
   final GoogleSignIn _googleSignIn;
@@ -78,7 +76,9 @@ class AuthRemoteDataSource {
     } on FirebaseAuthException catch (e) {
       throw AuthException('Apple sign-in failed', e.code);
     } on SignInWithAppleNotSupportedException {
-      throw const AuthException('Apple Sign-In is not supported on this device');
+      throw const AuthException(
+        'Apple Sign-In is not supported on this device',
+      );
     } catch (e) {
       throw AuthException('Unexpected error during Apple sign-in', '$e');
     }

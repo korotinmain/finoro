@@ -11,6 +11,7 @@ import 'package:money_tracker/core/utils/haptic_feedback.dart';
 import 'package:money_tracker/features/auth/domain/entities/auth_user.dart';
 import 'package:money_tracker/features/auth/presentation/providers/auth_providers.dart';
 import 'package:money_tracker/features/auth/presentation/utils/auth_exception_localization.dart';
+import 'package:money_tracker/features/dashboard/presentation/providers/dashboard_providers.dart';
 import 'package:money_tracker/ui/auth_widgets.dart' show PieLogo;
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -56,9 +57,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         return;
       }
 
+      final ensureWorkspace = ref.read(ensureWorkspaceInitializedProvider);
+      final result = await ensureWorkspace(user.uid);
+
       await HapticFeedbackHelper.success();
       if (!mounted) return;
-      GoRouter.of(context).go(AppRoutes.dashboard);
+
+      if (result.requiresSetup) {
+        GoRouter.of(
+          context,
+        ).go(AppRoutes.workspaceSetup, extra: result.workspaceId);
+      } else {
+        GoRouter.of(context).go(AppRoutes.dashboard);
+      }
     } on AuthException catch (e) {
       await HapticFeedbackHelper.error();
       if (!mounted) return;
@@ -145,7 +156,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       body: LayoutBuilder(
         builder: (context, constraints) {
           final horizontalPadding = constraints.maxWidth > 720 ? 72.0 : 24.0;
-          final cardMaxWidth = constraints.maxWidth > 720 ? 460.0 : double.infinity;
+          final cardMaxWidth =
+              constraints.maxWidth > 720 ? 460.0 : double.infinity;
 
           return Stack(
             children: [
@@ -170,7 +182,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             textAlign: TextAlign.center,
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: const Color(0xFFC0C9E5),
-                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -197,11 +209,7 @@ class _SoftBackground extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF091324),
-              Color(0xFF0B162B),
-              Color(0xFF060B16),
-            ],
+            colors: [Color(0xFF091324), Color(0xFF0B162B), Color(0xFF060B16)],
           ),
         ),
         child: Stack(
@@ -209,18 +217,12 @@ class _SoftBackground extends StatelessWidget {
             Positioned(
               top: -140,
               left: -80,
-              child: _BlurCircle(
-                diameter: 320,
-                baseColor: Color(0xFF3B5BCD),
-              ),
+              child: _BlurCircle(diameter: 320, baseColor: Color(0xFF3B5BCD)),
             ),
             Positioned(
               bottom: -160,
               right: -60,
-              child: _BlurCircle(
-                diameter: 300,
-                baseColor: Color(0xFF7C4DFF),
-              ),
+              child: _BlurCircle(diameter: 300, baseColor: Color(0xFF7C4DFF)),
             ),
           ],
         ),
@@ -230,10 +232,7 @@ class _SoftBackground extends StatelessWidget {
 }
 
 class _BlurCircle extends StatelessWidget {
-  const _BlurCircle({
-    required this.diameter,
-    required this.baseColor,
-  });
+  const _BlurCircle({required this.diameter, required this.baseColor});
 
   final double diameter;
   final Color baseColor;
@@ -356,20 +355,24 @@ class SocialSignInButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = backgroundColorOverride ??
+    final backgroundColor =
+        backgroundColorOverride ??
         (darkBackground ? const Color(0xFF1F1F1F) : Colors.white);
-    final foregroundColor = foregroundColorOverride ??
+    final foregroundColor =
+        foregroundColorOverride ??
         (darkBackground ? Colors.white : const Color(0xFF1F2A44));
-    final borderColor = borderColorOverride ??
+    final borderColor =
+        borderColorOverride ??
         (darkBackground ? Colors.transparent : const Color(0xFFD9E1F4));
-    final overlayColor = darkBackground
-        ? Colors.white.withValues(alpha: 0.08)
-        : const Color(0xFF62719A).withValues(alpha: 0.12);
+    final overlayColor =
+        darkBackground
+            ? Colors.white.withValues(alpha: 0.08)
+            : const Color(0xFF62719A).withValues(alpha: 0.12);
     final textStyle = Theme.of(context).textTheme.titleMedium?.copyWith(
-          color: foregroundColor,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.15,
-        );
+      color: foregroundColor,
+      fontWeight: FontWeight.w600,
+      letterSpacing: 0.15,
+    );
 
     return SizedBox(
       height: 56,
@@ -381,16 +384,18 @@ class SocialSignInButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: AppSizes.spacing20),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSizes.radiusXLarge),
-            side: BorderSide(color: borderColor, width: darkBackground ? 0 : 1.2),
+            side: BorderSide(
+              color: borderColor,
+              width: darkBackground ? 0 : 1.2,
+            ),
           ),
-        ).copyWith(
-          overlayColor: WidgetStatePropertyAll(overlayColor),
-        ),
-        onPressed: onPressed == null
-            ? null
-            : () async {
-                await onPressed!.call();
-              },
+        ).copyWith(overlayColor: WidgetStatePropertyAll(overlayColor)),
+        onPressed:
+            onPressed == null
+                ? null
+                : () async {
+                  await onPressed!.call();
+                },
         child: Center(
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -405,12 +410,7 @@ class SocialSignInButton extends StatelessWidget {
                   ),
                 )
               else ...[
-                iconWidget ??
-                    Icon(
-                      icon,
-                      color: foregroundColor,
-                      size: 22,
-                    ),
+                iconWidget ?? Icon(icon, color: foregroundColor, size: 22),
                 const SizedBox(width: AppSizes.spacing10),
                 Text(label, style: textStyle),
               ],
@@ -428,11 +428,11 @@ class _GoogleGlyph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textStyle = Theme.of(context).textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.w800,
-          letterSpacing: -0.5,
-          color: Colors.white,
-          height: 1.0,
-        );
+      fontWeight: FontWeight.w800,
+      letterSpacing: -0.5,
+      color: Colors.white,
+      height: 1.0,
+    );
 
     return SizedBox(
       width: 24,
@@ -440,7 +440,8 @@ class _GoogleGlyph extends StatelessWidget {
       child: Center(
         child: Text(
           'G',
-          style: textStyle ??
+          style:
+              textStyle ??
               const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,

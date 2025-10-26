@@ -2,13 +2,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:money_tracker/core/constants/app_colors.dart';
 import 'package:money_tracker/core/constants/app_sizes.dart';
+import 'package:money_tracker/core/routing/app_routes.dart';
 import 'package:money_tracker/core/utils/haptic_feedback.dart';
 import 'package:money_tracker/features/auth/presentation/providers/auth_providers.dart';
-import 'package:money_tracker/features/dashboard/domain/entities/create_project_input.dart';
 import 'package:money_tracker/features/dashboard/domain/entities/dashboard_summary.dart';
-import 'package:money_tracker/features/dashboard/domain/entities/project_overview.dart';
+import 'package:money_tracker/features/dashboard/domain/entities/workspace_overview.dart';
+import 'package:money_tracker/features/dashboard/domain/entities/workspace_setup_input.dart';
 import 'package:money_tracker/features/dashboard/presentation/providers/dashboard_providers.dart';
 import 'package:money_tracker/ui/widgets/gradient_button.dart';
 
@@ -21,35 +23,59 @@ class DashboardTab extends ConsumerStatefulWidget {
 }
 
 class _DashboardTabState extends ConsumerState<DashboardTab> {
-  List<ProjectOverview> _cachedProjects = const <ProjectOverview>[];
+  List<WorkspaceOverview> _cachedWorkspaces = const <WorkspaceOverview>[];
   DashboardSummary _cachedSummary = DashboardSummary.empty;
+  bool _redirectingToSetup = false;
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
-    final projectsAsync = ref.watch(dashboardProjectsProvider);
+    final workspacesAsync = ref.watch(dashboardWorkspacesProvider);
     final calculator = ref.watch(calculateDashboardSummaryProvider);
-    projectsAsync.whenData((projects) {
-      _cachedProjects = projects;
-      _cachedSummary = calculator(projects);
+    workspacesAsync.whenData((workspaces) {
+      _cachedWorkspaces = workspaces;
+      _cachedSummary = calculator(workspaces);
     });
 
-    return projectsAsync.when(
-      data: (projects) {
-        if (projects.isEmpty) {
+    return workspacesAsync.when(
+      data: (workspaces) {
+        WorkspaceOverview? pendingSetup;
+        for (final workspace in workspaces) {
+          if (!workspace.isConfigured) {
+            pendingSetup = workspace;
+            break;
+          }
+        }
+
+        if (pendingSetup != null) {
+          if (!_redirectingToSetup) {
+            _redirectingToSetup = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
+              GoRouter.of(
+                context,
+              ).go(AppRoutes.workspaceSetup, extra: pendingSetup!.id);
+            });
+          }
+          return const SizedBox.shrink();
+        } else {
+          _redirectingToSetup = false;
+        }
+
+        if (workspaces.isEmpty) {
           return _EmptyDashboardView(t: t);
         }
-        final summary = calculator(projects);
-        return _DashboardProjectsView(
-          projects: projects,
+        final summary = calculator(workspaces);
+        return _DashboardWorkspacesView(
+          workspaces: workspaces,
           summary: summary,
           t: t,
         );
       },
       loading: () {
-        if (_cachedProjects.isNotEmpty) {
-          return _DashboardProjectsView(
-            projects: _cachedProjects,
+        if (_cachedWorkspaces.isNotEmpty) {
+          return _DashboardWorkspacesView(
+            workspaces: _cachedWorkspaces,
             summary: _cachedSummary,
             t: t,
           );
@@ -57,16 +83,16 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
         return _EmptyDashboardView(t: t);
       },
       error: (error, _) {
-        if (_cachedProjects.isNotEmpty) {
-          return _DashboardProjectsView(
-            projects: _cachedProjects,
+        if (_cachedWorkspaces.isNotEmpty) {
+          return _DashboardWorkspacesView(
+            workspaces: _cachedWorkspaces,
             summary: _cachedSummary,
             t: t,
           );
         }
         return _DashboardErrorView(
           t: t,
-          onRetry: () => ref.invalidate(dashboardProjectsProvider),
+          onRetry: () => ref.invalidate(dashboardWorkspacesProvider),
         );
       },
     );
@@ -80,7 +106,8 @@ class _EmptyDashboardView extends ConsumerStatefulWidget {
   const _EmptyDashboardView({required this.t});
 
   @override
-  ConsumerState<_EmptyDashboardView> createState() => _EmptyDashboardViewState();
+  ConsumerState<_EmptyDashboardView> createState() =>
+      _EmptyDashboardViewState();
 }
 
 class _EmptyDashboardViewState extends ConsumerState<_EmptyDashboardView>
@@ -156,7 +183,7 @@ class _EmptyDashboardViewState extends ConsumerState<_EmptyDashboardView>
                   ),
                   const SizedBox(height: AppSizes.spacing12),
                   Text(
-                    widget.t.createProjectPrompt,
+                    widget.t.createWorkspacePrompt,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.titleSmall?.copyWith(
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
@@ -165,7 +192,7 @@ class _EmptyDashboardViewState extends ConsumerState<_EmptyDashboardView>
                   ),
                   const SizedBox(height: AppSizes.spacing8),
                   Text(
-                    'Track expenses, manage budgets, and gain insights\nfor each area of your financial life',
+                    widget.t.workspaceEmptyOnboarding,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
@@ -175,11 +202,12 @@ class _EmptyDashboardViewState extends ConsumerState<_EmptyDashboardView>
                   const SizedBox(height: AppSizes.spacing24),
                   _DashboardEmptyCard(
                     t: widget.t,
-                    onCreateProject: () => _presentCreateProjectSheet(
-                      context,
-                      ref,
-                      widget.t,
-                    ),
+                    onCreateWorkspace:
+                        () => _presentCreateWorkspaceSheet(
+                          context,
+                          ref,
+                          widget.t,
+                        ),
                   ),
                 ],
               ),
@@ -255,9 +283,9 @@ class _FinoroLogoState extends State<_FinoroLogo>
 /// Card displaying empty state with create project button
 class _DashboardEmptyCard extends StatelessWidget {
   final AppLocalizations t;
-  final Future<void> Function() onCreateProject;
+  final Future<void> Function() onCreateWorkspace;
 
-  const _DashboardEmptyCard({required this.t, required this.onCreateProject});
+  const _DashboardEmptyCard({required this.t, required this.onCreateWorkspace});
 
   @override
   Widget build(BuildContext context) {
@@ -292,7 +320,7 @@ class _DashboardEmptyCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSizes.spacing14),
           Text(
-            t.noProjectsYet,
+            t.noWorkspacesYet,
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w700,
               color: theme.colorScheme.onSurface.withValues(alpha: 0.9),
@@ -300,7 +328,7 @@ class _DashboardEmptyCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSizes.spacing6),
           Text(
-            t.createProjectPrompt,
+            t.createWorkspacePrompt,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
@@ -309,16 +337,16 @@ class _DashboardEmptyCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSizes.spacing20),
           GradientButton(
-            label: t.createNewProjectButton,
+            label: t.createNewWorkspaceButton,
             icon: Icons.add_rounded,
             onPressed: () async {
               await HapticFeedbackHelper.mediumImpact();
-              await onCreateProject();
+              await onCreateWorkspace();
             },
           ),
           const SizedBox(height: AppSizes.spacing12),
           Text(
-            '💡 Tip: Projects help separate expenses\nfor different areas of your life',
+            t.workspaceEmptyTip,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
@@ -370,7 +398,7 @@ class _DashboardErrorView extends StatelessWidget {
   }
 }
 
-Future<void> _presentCreateProjectSheet(
+Future<void> _presentCreateWorkspaceSheet(
   BuildContext context,
   WidgetRef ref,
   AppLocalizations t,
@@ -391,9 +419,10 @@ Future<void> _presentCreateProjectSheet(
 
   final nameController = TextEditingController();
   final budgetController = TextEditingController();
+  final goalController = TextEditingController();
   final currencyController = TextEditingController(text: 'USD');
   final formKey = GlobalKey<FormState>();
-  final createProject = ref.read(createProjectUseCaseProvider);
+  final createWorkspace = ref.read(createWorkspaceProvider);
 
   bool isSubmitting = false;
 
@@ -406,7 +435,8 @@ Future<void> _presentCreateProjectSheet(
         builder: (context, setModalState) {
           return Padding(
             padding: EdgeInsets.only(
-              bottom: MediaQuery.of(sheetContext).viewInsets.bottom +
+              bottom:
+                  MediaQuery.of(sheetContext).viewInsets.bottom +
                   AppSizes.spacing24,
               left: AppSizes.spacing24,
               right: AppSizes.spacing24,
@@ -423,17 +453,34 @@ Future<void> _presentCreateProjectSheet(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        t.createProjectTitle,
+                        t.createWorkspaceTitle,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       const SizedBox(height: AppSizes.spacing16),
                       TextFormField(
                         controller: nameController,
                         enabled: !isSubmitting,
                         textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(labelText: t.projectNameLabel),
+                        decoration: InputDecoration(
+                          labelText: t.workspaceNameLabel,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return t.fieldRequired;
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: AppSizes.spacing12),
+                      TextFormField(
+                        controller: goalController,
+                        enabled: !isSubmitting,
+                        textInputAction: TextInputAction.next,
+                        decoration: InputDecoration(
+                          labelText: t.workspaceGoalLabel,
+                        ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return t.fieldRequired;
@@ -449,12 +496,16 @@ Future<void> _presentCreateProjectSheet(
                           decimal: true,
                         ),
                         textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(labelText: t.projectBudgetLabel),
+                        decoration: InputDecoration(
+                          labelText: t.workspaceBudgetLabel,
+                        ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return t.fieldRequired;
                           }
-                          final parsed = double.tryParse(value.replaceAll(',', '.'));
+                          final parsed = double.tryParse(
+                            value.replaceAll(',', '.'),
+                          );
                           if (parsed == null || parsed <= 0) {
                             return t.invalidNumber;
                           }
@@ -467,7 +518,9 @@ Future<void> _presentCreateProjectSheet(
                         enabled: !isSubmitting,
                         textCapitalization: TextCapitalization.characters,
                         textInputAction: TextInputAction.done,
-                        decoration: InputDecoration(labelText: t.projectCurrencyLabel),
+                        decoration: InputDecoration(
+                          labelText: t.workspaceCurrencyLabel,
+                        ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return t.fieldRequired;
@@ -477,84 +530,102 @@ Future<void> _presentCreateProjectSheet(
                       ),
                       const SizedBox(height: AppSizes.spacing24),
                       FilledButton(
-                        onPressed: isSubmitting
-                            ? null
-                            : () async {
-                                if (!formKey.currentState!.validate()) {
-                                  await HapticFeedbackHelper.error();
-                                  return;
-                                }
-
-                                FocusScope.of(sheetContext).unfocus();
-                                setModalState(() => isSubmitting = true);
-
-                                final budget =
-                                    double.parse(budgetController.text.replaceAll(',', '.'));
-                                final currency =
-                                    currencyController.text.trim().toUpperCase();
-                                final input = CreateProjectInput(
-                                  name: nameController.text.trim(),
-                                  budget: budget,
-                                  currency: currency,
-                                );
-
-                                try {
-                                  await createProject(user.uid, input);
-                                  ref.invalidate(dashboardProjectsProvider);
-                                  await HapticFeedbackHelper.success();
-                                  if (!sheetContext.mounted) return;
-                                  if (Navigator.of(sheetContext).canPop()) {
-                                    Navigator.of(sheetContext).pop();
+                        onPressed:
+                            isSubmitting
+                                ? null
+                                : () async {
+                                  if (!formKey.currentState!.validate()) {
+                                    await HapticFeedbackHelper.error();
+                                    return;
                                   }
-                                  if (!context.mounted) return;
-                                  scaffoldMessenger.showSnackBar(
-                                    SnackBar(
-                                      content: Text(t.projectCreationSuccess),
-                                      backgroundColor: AppColors.vibrantPurple,
-                                      behavior: SnackBarBehavior.floating,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                    ),
+
+                                  FocusScope.of(sheetContext).unfocus();
+                                  setModalState(() => isSubmitting = true);
+
+                                  final budget = double.parse(
+                                    budgetController.text.replaceAll(',', '.'),
                                   );
-                                } catch (error) {
-                                  await HapticFeedbackHelper.error();
-                                  final message =
-                                      error is FirebaseException && error.message != null
-                                          ? error.message!
-                                          : t.projectCreationFailed;
-                                  if (context.mounted) {
+                                  final currency =
+                                      currencyController.text
+                                          .trim()
+                                          .toUpperCase();
+                                  final input = WorkspaceSetupInput(
+                                    name: nameController.text.trim(),
+                                    budget: budget,
+                                    currency: currency,
+                                    goal: goalController.text.trim(),
+                                  );
+
+                                  try {
+                                    await createWorkspace(user.uid, input);
+                                    ref.invalidate(dashboardWorkspacesProvider);
+                                    await HapticFeedbackHelper.success();
+                                    if (!sheetContext.mounted) return;
+                                    if (Navigator.of(sheetContext).canPop()) {
+                                      Navigator.of(sheetContext).pop();
+                                    }
+                                    if (!context.mounted) return;
                                     scaffoldMessenger.showSnackBar(
                                       SnackBar(
-                                        content: Text(message),
-                                        backgroundColor: Colors.red.shade900,
+                                        content: Text(
+                                          t.workspaceCreationSuccess,
+                                        ),
+                                        backgroundColor:
+                                            AppColors.vibrantPurple,
                                         behavior: SnackBarBehavior.floating,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                       ),
                                     );
+                                  } catch (error) {
+                                    await HapticFeedbackHelper.error();
+                                    final message =
+                                        error is FirebaseException &&
+                                                error.message != null
+                                            ? error.message!
+                                            : t.workspaceCreationFailed;
+                                    if (context.mounted) {
+                                      scaffoldMessenger.showSnackBar(
+                                        SnackBar(
+                                          content: Text(message),
+                                          backgroundColor: Colors.red.shade900,
+                                          behavior: SnackBarBehavior.floating,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  } finally {
+                                    if (sheetContext.mounted) {
+                                      setModalState(() => isSubmitting = false);
+                                    }
                                   }
-                                } finally {
-                                  if (sheetContext.mounted) {
-                                    setModalState(() => isSubmitting = false);
-                                  }
-                                }
-                              },
+                                },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                             vertical: AppSizes.spacing12,
                           ),
-                          child: isSubmitting
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                )
-                              : Text(
-                                  t.projectCreateAction,
-                                  style: const TextStyle(fontWeight: FontWeight.w600),
-                                ),
+                          child:
+                              isSubmitting
+                                  ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                  : Text(
+                                    t.workspaceCreateAction,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                         ),
                       ),
                     ],
@@ -570,16 +641,17 @@ Future<void> _presentCreateProjectSheet(
 
   nameController.dispose();
   budgetController.dispose();
+  goalController.dispose();
   currencyController.dispose();
 }
 
-class _DashboardProjectsView extends ConsumerWidget {
-  final List<ProjectOverview> projects;
+class _DashboardWorkspacesView extends ConsumerWidget {
+  final List<WorkspaceOverview> workspaces;
   final DashboardSummary summary;
   final AppLocalizations t;
 
-  const _DashboardProjectsView({
-    required this.projects,
+  const _DashboardWorkspacesView({
+    required this.workspaces,
     required this.summary,
     required this.t,
   });
@@ -607,7 +679,7 @@ class _DashboardProjectsView extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    t.dashboardProjectsTitle,
+                    t.dashboardWorkspacesTitle,
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -615,10 +687,10 @@ class _DashboardProjectsView extends ConsumerWidget {
                   TextButton.icon(
                     onPressed: () async {
                       HapticFeedbackHelper.mediumImpact();
-                      await _presentCreateProjectSheet(context, ref, t);
+                      await _presentCreateWorkspaceSheet(context, ref, t);
                     },
                     icon: const Icon(Icons.add_rounded),
-                    label: Text(t.createNewProjectButton),
+                    label: Text(t.createNewWorkspaceButton),
                   ),
                 ],
               ),
@@ -626,12 +698,12 @@ class _DashboardProjectsView extends ConsumerWidget {
               ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: projects.length,
+                itemCount: workspaces.length,
                 separatorBuilder:
                     (_, __) => const SizedBox(height: AppSizes.spacing12),
                 itemBuilder: (context, index) {
-                  final project = projects[index];
-                  return _ProjectOverviewCard(project: project, t: t);
+                  final workspace = workspaces[index];
+                  return _WorkspaceOverviewCard(workspace: workspace, t: t);
                 },
               ),
             ],
@@ -682,8 +754,8 @@ class _DashboardSummaryCard extends StatelessWidget {
             runSpacing: AppSizes.spacing16,
             children: [
               _MetricChip(
-                label: t.dashboardTotalProjects,
-                value: summary.totalProjects.toString(),
+                label: t.dashboardTotalWorkspaces,
+                value: summary.totalWorkspaces.toString(),
               ),
               _MetricChip(
                 label: t.dashboardTotalBudget,
@@ -709,17 +781,17 @@ class _DashboardSummaryCard extends StatelessWidget {
   }
 }
 
-class _ProjectOverviewCard extends StatelessWidget {
-  final ProjectOverview project;
+class _WorkspaceOverviewCard extends StatelessWidget {
+  final WorkspaceOverview workspace;
   final AppLocalizations t;
 
-  const _ProjectOverviewCard({required this.project, required this.t});
+  const _WorkspaceOverviewCard({required this.workspace, required this.t});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final remaining = project.remaining;
-    final isOverBudget = project.isOverBudget;
+    final remaining = workspace.remaining;
+    final isOverBudget = workspace.isOverBudget;
 
     return Container(
       padding: const EdgeInsets.all(AppSizes.spacing20),
@@ -740,7 +812,7 @@ class _ProjectOverviewCard extends StatelessWidget {
                   shape: BoxShape.circle,
                   gradient: AppColors.primaryGradient,
                 ),
-                child: Center(child: _ProjectInitials(name: project.name)),
+                child: Center(child: _WorkspaceInitials(name: workspace.name)),
               ),
               const SizedBox(width: AppSizes.spacing12),
               Expanded(
@@ -748,14 +820,14 @@ class _ProjectOverviewCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      project.name,
+                      workspace.name,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    if (project.createdAt != null)
+                    if (workspace.createdAt != null)
                       Text(
-                        'Created ${_formatDate(project.createdAt!)}',
+                        'Created ${_formatDate(workspace.createdAt!)}',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurface.withValues(
                             alpha: 0.5,
@@ -771,7 +843,7 @@ class _ProjectOverviewCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
             child: LinearProgressIndicator(
-              value: project.progress,
+              value: workspace.progress,
               backgroundColor: theme.colorScheme.onSurface.withValues(
                 alpha: 0.1,
               ),
@@ -787,18 +859,23 @@ class _ProjectOverviewCard extends StatelessWidget {
             runSpacing: AppSizes.spacing12,
             children: [
               _MetricChip(
-                label: t.dashboardProjectBudget,
-                value: _formatCurrency(project.currency, project.budget),
+                label: t.dashboardWorkspaceBudget,
+                value: _formatCurrency(workspace.currency, workspace.budget),
               ),
               _MetricChip(
-                label: t.dashboardProjectSpent,
-                value: _formatCurrency(project.currency, project.spent),
+                label: t.dashboardWorkspaceSpent,
+                value: _formatCurrency(workspace.currency, workspace.spent),
               ),
               _MetricChip(
-                label: t.dashboardProjectRemaining,
-                value: _formatCurrency(project.currency, remaining),
+                label: t.dashboardWorkspaceRemaining,
+                value: _formatCurrency(workspace.currency, remaining),
                 emphasis: isOverBudget ? Colors.redAccent : null,
               ),
+              if (workspace.goal.isNotEmpty)
+                _MetricChip(
+                  label: t.dashboardWorkspaceGoal,
+                  value: workspace.goal,
+                ),
             ],
           ),
         ],
@@ -874,8 +951,8 @@ class _MetricChip extends StatelessWidget {
   }
 }
 
-class _ProjectInitials extends StatelessWidget {
-  const _ProjectInitials({required this.name});
+class _WorkspaceInitials extends StatelessWidget {
+  const _WorkspaceInitials({required this.name});
 
   final String name;
 
