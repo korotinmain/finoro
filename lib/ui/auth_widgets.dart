@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 /// Common gradient background used on auth screens.
@@ -109,29 +109,102 @@ class CurrencyWatermark extends StatelessWidget {
 
 /// Gradient pie logo used across auth screens.
 class PieLogo extends StatelessWidget {
-  const PieLogo({super.key});
+  const PieLogo({super.key, this.size = 56});
+
+  final double size;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 56,
-      height: 56,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: const LinearGradient(
-          colors: [Color(0xFF6D4AFF), Color(0xFF3EA7FF)],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF6D4AFF).withValues(alpha: 0.35),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
+    return SizedBox(
+      width: size,
+      height: size,
+      child: CustomPaint(
+        painter: _FinoroLogoPainter(),
       ),
-      child: const Icon(Icons.pie_chart_rounded, color: Colors.white),
     );
   }
+}
+
+class _FinoroLogoPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+    final radius = size.width / 2;
+
+    final basePaint = Paint()
+      ..shader = ui.Gradient.linear(
+        Offset(0, size.height),
+        Offset(size.width, 0),
+        const [
+          Color(0xFF3542F8),
+          Color(0xFF7040FF),
+        ],
+      );
+    canvas.drawCircle(center, radius, basePaint);
+
+    final glowPaint = Paint()
+      ..shader = ui.Gradient.radial(
+        center,
+        radius,
+        [
+          Colors.white.withValues(alpha: 0.18),
+          Colors.transparent,
+        ],
+      );
+    canvas.drawCircle(center, radius, glowPaint);
+
+    final pillarPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+
+    final verticalRect = Rect.fromCenter(
+      center: Offset(center.dx - radius * 0.15, center.dy),
+      width: radius * 0.32,
+      height: radius * 1.2,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(verticalRect, Radius.circular(radius * 0.4)),
+      pillarPaint,
+    );
+
+    final topBarRect = Rect.fromCenter(
+      center: Offset(center.dx + radius * 0.05, center.dy - radius * 0.32),
+      width: radius * 0.85,
+      height: radius * 0.20,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(topBarRect, Radius.circular(radius * 0.18)),
+      pillarPaint,
+    );
+
+    final midBarRect = Rect.fromCenter(
+      center: Offset(center.dx + radius * 0.02, center.dy - radius * 0.02),
+      width: radius * 0.68,
+      height: radius * 0.20,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(midBarRect, Radius.circular(radius * 0.18)),
+      pillarPaint,
+    );
+
+    final accentPaint = Paint()
+      ..shader = ui.Gradient.linear(
+        Offset(center.dx, center.dy + radius * 0.45),
+        Offset(center.dx + radius * 0.7, center.dy - radius * 0.15),
+        const [
+          Color(0xFF63F5FF),
+          Color(0xFF6F7BFF),
+        ],
+      );
+    canvas.drawCircle(
+      Offset(center.dx + radius * 0.5, center.dy + radius * 0.15),
+      radius * 0.22,
+      accentPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 /// Frosted glass card container used to wrap forms.
@@ -150,7 +223,7 @@ class AuthGlassCard extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(28),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        filter: ui.ImageFilter.blur(sigmaX: 18, sigmaY: 18),
         child: Container(
           padding: padding,
           decoration: BoxDecoration(
