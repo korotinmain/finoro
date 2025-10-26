@@ -99,13 +99,9 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
 
       if (!mounted) return;
       final user = ref.read(getCurrentUserProvider)();
-      final loggedIn = user != null;
-      final verified = user?.isEmailVerified ?? false;
       final router = GoRouter.of(context);
-      if (!loggedIn) {
+      if (user == null) {
         router.go(AppRoutes.login);
-      } else if (!verified) {
-        router.go(AppRoutes.confirmEmail);
       } else {
         router.go(AppRoutes.dashboard);
       }

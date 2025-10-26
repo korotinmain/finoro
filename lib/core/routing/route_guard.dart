@@ -13,7 +13,6 @@ class RouteGuard {
   String? redirect(String currentLocation) {
     final user = _authRepository.currentUser;
     final isLoggedIn = user != null;
-    final isVerified = user?.isEmailVerified ?? false;
 
     // Always allow splash/launch screen
     if (currentLocation == AppRoutes.launch) {
@@ -31,16 +30,8 @@ class RouteGuard {
     }
 
     // User is logged in
-    if (isLoggedIn) {
-      // If email not verified, force to confirmation screen
-      if (!isVerified && currentLocation != AppRoutes.confirmEmail) {
-        return AppRoutes.confirmEmail;
-      }
-
-      // If verified, block access to auth routes
-      if (isVerified && AppRoutes.isAuthRoute(currentLocation)) {
-        return AppRoutes.dashboard;
-      }
+    if (AppRoutes.isAuthRoute(currentLocation)) {
+      return AppRoutes.dashboard;
     }
 
     // Allow the route

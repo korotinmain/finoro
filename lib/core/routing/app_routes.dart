@@ -6,9 +6,6 @@ class AppRoutes {
   // Auth Routes
   static const String launch = '/';
   static const String login = '/login';
-  static const String register = '/register';
-  static const String forgotPassword = '/forgot-password';
-  static const String confirmEmail = '/confirm-email';
 
   // Main App Routes (Authenticated Shell)
   static const String dashboard = '/dashboard';
@@ -20,11 +17,7 @@ class AppRoutes {
 
   /// Check if a route is an auth route (unauthenticated)
   static bool isAuthRoute(String route) {
-    return route == login ||
-        route == register ||
-        route == forgotPassword ||
-        route == confirmEmail ||
-        route == launch;
+    return route == login || route == launch;
   }
 
   /// Check if a route is a protected route (requires authentication)

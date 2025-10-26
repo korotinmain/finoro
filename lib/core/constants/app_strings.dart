@@ -10,9 +10,7 @@ class AppStrings {
   static const String errorUserDisabled = 'user-disabled';
   static const String errorUserNotFound = 'user-not-found';
   static const String errorWrongPassword = 'wrong-password';
-  static const String errorEmailInUse = 'email-already-in-use';
   static const String errorOperationNotAllowed = 'operation-not-allowed';
-  static const String errorWeakPassword = 'weak-password';
 
   // Regex Patterns
   static const String emailPattern = r'^[^@\s]+@[^@\s]+\.[^@\s]+$';

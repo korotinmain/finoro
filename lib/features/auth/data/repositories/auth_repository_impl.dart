@@ -17,34 +17,16 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthUser? get currentUser => _mapUser(_remoteDataSource.currentUser);
 
   @override
-  Future<AuthUser?> signIn({
-    required String email,
-    required String password,
-  }) async {
-    final user = await _remoteDataSource.signIn(email, password);
+  Future<AuthUser?> signInWithGoogle() async {
+    final user = await _remoteDataSource.signInWithGoogle();
     return _mapUser(user);
   }
 
   @override
-  Future<AuthUser?> signUp({
-    required String email,
-    required String password,
-  }) async {
-    final user = await _remoteDataSource.signUp(email, password);
+  Future<AuthUser?> signInWithApple() async {
+    final user = await _remoteDataSource.signInWithApple();
     return _mapUser(user);
   }
-
-  @override
-  Future<void> sendPasswordReset(String email) =>
-      _remoteDataSource.sendPasswordReset(email);
-
-  @override
-  Future<void> sendEmailVerification() =>
-      _remoteDataSource.sendEmailVerification();
-
-  @override
-  Future<void> updateDisplayName(String displayName) =>
-      _remoteDataSource.updateDisplayName(displayName);
 
   @override
   Future<void> signOut() => _remoteDataSource.signOut();

@@ -27,84 +27,61 @@ This document outlines strategic improvements to transform your Money Tracker fr
 
 ---
 
-## 🎯 Phase 1: Implement State Management (Priority: HIGH)
+## 🎯 Phase 1: Harden Authentication & Onboarding (Priority: HIGH)
 
 **Timeline: 1-2 weeks**
 
 ### Why This Matters
 
-Currently, all business logic lives in StatefulWidgets. This makes:
-
-- Testing impossible
-- Code duplication inevitable
-- State bugs hard to track
-- Performance issues likely
+Google and Apple sign-in are now the only entry points. We need to guarantee the configuration is fool-proof, add automated coverage, and surface helpful diagnostics when providers fail or are unavailable.
 
 ### Actions Required
 
-#### 1.1 Set Up Provider Infrastructure
+#### 1.1 Stabilise Auth Providers
 
-**Create base providers:**
+- Keep the lightweight repository/use-case stack already in `lib/features/auth/presentation/providers/auth_providers.dart`.
+- Introduce a small controller to expose button state and error handling around the social flows:
 
 ```dart
-// lib/core/providers/auth_providers.dart
-final authRepositoryProvider = Provider<FirebaseAuthRepository>((ref) {
-  return FirebaseAuthRepository();
-});
-
-final authStateProvider = StreamProvider<User?>((ref) {
-  return ref.watch(authRepositoryProvider).authStateChanges;
-});
-
-final currentUserProvider = Provider<User?>((ref) {
-  return ref.watch(authStateProvider).value;
+final socialAuthControllerProvider =
+    StateNotifierProvider<SocialAuthController, AsyncValue<void>>((ref) {
+  return SocialAuthController(
+    signInWithGoogle: ref.watch(signInWithGoogleProvider),
+    signInWithApple: ref.watch(signInWithAppleProvider),
+  );
 });
 ```
 
-#### 1.2 Create Auth Controller
-
-Move all authentication logic from widgets to a dedicated controller:
-
 ```dart
-// lib/features/auth/application/auth_controller.dart
-class AuthController extends StateNotifier<AsyncValue<void>> {
-  final FirebaseAuthRepository _repository;
+class SocialAuthController extends StateNotifier<AsyncValue<void>> {
+  SocialAuthController({
+    required this.signInWithGoogle,
+    required this.signInWithApple,
+  }) : super(const AsyncValue.data(null));
 
-  AuthController(this._repository) : super(const AsyncValue.data(null));
+  final SignInWithGoogle signInWithGoogle;
+  final SignInWithApple signInWithApple;
 
-  Future<void> signIn(String email, String password) async {
+  Future<void> signIn(Future<AuthUser?> Function() action) async {
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() =>
-      _repository.signInWithEmailAndPassword(email: email, password: password)
-    );
+    state = await AsyncValue.guard(action);
   }
 }
 ```
 
-#### 1.3 Update Login Screen
+Use this notifier from the login screen so UI reacts consistently to cancellation, network errors, or unsupported providers.
 
-```dart
-class _LoginScreenState extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authControllerProvider);
+#### 1.2 Configuration Checklist
 
-    return authState.when(
-      data: (_) => /* Normal UI */,
-      loading: () => /* Loading indicator */,
-      error: (error, stack) => /* Error UI */,
-    );
-  }
-}
-```
+- Follow the updated README to register Google OAuth client IDs and enable the Sign in with Apple entitlement.
+- Add runtime guards that surface `SignInWithAppleNotSupportedException` and clear copy for missing Google configuration.
+- Verify an on-device login for each provider (simulator + physical device).
 
-### Benefits
+#### 1.3 Automation
 
-- ✅ Testable business logic
-- ✅ Separation of concerns
-- ✅ Automatic UI updates
-- ✅ Better error handling
-- ✅ Loading states handled automatically
+- Add integration tests that stub Firebase Auth and Google/Apple plugins to exercise success, cancellation, and error paths.
+- Record golden tests for the new login UI to catch regressions in loading/disabled states.
+- Capture analytics (or simple logging) for auth errors to aid future diagnostics.
 
 ---
 
@@ -604,23 +581,22 @@ void main() {
 ```dart
 // integration_test/auth_flow_test.dart
 void main() {
-  testWidgets('Complete auth flow', (tester) async {
-    app.main();
+  testWidgets('Google sign-in routes to dashboard', (tester) async {
+    final fakeAuth = FakeAuthRepository();
+    await tester.pumpWidget(
+      IntegrationHarness(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(fakeAuth),
+        ],
+      ),
+    );
+
+    await tester.tap(find.text('Continue with Google'));
+    await tester.pump(); // start loading
+
+    expect(fakeAuth.googleSignInCount, 1);
+
     await tester.pumpAndSettle();
-
-    // Navigate to register
-    await tester.tap(find.text('Sign Up'));
-    await tester.pumpAndSettle();
-
-    // Fill form
-    await tester.enterText(find.byType(EmailField), 'test@example.com');
-    await tester.enterText(find.byType(PasswordField), 'password123');
-
-    // Submit
-    await tester.tap(find.text('Create Account'));
-    await tester.pumpAndSettle();
-
-    // Verify navigation to dashboard
     expect(find.text('Dashboard'), findsOneWidget);
   });
 }
@@ -751,15 +727,14 @@ runApp(
 
 ## 📋 Implementation Checklist
 
-### Phase 1: State Management
+### Phase 1: Social Auth Hardening
 
-- [ ] Add Riverpod ProviderScope to main.dart
-- [ ] Create auth providers
-- [ ] Create auth controller
-- [ ] Refactor login screen to use controller
-- [ ] Refactor register screen to use controller
-- [ ] Add loading states to all auth screens
-- [ ] Test auth flow end-to-end
+- [ ] Add a `SocialAuthController` that wraps Google/Apple sign-in use cases
+- [ ] Update `LoginScreen` to consume the controller state for loading/error UI
+- [ ] Document Google/Apple configuration (client IDs, entitlements) in README
+- [ ] Add integration test covering Google sign-in success/cancel flows
+- [ ] Mock Apple sign-in for devices that do not support the capability
+- [ ] Capture analytics/logging for sign-in errors
 
 ### Phase 2: Core Features
 

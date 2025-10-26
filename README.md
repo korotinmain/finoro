@@ -26,6 +26,7 @@ Finoro transforms personal finance into organized, visual stories. Each Project 
 - Xcode (for iOS development)
 - CocoaPods
 - Firebase account
+- Apple Developer account (to configure Sign in with Apple)
 
 ### Installation
 
@@ -56,9 +57,22 @@ Finoro transforms personal finance into organized, visual stories. Each Project 
 
 ### Firebase Setup
 
-1. Add your `GoogleService-Info.plist` to `ios/Runner/`
-2. Ensure Firebase is configured in your Firebase Console
-3. Enable Authentication and Firestore
+1. Add your `GoogleService-Info.plist` to `ios/Runner/`.
+2. (Optional) If you target Android later, add the matching `google-services.json` to `android/app/`.
+3. In the Firebase Console, enable **Firestore** and **Authentication**.
+4. Under Authentication → Sign-in providers, enable **Google** and **Apple**.
+
+### Authentication Configuration
+
+1. **Google Sign-In**
+   - Create an iOS OAuth client in Google Cloud with the bundle identifier `com.korotindenys.moneyTracker`.
+   - Add the reversed client ID from `GoogleService-Info.plist` to `ios/Runner/Info.plist` → `CFBundleURLTypes`.
+   - If you support Android later, register the SHA-1 / SHA-256 fingerprints and download the updated `google-services.json`.
+2. **Sign in with Apple**
+   - Enable the `Sign in with Apple` capability in Xcode for the Runner target.
+   - Ensure your Apple Developer team has the service configured for the bundle ID.
+   - For simulator testing, make sure you are signed into an Apple ID that supports the feature.
+3. Rebuild the app after configuration changes so the native plugins pick up the new entitlements.
 
 ## 📱 Running the App
 
@@ -85,21 +99,17 @@ lib/
 │   ├── routing/        # Navigation setup
 │   ├── utils/          # Haptic feedback, helpers
 │   └── validators/     # Form validation
-├── data/              # Data layer
-│   └── repositories/  # Repository implementations
 ├── features/          # Feature modules (clean architecture)
-│   ├── auth/          # Authentication
-│   ├── projects/      # Project management (NEW)
-│   │   ├── domain/    # Project, Budget models
-│   │   ├── data/      # Firestore repositories
-│   │   └── presentation/  # Project screens
-│   ├── dashboard/     # Projects dashboard
-│   ├── transactions/  # Expenses & Incomes (formerly expenses)
-│   ├── insights/      # Analytics & charts (formerly history)
-│   └── settings/      # App settings
-├── screens/           # Legacy screen widgets (migrating to features)
-├── services/          # Business logic services
+│   ├── auth/          # Authentication domain/usecases/providers
+│   ├── dashboard/     # Dashboard tab + project creation flow
+│   ├── expenses/      # Expenses tab + CRUD
+│   ├── history/       # Insights & analytics
+│   ├── money/         # Shared money domain models/usecases
+│   ├── onboarding/    # Launch experience
+│   ├── projects/      # Project management (domain/data)
+│   └── settings/      # Settings & account pages
 └── ui/               # Reusable UI components
+    ├── auth_widgets.dart
     └── widgets/       # Glassmorphic cards, buttons
 ```
 
@@ -134,9 +144,9 @@ flutter test --coverage
 
 See [QUICK_START_GUIDE.md](QUICK_START_GUIDE.md) for the top 3 improvements to implement:
 
-1. Add Riverpod state management (2-3 hours)
-2. Build transaction list with real data (2 hours)
-3. Add floating action button for quick add (1 hour)
+1. Lock down Google/Apple social sign-in (≈2 hours)
+2. Connect the dashboard to live Firestore data (≈2.5 hours)
+3. Expand automated coverage for the money flows (≈2 hours)
 
 ## 🛠️ Tech Stack
 

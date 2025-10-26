@@ -5,10 +5,7 @@ import 'package:money_tracker/core/presentation/app_shell.dart';
 import 'package:money_tracker/core/routing/app_routes.dart';
 import 'package:money_tracker/core/routing/route_guard.dart';
 import 'package:money_tracker/core/routing/stream_refresh_notifier.dart';
-import 'package:money_tracker/features/auth/presentation/pages/email_confirmation_screen.dart';
-import 'package:money_tracker/features/auth/presentation/pages/forgot_password_screen.dart';
 import 'package:money_tracker/features/auth/presentation/pages/login_screen.dart';
-import 'package:money_tracker/features/auth/presentation/pages/register_screen.dart';
 import 'package:money_tracker/features/auth/presentation/providers/auth_providers.dart';
 import 'package:money_tracker/features/dashboard/presentation/dashboard_tab.dart';
 import 'package:money_tracker/features/expenses/presentation/expenses_tab.dart';
@@ -73,36 +70,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             ),
       ),
 
-      // Authentication Routes
+      // Authentication Route
       GoRoute(
         path: AppRoutes.login,
         pageBuilder:
             (context, state) =>
                 _createTransitionPage(state: state, child: const LoginScreen()),
-      ),
-      GoRoute(
-        path: AppRoutes.register,
-        pageBuilder:
-            (context, state) => _createTransitionPage(
-              state: state,
-              child: const RegisterScreen(),
-            ),
-      ),
-      GoRoute(
-        path: AppRoutes.forgotPassword,
-        pageBuilder:
-            (context, state) => _createTransitionPage(
-              state: state,
-              child: const ForgotPasswordScreen(),
-            ),
-      ),
-      GoRoute(
-        path: AppRoutes.confirmEmail,
-        pageBuilder:
-            (context, state) => _createTransitionPage(
-              state: state,
-              child: const EmailConfirmationScreen(),
-            ),
       ),
 
       // Authenticated Shell with Tabs

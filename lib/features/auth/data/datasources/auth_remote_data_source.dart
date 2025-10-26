@@ -1,95 +1,93 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:money_tracker/core/constants/app_strings.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:money_tracker/core/errors/auth_exception.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class AuthRemoteDataSource {
-  AuthRemoteDataSource({FirebaseAuth? firebaseAuth})
-      : _auth = firebaseAuth ?? FirebaseAuth.instance;
+  AuthRemoteDataSource({
+    FirebaseAuth? firebaseAuth,
+    GoogleSignIn? googleSignIn,
+  })  : _auth = firebaseAuth ?? FirebaseAuth.instance,
+        _googleSignIn = googleSignIn ?? GoogleSignIn(scopes: const ['email']);
 
   final FirebaseAuth _auth;
+  final GoogleSignIn _googleSignIn;
 
   Stream<User?> authStateChanges() => _auth.authStateChanges();
 
   User? get currentUser => _auth.currentUser;
 
-  Future<User?> signIn(String email, String password) async {
+  Future<User?> signInWithGoogle() async {
     try {
-      final credential = await _auth.signInWithEmailAndPassword(
-        email: email.trim(),
-        password: password.trim(),
+      final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        return null; // User cancelled the sign-in flow.
+      }
+
+      final googleAuth = await googleUser.authentication;
+      if (googleAuth.idToken == null) {
+        throw const AuthException('Missing Google ID token');
+      }
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
       );
-      return credential.user;
+
+      final userCredential = await _auth.signInWithCredential(credential);
+      return userCredential.user;
     } on FirebaseAuthException catch (e) {
-      throw AuthException('Sign in failed', e.code);
-    } catch (_) {
-      throw const AuthException('Unexpected error during sign in');
+      throw AuthException('Google sign-in failed', e.code);
+    } catch (e) {
+      throw AuthException('Unexpected error during Google sign-in', '$e');
     }
   }
 
-  Future<User?> signUp(String email, String password) async {
+  Future<User?> signInWithApple() async {
     try {
-      final credential = await _auth.createUserWithEmailAndPassword(
-        email: email.trim(),
-        password: password.trim(),
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
+        scopes: const [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
       );
-      return credential.user;
-    } on FirebaseAuthException catch (e) {
-      throw AuthException('Sign up failed', e.code);
-    } catch (_) {
-      throw const AuthException('Unexpected error during sign up');
-    }
-  }
 
-  Future<void> sendPasswordReset(String email) async {
-    final actionCodeSettings = ActionCodeSettings(
-      url: AppStrings.actionCodeUrl,
-      androidPackageName: AppStrings.androidPackageName,
-      androidMinimumVersion: AppStrings.androidMinVersion,
-      iOSBundleId: AppStrings.iosBundleId,
-    );
+      final idToken = appleCredential.identityToken;
+      if (idToken == null) {
+        throw const AuthException('Missing Apple ID token');
+      }
 
-    try {
-      await _auth.sendPasswordResetEmail(
-        email: email.trim(),
-        actionCodeSettings: actionCodeSettings,
+      final oauthCredential = OAuthProvider('apple.com').credential(
+        idToken: idToken,
+        accessToken: appleCredential.authorizationCode,
       );
+
+      final userCredential = await _auth.signInWithCredential(oauthCredential);
+      final user = userCredential.user;
+
+      if (user != null && user.displayName == null) {
+        final given = appleCredential.givenName ?? '';
+        final family = appleCredential.familyName ?? '';
+        final displayName = '${given.trim()} ${family.trim()}'.trim();
+        if (displayName.isNotEmpty) {
+          await user.updateDisplayName(displayName);
+        }
+      }
+
+      return user;
     } on FirebaseAuthException catch (e) {
-      throw AuthException('Password reset failed', e.code);
-    } catch (_) {
-      throw const AuthException('Unexpected error during password reset');
+      throw AuthException('Apple sign-in failed', e.code);
+    } on SignInWithAppleNotSupportedException {
+      throw const AuthException('Apple Sign-In is not supported on this device');
+    } catch (e) {
+      throw AuthException('Unexpected error during Apple sign-in', '$e');
     }
   }
 
-  Future<void> sendEmailVerification() async {
-    final user = currentUser;
-    if (user == null) {
-      throw const AuthException('No user logged in');
-    }
-    try {
-      await user.sendEmailVerification();
-    } on FirebaseAuthException catch (e) {
-      throw AuthException('Email verification failed', e.code);
-    } catch (_) {
-      throw const AuthException('Unexpected error during email verification');
-    }
+  Future<void> signOut() async {
+    await _auth.signOut();
+    await _googleSignIn.signOut();
   }
-
-  Future<void> updateDisplayName(String displayName) async {
-    final user = currentUser;
-    if (user == null) {
-      throw const AuthException('No user logged in');
-    }
-
-    try {
-      await user.updateDisplayName(displayName.trim());
-    } on FirebaseAuthException catch (e) {
-      throw AuthException('Profile update failed', e.code);
-    } catch (_) {
-      throw const AuthException('Unexpected error during profile update');
-    }
-  }
-
-  Future<void> signOut() => _auth.signOut();
 
   Future<User?> reloadCurrentUser() async {
     final user = currentUser;
@@ -102,8 +100,8 @@ class AuthRemoteDataSource {
       return _auth.currentUser;
     } on FirebaseAuthException catch (e) {
       throw AuthException('User reload failed', e.code);
-    } catch (_) {
-      throw const AuthException('Unexpected error during user reload');
+    } catch (e) {
+      throw AuthException('Unexpected error during user reload', '$e');
     }
   }
 }
